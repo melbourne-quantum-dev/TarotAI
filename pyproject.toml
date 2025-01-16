@@ -29,6 +29,7 @@ dependencies = [
     "elevenlabs>=1.50.3",
     "realtimetts[system]==0.4.40",
     "pyttsx3>=2.98",
+    "types-pydantic>=2.10.0",  # Add this line
 ]
 
 classifiers = [
