@@ -3,17 +3,48 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.table import Table
 from rich.box import DOUBLE
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.status import Status
+from typing import Optional
 from .core.types import Reading
 
 class TarotDisplay:
     def __init__(self):
         self.console = Console()
         self.color_scheme = {
-            'system': 'cyan',     # Core infrastructure
-            'energy': 'magenta',  # Mystical elements
-            'status': 'green',    # System states
-            'border': 'white'     # Boundaries
+            'system': 'cyan',
+            'energy': 'magenta',
+            'status': 'green',
+            'border': 'white',
+            'error': 'red'
         }
+        self.loading_chars = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+
+    def display_error(self, message: str, details: Optional[str] = None) -> None:
+        """Display an error message with optional details"""
+        error_panel = Panel(
+            Text(f"⛔ {message}\n\n{details or ''}", style=self.color_scheme['error']),
+            title="[bold]ERROR[/]",
+            border_style=self.color_scheme['error'],
+            title_align="left"
+        )
+        self.console.print(error_panel)
+
+    def display_loading(self, message: str) -> Status:
+        """Display a loading spinner with message"""
+        return self.console.status(
+            f"[{self.color_scheme['energy']}]{message}[/]",
+            spinner="dots",
+            spinner_style=self.color_scheme['energy']
+        )
+
+    def display_success(self, message: str) -> None:
+        """Display a success message"""
+        success_panel = Panel(
+            Text(f"✅ {message}", style=self.color_scheme['status']),
+            border_style=self.color_scheme['status']
+        )
+        self.console.print(success_panel)
 
     def display_welcome(self):
         """Render the cyberpunk-hermetic welcome interface."""

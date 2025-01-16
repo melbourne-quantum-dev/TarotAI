@@ -7,12 +7,24 @@ from .interface import TarotInterface
 from .reader import TarotReader
 from .core.voice import TarotVoice
 
-app = typer.Typer()
+app = typer.Typer(
+    help="TarotAI - Neural-Enhanced Tarot Reading System",
+    rich_markup_mode="markdown",
+    no_args_is_help=True
+)
+
+@app.callback()
+def main_callback():
+    """
+    ## TarotAI CLI
+    
+    A modern tarot reading system combining traditional divination with AI-powered insights.
+    """
 
 @app.command()
 def read(
     spread_type: Optional[str] = typer.Option(
-        None, 
+        None,
         help="Type of spread to use (e.g. 'Celtic Cross', 'Three Card', 'Horseshoe')",
         prompt="What spread would you like to use?"
     ),
@@ -27,36 +39,30 @@ def read(
         prompt="What is your question or area of focus?"
     )
 ):
-    """Perform a tarot reading"""
+    """
+    Perform a tarot reading with the specified parameters.
+    """
     display = TarotDisplay()
-    interface = TarotInterface()
-    reader = TarotReader(display)
     
     try:
-        # Display welcome sequence
-        display.display_welcome()
-        
-        # Validate inputs
-        if not spread_type:
-            raise typer.BadParameter("Spread type is required")
-        if not focus:
-            raise typer.BadParameter("Focus area is required")
-        if not question:
-            raise typer.BadParameter("Question is required")
+        with display.display_loading("Initializing reading..."):
+            interface = TarotInterface()
+            reader = TarotReader(display)
             
-        # Normalize inputs
-        spread_type = spread_type.strip().title()
-        focus = focus.strip().title()
+            # Validate inputs
+            if not all([spread_type, focus, question]):
+                display.display_error("Missing required parameters")
+                raise typer.Exit(code=1)
+                
+            # Execute reading
+            reading = reader.execute_reading(spread_type, focus, question)
             
-        # Execute reading
-        reading = reader.execute_reading(spread_type, focus, question)
-        
-        # Display results
-        display.show_reading(reading)
-        
-    except KeyboardInterrupt:
-        display.console.print("\n[bold red]✘ Reading cancelled[/]")
-        raise typer.Abort()
+            # Display results
+            display.show_reading(reading)
+            
+    except Exception as e:
+        display.display_error("Reading failed", str(e))
+        raise typer.Exit(code=1)
 
 @app.command()
 def interactive():
