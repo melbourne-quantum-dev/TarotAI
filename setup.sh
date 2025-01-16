@@ -79,6 +79,12 @@ function install_dependencies() {
 
 function verify_installation() {
     log_info "Verifying installation..."
+    
+    # Install in development mode
+    log_info "Installing tarotai in development mode..."
+    uv pip install -e . || log_error "Failed to install tarotai package"
+    
+    # Verify import
     python3 -c "import tarotai; print('TarotAI setup successful!')" || log_error "Setup verification failed"
 }
 

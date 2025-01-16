@@ -1,4 +1,20 @@
+from pathlib import Path
+
+# Package version
 __version__ = "2.1.0"
+
+# Package data files
+def get_data_path():
+    """Get path to package data files"""
+    return Path(__file__).parent / "data"
+
+# Expose core components
+from .core.deck import TarotDeck
+from .core.card import TarotCard, CardManager
+from .core.interpreter import TarotInterpreter
+from .core.types import CardMeaning, Reading
+from .cli import app
+
 __all__ = [
     "TarotDeck",
     "TarotReader",
@@ -6,5 +22,7 @@ __all__ = [
     "TarotInterface",
     "Reading",
     "CardMeaning",
-    "QuestionContext"
+    "QuestionContext",
+    "get_data_path",
+    "app"
 ]

@@ -44,8 +44,9 @@ setup(
     python_requires=">=3.10",
     include_package_data=True,
     package_data={
-        "tarotai": ["data/*.json"],
+        "tarotai": ["data/*.json", "data/*.pdf"],
     },
+    include_package_data=True,
     entry_points={
         "console_scripts": [
             "tarotai=tarotai.cli:app",
