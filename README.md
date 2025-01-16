@@ -7,10 +7,11 @@
 TarotAI is a neural-enhanced tarot reading system that combines traditional divination with modern AI-powered insights. It provides programmatic access to tarot readings through a CLI interface and offers advanced features like:
 
 - AI-enhanced card interpretations
-- Multiple spread types
+- Multiple spread types (Single, Three Card, Celtic Cross, Horseshoe)
 - Context-aware interpretation engine
 - Reading history and pattern analysis
 - Voice interface support
+- Golden Dawn tradition integration
 
 ## Installation
 
@@ -39,19 +40,42 @@ TarotAI is a neural-enhanced tarot reading system that combines traditional divi
 
 ## Usage
 
-### Command Line Interface
+### Command Line Interface Examples
+
+#### Basic Reading
 ```bash
-# Perform a reading
 tarotai read --spread-type three_card --focus "Career" --question "What should I focus on?"
+```
 
-# Interactive mode
+#### Interactive Mode
+```bash
 tarotai interactive
+```
 
-# Voice interface
+#### Voice Interface
+```bash
 tarotai voice
 ```
 
-### Python API
+#### Generate Card Meanings
+```bash
+tarotai generate-meanings
+```
+
+#### View System Status
+```bash
+tarotai status
+```
+
+#### Help and Documentation
+```bash
+tarotai --help
+tarotai read --help
+```
+
+### Python API Examples
+
+#### Basic Reading
 ```python
 from tarotai import TarotReader
 
@@ -60,6 +84,19 @@ reading = reader.execute_reading(
     spread_type="three_card",
     focus="Relationships",
     question="What should I know about my current relationship?"
+)
+```
+
+#### Custom Spread
+```python
+from tarotai import TarotReader, SpreadType
+
+reader = TarotReader()
+reading = reader.execute_reading(
+    spread_type=SpreadType.CUSTOM,
+    focus="Personal Growth",
+    question="What areas should I focus on for self-improvement?",
+    custom_positions=["Past", "Present", "Future", "Advice"]
 )
 ```
 
