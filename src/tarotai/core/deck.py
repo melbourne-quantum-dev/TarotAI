@@ -10,9 +10,7 @@ import json
 
 from .types import CardMeaning, CardSuit
 
-class DeckError(Exception):
-    """Base exception for deck-related errors"""
-    pass
+from .errors import DeckError
 
 class TarotDeck:
     """
