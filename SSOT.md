@@ -559,7 +559,111 @@ async def execute_enriched_reading(
     )
 ```
 
-## 10. Data Structures
+## 10. Development Workflow
+
+### 10.1 Setup Environment
+```bash
+# Create virtual environment
+uv venv .venv
+
+# Activate virtual environment
+source .venv/bin/activate  # Linux/macOS
+# .\.venv\Scripts\activate  # Windows
+
+# Install dependencies
+uv pip install -r requirements.txt
+
+# Install tarotai in development mode
+uv pip install -e .
+```
+
+### 10.2 Common Development Commands
+
+#### Run Tests
+```bash
+uv run pytest tests/
+```
+
+#### Generate Card Meanings
+```bash
+uv run python scripts/generate_meanings.py
+```
+
+#### Process Golden Dawn PDF
+```bash
+uv run python src/tarotai/extensions/enrichment/enricher.py
+```
+
+#### Run CLI Interface
+```bash
+uv run python src/tarotai/cli.py
+```
+
+### 10.3 Git Workflow
+
+#### Standard Commit Process
+```bash
+# Stage changes
+git add .
+
+# Check status
+git status
+
+# Commit with message
+git commit -m "Your commit message"
+
+# Push changes
+git push
+```
+
+#### Recommended Commit Message Format
+```
+type(scope): short description
+
+[optional body]
+
+[optional footer]
+```
+
+Where type is one of:
+- feat: New feature
+- fix: Bug fix
+- docs: Documentation changes
+- style: Code style/formatting
+- refactor: Code refactoring
+- test: Test additions/modifications
+- chore: Maintenance tasks
+
+Example:
+```
+feat(enrichment): add Golden Dawn PDF processing
+```
+
+### 10.4 Code Quality Checks
+
+#### Run Linting
+```bash
+uv run flake8 src/ tests/
+```
+
+#### Run Type Checking
+```bash
+uv run mypy src/ tests/
+```
+
+#### Format Code
+```bash
+uv run black src/ tests/
+```
+
+### 10.5 Release Process
+
+1. Update version in `src/tarotai/__init__.py`
+2. Run full test suite
+3. Build distribution package
+4. Deploy to target environment
+
+## 11. Data Structures
 
 ### 10.1 Card Definitions
 
