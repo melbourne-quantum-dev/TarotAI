@@ -11,7 +11,7 @@ fi
 # Check if uv is installed
 if ! command -v uv &> /dev/null; then
     echo "uv could not be found. Installing..."
-    pip install uv || { echo "Failed to install uv"; exit 1; }
+    python3 -m pip install uv || { echo "Failed to install uv"; exit 1; }
 fi
 
 # Reset virtual environment if it exists
@@ -28,7 +28,7 @@ uv venv .venv || { echo "Failed to create virtual environment"; exit 1; }
 echo "Activating virtual environment..."
 source .venv/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
 
-# Ensure pip is installed
+# Ensure pip is installed in the virtual environment
 if ! python -m ensurepip --default-pip; then
     echo "Failed to install pip in the virtual environment."
     exit 1
