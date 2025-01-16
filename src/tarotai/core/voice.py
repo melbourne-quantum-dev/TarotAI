@@ -1,6 +1,9 @@
 from RealtimeSTT import AudioToTextRecorder
 from typing import Callable, Optional
 import logging
+from elevenlabs import generate, set_api_key
+import pyttsx3
+import os
 
 class TarotVoice:
     def __init__(self):
@@ -15,6 +18,13 @@ class TarotVoice:
             language="en",
             print_transcription_time=True
         )
+        self.tts_engine = pyttsx3.init()
+        self.use_elevenlabs = False
+        
+        # Configure elevenlabs if API key is available
+        if os.getenv("ELEVENLABS_API_KEY"):
+            set_api_key(os.getenv("ELEVENLABS_API_KEY"))
+            self.use_elevenlabs = True
 
     def start_listening(self, callback: Callable[[str], None]) -> None:
         """Start voice listening with callback for processing"""
@@ -29,4 +39,22 @@ class TarotVoice:
     def speak(self, text: str) -> None:
         """Speak text using TTS"""
         self.logger.info(f"Speaking: {text}")
-        # TODO: Implement TTS using elevenlabs or pyttsx3
+        
+        if self.use_elevenlabs:
+            try:
+                audio = generate(
+                    text=text,
+                    voice="Rachel",
+                    model="eleven_multilingual_v2"
+                )
+                play(audio)
+            except Exception as e:
+                self.logger.warning(f"ElevenLabs failed: {str(e)}")
+                self._fallback_tts(text)
+        else:
+            self._fallback_tts(text)
+
+    def _fallback_tts(self, text: str) -> None:
+        """Fallback to pyttsx3 if ElevenLabs fails or isn't configured"""
+        self.tts_engine.say(text)
+        self.tts_engine.runAndWait()

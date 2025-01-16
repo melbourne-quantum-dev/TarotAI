@@ -60,7 +60,21 @@ function activate_venv() {
 
 function install_dependencies() {
     log_info "Installing dependencies..."
-    uv pip install -r "${REQUIREMENTS}" || log_error "Failed to install dependencies"
+    
+    # First try with uv
+    if uv pip install -r "${REQUIREMENTS}"; then
+        log_info "Dependencies installed successfully with uv"
+        return
+    fi
+    
+    log_warn "uv installation failed, trying with pip..."
+    
+    # Fallback to pip if uv fails
+    if python3 -m pip install -r "${REQUIREMENTS}"; then
+        log_info "Dependencies installed successfully with pip"
+    else
+        log_error "Failed to install dependencies with both uv and pip"
+    fi
 }
 
 function verify_installation() {
