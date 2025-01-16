@@ -46,8 +46,10 @@ class TarotEnricher:
         self.combination_analyzer = CombinationAnalyzer()
         self.insight_generator = InsightGenerator()
         
-        # Initialize Golden Dawn knowledge base
-        self.golden_dawn = GoldenDawnKnowledgeBase(str(golden_dawn_path))
+        # Initialize Golden Dawn knowledge base with specific PDF path
+        self.golden_dawn = GoldenDawnKnowledgeBase(
+            "/home/fuar/projects/TarotAI/data/I.Regardie_Complete_Golden_Dawn_(II ed.deluxe).pdf"
+        )
 
     def _load_cards(self) -> List[CardMeaning]:
         """Load cards from JSON file and validate against CardMeaning model."""
