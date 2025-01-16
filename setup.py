@@ -12,7 +12,10 @@ setup(
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=[
-        "requests>=2.31.0",
+        "anthropic>=0.3.0",
+        "rich>=13.0.0",
+        "typer>=0.9.0",
+        "questionary>=2.0.0",
         "pydantic>=2.0.0",
         "typing-extensions>=4.0.0",
     ],
@@ -20,12 +23,13 @@ setup(
         "dev": [
             "pytest>=7.0.0",
             "pytest-cov>=4.0.0",
-            "hypothesis>=6.0.0",
             "black>=23.0.0",
+            "flake8>=6.0.0",
+            "mypy>=1.0.0",
         ],
         "ai": [
             "openai>=1.0.0",
-            "anthropic>=0.3.0",
+            "voyageai>=0.3.0",
         ],
     },
     python_requires=">=3.10",
@@ -35,7 +39,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "tarotai=tarotai.cli:main",
+            "tarotai=tarotai.cli:app",
         ],
     },
     classifiers=[
