@@ -14,6 +14,21 @@ class CardSuit(str, Enum):
     SWORDS = "swords"
     PENTACLES = "pentacles"
 
+class SpreadType(str, Enum):
+    SINGLE = "single"
+    THREE_CARD = "three_card"
+    CELTIC_CROSS = "celtic_cross"
+    HORSESHOE = "horseshoe"
+    
+    @property
+    def display_name(self) -> str:
+        return {
+            "single": "◈ Single Card",
+            "three_card": "◈ Three Card",
+            "celtic_cross": "◈ Celtic Cross",
+            "horseshoe": "◈ Horseshoe"
+        }[self.value]
+
 class ReadingType(str, Enum):
     SINGLE = "single"
     THREE_CARD = "three_card"
