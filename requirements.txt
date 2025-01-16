@@ -3,4 +3,3 @@
 
 # Development tools
 -r pyproject.toml[dev]
-types-pydantic>=2.10.0  # Add this line
