@@ -11,9 +11,21 @@ app = typer.Typer()
 
 @app.command()
 def read(
-    spread_type: Optional[str] = typer.Option(None, help="Type of spread to use"),
-    focus: Optional[str] = typer.Option(None, help="Temporal focus of reading"),
-    question: Optional[str] = typer.Option(None, help="Question for the reading")
+    spread_type: Optional[str] = typer.Option(
+        None, 
+        help="Type of spread to use (e.g. 'Celtic Cross', 'Three Card', 'Horseshoe')",
+        prompt="What spread would you like to use?"
+    ),
+    focus: Optional[str] = typer.Option(
+        None,
+        help="Focus area for the reading (e.g. 'Career', 'Relationships', 'Personal Growth')",
+        prompt="What is the focus of your reading?"
+    ),
+    question: Optional[str] = typer.Option(
+        None,
+        help="Your specific question or area of inquiry",
+        prompt="What is your question or area of focus?"
+    )
 ):
     """Perform a tarot reading"""
     display = TarotDisplay()
@@ -24,9 +36,17 @@ def read(
         # Display welcome sequence
         display.display_welcome()
         
-        # Gather context if not provided
-        if not all([spread_type, focus, question]):
-            spread_type, focus, question = interface.gather_context()
+        # Validate inputs
+        if not spread_type:
+            raise typer.BadParameter("Spread type is required")
+        if not focus:
+            raise typer.BadParameter("Focus area is required")
+        if not question:
+            raise typer.BadParameter("Question is required")
+            
+        # Normalize inputs
+        spread_type = spread_type.strip().title()
+        focus = focus.strip().title()
             
         # Execute reading
         reading = reader.execute_reading(spread_type, focus, question)
