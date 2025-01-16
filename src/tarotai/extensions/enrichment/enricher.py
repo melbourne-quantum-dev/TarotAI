@@ -146,20 +146,28 @@ class TarotEnricher:
             raise EmbeddingError(f"Failed to generate embeddings: {str(e)}")
 
     async def enrich_card(self, card: CardMeaning) -> CardMeaning:
-        """Enrich a single card with AI-generated content and reading history."""
+        """Add basic AI-generated meanings to a card."""
         try:
-            # Base enrichment
-            enriched = await self._base_enrichment(card)
+            # Generate basic meanings if they're missing
+            if not card.upright_meaning or not card.reversed_meaning:
+                prompt = f"""
+                Generate concise tarot card meanings for {card.name}.
+                Provide:
+                1. 3-5 keywords
+                2. Upright meaning (1-2 sentences)
+                3. Reversed meaning (1-2 sentences)
+                
+                Format as JSON with keys: keywords, upright_meaning, reversed_meaning
+                """
+                response = await self.claude.analyze(prompt)
+                meanings = json.loads(response)
+                
+                # Update card with generated meanings
+                card.keywords = meanings.get("keywords", card.keywords)
+                card.upright_meaning = meanings.get("upright_meaning", card.upright_meaning)
+                card.reversed_meaning = meanings.get("reversed_meaning", card.reversed_meaning)
             
-            # Additional enrichment from reading history
-            reading_insights = await self.learn_from_readings(card.name)
-            
-            # Merge insights if available
-            if reading_insights:
-                enriched.keywords.extend(reading_insights.get('additional_keywords', []))
-                # Add other insight merging logic as needed
-            
-            return enriched
+            return card
         except Exception as e:
             raise EnrichmentError(f"Failed to enrich card {card.name}: {str(e)}")
 
