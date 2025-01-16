@@ -25,7 +25,10 @@ TarotAI is a neural-enhanced tarot reading system that combines traditional divi
    python -m venv .venv
    source .venv/bin/activate  # Linux/macOS
    # .\.venv\Scripts\activate  # Windows
-   pip install -e .
+   
+   pip install -r requirements.txt && \
+   pip install -e ".[dev]" && \
+   pip install types-pydantic types-httpx types-python-dotenv types-requests
    ```
 
 3. Configure environment variables:
@@ -64,7 +67,9 @@ reading = reader.execute_reading(
 
 ### Setup
 ```bash
-pip install -e ".[dev]"
+pip install -r requirements.txt && \
+pip install -e ".[dev]" && \
+pip install types-pydantic types-httpx types-python-dotenv types-requests
 ```
 
 ### Running Tests
