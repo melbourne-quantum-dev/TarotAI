@@ -164,8 +164,21 @@ CARD_MEANINGS_PATH=${DATA_DIR}/card_meanings.json
 ANTHROPIC_API_KEY=your_anthropic_api_key
 VOYAGEAI_API_KEY=your_voyageai_api_key
 
-# Installation
-pip install tarotai
+# Install uv (if not already installed)
+pip install uv
+
+# Create virtual environment
+uv venv .venv
+
+# Activate virtual environment
+source .venv/bin/activate  # Linux/macOS
+# .\.venv\Scripts\activate  # Windows
+
+# Install dependencies
+uv pip install -r requirements.txt
+
+# Install tarotai in development mode
+uv pip install -e .
 ```
 
 ### 5.2 Deployment Process

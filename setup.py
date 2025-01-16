@@ -18,6 +18,7 @@ setup(
         "questionary>=2.0.0",
         "pydantic>=2.0.0",
         "typing-extensions>=4.0.0",
+        "uv>=0.1.0",
     ],
     extras_require={
         "dev": [
