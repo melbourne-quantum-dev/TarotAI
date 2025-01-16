@@ -34,10 +34,10 @@ class TarotInterpreter:
         """Load interpreter configuration"""
         try:
             return {
-                'interpretation_style': cast(str, get_config("tarot.interpretation.style", default="standard")),
-                'max_cache_size': cast(int, get_config("tarot.interpretation.max_cache_size", default=100)),
-                'prompt_template_dir': cast(str, get_config("tarot.interpretation.prompt_template_dir", default="prompts")),
-                'include_reversed': cast(bool, get_config("tarot.interpretation.include_reversed", default=True))
+                'interpretation_style': get_config("tarot.interpretation.style"),
+                'max_cache_size': get_config("tarot.interpretation.max_cache_size"),
+                'prompt_template_dir': get_config("tarot.interpretation.prompt_template_dir"),
+                'include_reversed': get_config("tarot.interpretation.include_reversed")
             }
         except Exception as e:
             self.logger.error(f"Failed to load config: {str(e)}")

@@ -70,7 +70,7 @@ class ReadingHistoryManager:
 
     def _analyze_contexts(self, readings: List[Reading]) -> Dict[str, int]:
         """Analyze common question contexts."""
-        context_counts = {}
+        context_counts: Dict[str, int] = {}
         for reading in readings:
             context = reading.question
             context_counts[context] = context_counts.get(context, 0) + 1
