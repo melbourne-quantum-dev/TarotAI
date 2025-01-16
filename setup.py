@@ -47,4 +47,6 @@ setup(
     package_data={
         "tarotai": ["data/*.json"],
     },
-)
+)from setuptools import setup
+
+setup()
