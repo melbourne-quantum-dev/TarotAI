@@ -60,6 +60,7 @@ ai = [
 
 [project.scripts]
 tarotai = "tarotai.cli:app"
+generate-meanings = "scripts.generate_meanings:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

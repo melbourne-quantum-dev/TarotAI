@@ -261,6 +261,80 @@ reading = reader.execute_reading(
 
 ## 8. System Implementation Details
 
+## 9. Meaning Generation Workflow
+
+The system uses an iterative, AI-assisted process to generate and refine card meanings. This workflow ensures consistency and quality while maintaining alignment with traditional tarot interpretations.
+
+### 9.1 Workflow Steps
+1. **Initialization**:
+   - Load existing card data from `data/cards_ordered.json`.
+   - Identify incomplete cards (missing meanings or embeddings).
+
+2. **Meaning Generation**:
+   - Use AI models (DeepSeek, VoyageAI) to generate upright and reversed meanings.
+   - Apply validation rules to ensure consistency.
+
+3. **Embedding Generation**:
+   - Generate semantic embeddings for each card's meanings using VoyageAI.
+   - Store embeddings for use in semantic search and pattern analysis.
+
+4. **Validation**:
+   - Check for consistency in generated meanings.
+   - Verify embeddings are valid and complete.
+
+5. **Refinement**:
+   - Manually review and refine generated meanings.
+   - Use semantic similarity to resolve inconsistencies.
+
+6. **Persistence**:
+   - Save updated card data to `data/cards_ordered.json`.
+
+### 9.2 Key Components
+
+#### Prompt Templates
+```python
+UPRIGHT_PROMPT = """
+Generate an upright meaning for the {card_name} tarot card. 
+The card is associated with {element} and represents {keywords}.
+The astrological correspondence is {astrological}, and the Kabbalistic path is {kabbalistic}.
+Provide a concise, modern interpretation.
+"""
+
+REVERSED_PROMPT = """
+Generate a reversed meaning for the {card_name} tarot card.
+The upright meaning is: {upright_meaning}.
+Provide a concise, modern interpretation of the reversed energy.
+```
+```
+
+#### Validation Rules
+- Meanings must be non-empty and contextually relevant.
+- Embeddings must match the expected dimensionality (e.g., 1024 for VoyageAI).
+- Keywords must align with the card's traditional symbolism.
+
+#### Error Handling
+- Retry failed API requests with exponential backoff.
+- Log errors for manual review.
+- Skip invalid cards to prevent data corruption.
+
+### 9.3 Example Workflow
+```python
+async def main():
+    # Load existing cards
+    with open("data/cards_ordered.json") as f:
+        cards = json.load(f)["cards"]
+    
+    # Initialize AI clients
+    ai_client = DeepSeekClient()
+    voyage_client = VoyageClient()
+    
+    # Process cards
+    processed_cards = await process_cards(cards, ai_client, voyage_client)
+    
+    # Save updated cards
+    save_cards(processed_cards, "data/cards_ordered.json")
+```
+
 ### 8.1 Core Components
 
 #### TarotDeck
