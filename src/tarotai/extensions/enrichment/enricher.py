@@ -97,8 +97,8 @@ class TarotEnricher:
         except Exception as e:
             raise EnrichmentError(f"Failed to learn from readings: {str(e)}")
 
-    async def _analyze_reading_patterns(self, readings: List[Reading], card_name: str) -> Dict[str, Any]:
-        """Use Claude to analyze patterns in readings for a specific card."""
+    async def _analyze_reading_patterns(self, readings: List[Reading], card_name: str, stats: Dict[str, Any]) -> Dict[str, Any]:
+        """Use AI to analyze patterns in readings for a specific card."""
         if not readings:
             return {}
             
@@ -111,19 +111,22 @@ class TarotEnricher:
             - Interpretation effectiveness (based on feedback)
             - Correlations with other cards
             
+            Card statistics:
+            {json.dumps(stats, indent=2)}
+            
             Provide a structured analysis with:
             1. Most common themes and contexts
             2. Position-specific meanings
             3. Successful interpretation patterns
             4. Suggested meaning refinements
+            5. Notable card combinations and their significance
             
             Readings data:
             {json.dumps([r.dict() for r in readings], indent=2)}
             """
             
-            response = await self.claude.analyze(prompt)
-            
-            return json.loads(response)
+            response = await self.ai_client.json_prompt(prompt)
+            return response
         except Exception as e:
             raise EnrichmentError(f"Failed to analyze readings: {str(e)}")
 
@@ -146,10 +149,8 @@ class TarotEnricher:
             Format as JSON matching the input structure.
             """
             
-            response = await self.claude.analyze(prompt)
-            
-            enriched_data = json.loads(response)
-            return CardMeaning(**enriched_data)
+            response = await self.ai_client.json_prompt(prompt)
+            return CardMeaning(**response)
         except Exception as e:
             raise EnrichmentError(f"Failed base enrichment: {str(e)}")
 
@@ -164,8 +165,14 @@ class TarotEnricher:
             raise EmbeddingError(f"Failed to generate embeddings: {str(e)}")
 
     async def enrich_card(self, card: CardMeaning) -> CardMeaning:
-        """Enrich card meanings using AI and Golden Dawn context"""
+        """Enrich a single card with AI-generated content and reading history."""
         try:
+            # Base enrichment
+            enriched = await self._base_enrichment(card)
+            
+            # Additional enrichment from reading history
+            reading_insights = await self.learn_from_readings(card.name)
+            
             # Get Golden Dawn context
             card_embedding = await self.voyage.generate_embedding(
                 f"{card.name} {' '.join(card.keywords)}"
@@ -176,44 +183,15 @@ class TarotEnricher:
                 for s in relevant_sections
             )
             
-            # Build prompt with Golden Dawn context
-            prompt = f"""
-            You are an expert tarot interpreter with deep knowledge of:
-            - Golden Dawn traditions
-            - Astrological correspondences
-            - Psychological archetypes
-            - Modern applications
-
-            Relevant Golden Dawn Context:
-            {context}
-
-            Card Details:
-            - Name: {card.name}
-            - Element: {card.element}
-            - Keywords: {', '.join(card.keywords)}
-
-            Provide interpretation considering:
-            1. Traditional Golden Dawn meanings
-            2. Modern psychological insights
-            3. Practical applications
-
-            Format your response as JSON with these fields:
-            - expanded_keywords: List of 5-7 keywords
-            - upright_meaning: 2-3 sentence interpretation
-            - reversed_meaning: 2-3 sentence interpretation
-            - astrological_correspondences: List of astrological associations
-            - elemental_associations: List of elemental associations
-            - golden_dawn_insights: Key insights from Golden Dawn context
-            """
+            # Merge insights if available
+            if reading_insights:
+                enriched.keywords.extend(reading_insights.get('additional_keywords', []))
+                # Add other insight merging logic as needed
             
-            # Get enhanced meaning
-            enhanced_meaning = await self.ai_client.json_prompt(prompt)
+            # Update Golden Dawn context
+            enriched.golden_dawn_context = context
             
-            # Update card with enriched data
-            card.ai_enhanced_meaning = enhanced_meaning
-            card.golden_dawn_context = context
-            
-            return card
+            return enriched
         except Exception as e:
             raise EnrichmentError(f"Failed to enrich card: {str(e)}")
 
