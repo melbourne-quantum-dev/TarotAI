@@ -6,6 +6,9 @@ from .display import TarotDisplay
 from .interface import TarotInterface
 from .reader import TarotReader
 from .core.voice import TarotVoice
+from .core.deck import TarotDeck
+from .core.reading import RandomDrawInput
+from .core.interpreter import TarotInterpreter
 
 app = typer.Typer(
     help="TarotAI - Neural-Enhanced Tarot Reading System",
@@ -48,6 +51,7 @@ def read(
         with display.display_loading("Initializing reading..."):
             interface = TarotInterface()
             reader = TarotReader(display)
+            interpreter = TarotInterpreter()
             
             # Validate inputs
             if not all([spread_type, focus, question]):

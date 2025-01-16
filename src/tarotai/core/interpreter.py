@@ -1,7 +1,7 @@
 from pathlib import Path
 import logging
 from datetime import datetime
-from typing import List, Tuple, Dict, Optional, Generator
+from typing import List, Tuple, Dict, Optional, Generator, Any
 from .types import CardMeaning, SpreadType, Reading
 from .prompts import MultiStagePrompt, PromptStage
 from .reading import ReadingInput
