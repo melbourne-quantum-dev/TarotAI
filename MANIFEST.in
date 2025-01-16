@@ -1,3 +1,4 @@
 include data/*.json
 include data/*.pdf
+include docs/SSOT.md
 recursive-include src/tarotai/data *
