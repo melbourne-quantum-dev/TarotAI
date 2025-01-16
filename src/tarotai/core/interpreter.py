@@ -30,12 +30,24 @@ class TarotInterpreter:
         
     def _load_config(self, config_path: Path) -> Dict:
         """Load interpreter configuration"""
-        # TODO: Implement config loading with validation
-        return {
-            'interpretation_style': 'standard',
-            'max_cache_size': 100,
-            'prompt_template_dir': 'prompts'
-        }
+        from .config import get_config, validate_config
+        
+        try:
+            validate_config(config_path)
+            return {
+                'interpretation_style': get_config("tarot.interpretation.style", default="standard"),
+                'max_cache_size': get_config("tarot.interpretation.max_cache_size", default=100),
+                'prompt_template_dir': get_config("tarot.interpretation.prompt_template_dir", default="prompts"),
+                'include_reversed': get_config("tarot.interpretation.include_reversed", default=True)
+            }
+        except Exception as e:
+            self.logger.error(f"Failed to load config: {str(e)}")
+            return {
+                'interpretation_style': 'standard',
+                'max_cache_size': 100,
+                'prompt_template_dir': 'prompts',
+                'include_reversed': True
+            }
         
     def _load_prompt_templates(self) -> Dict[str, str]:
         """Load prompt templates from XML files"""
