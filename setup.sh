@@ -28,6 +28,12 @@ uv venv .venv || { echo "Failed to create virtual environment"; exit 1; }
 echo "Activating virtual environment..."
 source .venv/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
 
+# Ensure pip is installed
+if ! python -m ensurepip --default-pip; then
+    echo "Failed to install pip in the virtual environment."
+    exit 1
+fi
+
 # Upgrade pip
 echo "Upgrading pip..."
 python -m pip install --upgrade pip || { echo "Failed to upgrade pip"; exit 1; }
