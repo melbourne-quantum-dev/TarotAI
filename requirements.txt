@@ -6,3 +6,7 @@ questionary==2.0.0
 pydantic==2.0.0
 typing-extensions>=4.1.1  # Updated to satisfy anthropic's requirement
 httpx>=0.25.0
+realtimestt>=0.3.93
+realtimetts[system]==0.4.40
+elevenlabs>=1.50.3
+pyttsx3>=2.98

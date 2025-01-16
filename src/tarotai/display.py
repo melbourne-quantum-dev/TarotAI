@@ -60,6 +60,15 @@ class TarotDisplay:
             justify="center"
         )
 
+    def display_voice_status(self, status: str) -> None:
+        """Display voice interface status"""
+        status_map = {
+            "listening": "[bold green]🎤 Listening...[/]",
+            "processing": "[bold yellow]🤖 Processing...[/]",
+            "speaking": "[bold cyan]🗣 Speaking...[/]"
+        }
+        self.console.print(status_map.get(status, "[bold red]❌ Unknown status[/]"))
+
     def show_reading(self, reading: Reading) -> None:
         """Display the reading results"""
         table = Table(
