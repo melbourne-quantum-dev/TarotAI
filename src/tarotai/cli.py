@@ -54,11 +54,22 @@ def read(
                 display.display_error("Missing required parameters")
                 raise typer.Exit(code=1)
                 
-            # Execute reading
-            reading = reader.execute_reading(spread_type, focus, question)
+            # Create reading input
+            deck = TarotDeck(Path("data/cards_ordered.json"))
+            input_method = RandomDrawInput(deck, count=3)
             
-            # Display results
-            display.show_reading(reading)
+            # Execute reading
+            for result in interpreter.interpret_reading(
+                input_method,
+                question=question,
+                show_static=True
+            ):
+                if result["type"] == "static_meanings":
+                    display.console.print("\n[bold]Static Meanings:[/]")
+                    display.console.print(result["content"])
+                else:
+                    display.console.print("\n[bold]Interpretation:[/]")
+                    display.console.print(result["content"])
             
     except Exception as e:
         display.display_error("Reading failed", str(e))

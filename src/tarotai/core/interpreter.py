@@ -1,9 +1,10 @@
 from pathlib import Path
 import logging
 from datetime import datetime
-from typing import List, Tuple, Dict, Optional
+from typing import List, Tuple, Dict, Optional, Generator
 from .types import CardMeaning, SpreadType, Reading
 from .prompts import MultiStagePrompt, PromptStage
+from .reading import ReadingInput
 
 class TarotInterpreter:
     def __init__(self, config_path: Path = Path("config/interpreter.yaml")):
@@ -94,18 +95,46 @@ class TarotInterpreter:
             )
         ])
 
+    def show_static_meanings(self, cards: List[Tuple[CardMeaning, bool]]) -> str:
+        """Display static card meanings before interpretation"""
+        meanings = []
+        for card, is_reversed in cards:
+            meaning = card.reversed_meaning if is_reversed else card.upright_meaning
+            meanings.append(
+                f"{card.name} ({'Reversed' if is_reversed else 'Upright'}):\n{meaning}"
+            )
+        return "\n\n".join(meanings)
+
     def interpret_reading(
         self,
-        spread_type: SpreadType,
+        input_method: ReadingInput,
+        question: Optional[str] = None,
+        show_static: bool = True
+    ) -> Generator[Dict[str, Any], None, None]:
+        """Enhanced interpretation flow"""
+        # Get cards from input method
+        cards = input_method.get_cards()
+        
+        # Show static meanings if requested
+        if show_static:
+            static_meanings = self.show_static_meanings(cards)
+            yield {"type": "static_meanings", "content": static_meanings}
+            
+        # Generate interpretation
+        interpretation = self._generate_interpretation(cards, question)
+        yield {"type": "interpretation", "content": interpretation}
+
+    def _generate_interpretation(
+        self,
         cards: List[Tuple[CardMeaning, bool]],
         question: Optional[str] = None
     ) -> str:
         """Generate interpretation for a reading"""
-        self.logger.info(f"Starting interpretation for {spread_type} spread")
+        self.logger.info("Starting interpretation")
         
         try:
             # Build structured prompt
-            prompt = self._build_interpretation_prompt(spread_type, cards, question)
+            prompt = self._create_interpretation_prompt("custom", cards, question)
             self.logger.debug(f"Using prompt: {prompt}")
             
             # Generate interpretation
