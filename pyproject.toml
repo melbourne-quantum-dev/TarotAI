@@ -9,7 +9,7 @@ description = "Neural-Enhanced Tarot Reading Interface"
 authors = [
     { name = "Your Name", email = "your.email@example.com" },
 ]
-readme = "README.md"
+readme = "SSOT.md"
 requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 3 - Alpha",

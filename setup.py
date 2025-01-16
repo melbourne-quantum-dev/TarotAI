@@ -4,7 +4,7 @@ setup(
     name="tarotai",
     version="0.1.0",
     description="A modular Tarot reading and interpretation system with AI enrichment",
-    long_description=open("README.md").read(),
+    long_description=open("SSOT.md").read(),
     long_description_content_type="text/markdown",
     author="Your Name",
     author_email="your.email@example.com",
