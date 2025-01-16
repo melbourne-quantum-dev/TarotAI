@@ -4,27 +4,79 @@ from pathlib import Path
 from tarotai.extensions.enrichment.clients import DeepSeekClient, VoyageClient
 from typing import Dict, Any, List
 
+SYSTEM_ROLE = """
+You are an expert tarot interpreter with deep knowledge of:
+- Golden Dawn traditions
+- Astrological correspondences
+- Psychological archetypes
+- Modern applications
+"""
+
+INSTRUCTIONS = """
+1. Provide concise, modern interpretations
+2. Include psychological insights
+3. Relate to common life situations
+4. Use clear, accessible language
+"""
+
+FORMAT = """
+Provide output as plain text with:
+- 2-3 sentence meaning
+- 1-2 practical applications
+- 1 psychological insight
+"""
+
 UPRIGHT_PROMPT = """
-Generate an upright meaning for the {card_name} tarot card. 
-The card is associated with {element} and represents {keywords}.
-The astrological correspondence is {astrological}, and the Kabbalistic path is {kabbalistic}.
-Provide a concise, modern interpretation.
+{ROLE_CONTEXT}
+{INSTRUCTIONS}
+{FORMAT}
+
+Generate an upright meaning for:
+- Card: {card_name}
+- Element: {element}
+- Keywords: {keywords}
+- Astrological: {astrological}
+- Kabbalistic: {kabbalistic}
 """
 
 REVERSED_PROMPT = """
-Generate a reversed meaning for the {card_name} tarot card.
-The upright meaning is: {upright_meaning}.
-Provide a concise, modern interpretation of the reversed energy.
+{ROLE_CONTEXT}
+{INSTRUCTIONS}
+{FORMAT}
+
+Generate a reversed meaning for:
+- Card: {card_name}
+- Upright Meaning: {upright_meaning}
+
+Consider:
+1. How the energy is blocked or distorted
+2. Potential shadow aspects
+3. Opportunities for growth
+"""
+
+ERROR_HANDLING = """
+If unsure about interpretation:
+1. Focus on core card symbolism
+2. Provide multiple perspectives
+3. Suggest further research areas
 """
 
 async def generate_meanings(card: Dict[str, Any], ai_client: DeepSeekClient) -> Dict[str, Any]:
     """Generate upright and reversed meanings for a card."""
+    # Prepare context variables
+    context = {
+        "ROLE_CONTEXT": SYSTEM_ROLE,
+        "INSTRUCTIONS": INSTRUCTIONS,
+        "FORMAT": FORMAT,
+        **card
+    }
+    
     if not card.get("upright_meaning"):
-        prompt = UPRIGHT_PROMPT.format(**card)
+        prompt = UPRIGHT_PROMPT.format(**context)
         card["upright_meaning"] = await ai_client.generate_response(prompt)
     
     if not card.get("reversed_meaning"):
-        prompt = REVERSED_PROMPT.format(**card)
+        prompt = REVERSED_PROMPT.format(**context)
         card["reversed_meaning"] = await ai_client.generate_response(prompt)
     
     return card
