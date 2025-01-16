@@ -366,6 +366,7 @@ def handle_reading_errors(func):
 - Secure storage of card meanings
 - Input validation
 - Error message sanitization
+- API key management for multiple AI providers (Anthropic, DeepSeek, Voyage)
 
 ### A.2 Error Handling
 - Graceful degradation
@@ -391,10 +392,11 @@ def handle_reading_errors(func):
 The enrichment extension enhances the core tarot system with AI-powered features and historical analysis.
 
 #### 9.1.1 Key Capabilities
-- AI-enhanced card meanings beyond static definitions
+- AI-enhanced card meanings beyond static definitions (via Anthropic or DeepSeek)
 - Reading pattern analysis and insights
 - Historical reading tracking and analysis
-- Semantic search via embeddings
+- Semantic search via embeddings (VoyageAI)
+- Flexible AI provider selection
 
 #### 9.1.2 Component Structure
 ```python

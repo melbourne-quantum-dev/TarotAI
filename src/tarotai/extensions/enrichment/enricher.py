@@ -11,6 +11,7 @@ from tarotai.core.exceptions import EnrichmentError, EmbeddingError
 from tarotai.extensions.enrichment.reading_history import ReadingHistoryManager
 from tarotai.extensions.enrichment.clients.claude import ClaudeClient
 from tarotai.extensions.enrichment.clients.voyage import VoyageClient
+from tarotai.extensions.enrichment.clients.deepseek import DeepSeekClient
 from tarotai.extensions.enrichment.analyzers.temporal import TemporalAnalyzer
 from tarotai.extensions.enrichment.analyzers.combinations import CombinationAnalyzer
 from tarotai.extensions.enrichment.analyzers.insights import InsightGenerator
@@ -18,14 +19,26 @@ from tarotai.extensions.enrichment.analyzers.insights import InsightGenerator
 load_dotenv()
 
 class TarotEnricher:
-    def __init__(self, cards_file: Path = Path("data/cards_ordered.json")):
+    def __init__(
+        self,
+        cards_file: Path = Path("data/cards_ordered.json"),
+        ai_client: str = "anthropic"  # Default to Anthropic
+    ):
         self.cards_file = cards_file
         self.cards: List[CardMeaning] = self._load_cards()
         self.reading_manager = ReadingHistoryManager()
         self.embeddings_file = Path("data/embeddings.json")
         
         # Initialize AI clients
-        self.claude = ClaudeClient(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        self.ai_client = ai_client
+        if self.ai_client == "anthropic":
+            self.client = ClaudeClient(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        elif self.ai_client == "deepseek":
+            self.client = DeepSeekClient(api_key=os.getenv("DEEPSEEK_API_KEY"))
+        else:
+            raise EnrichmentError(f"Unsupported AI client: {self.ai_client}")
+        
+        # Voyage is still used for embeddings
         self.voyage = VoyageClient(api_key=os.getenv("VOYAGE_API_KEY"))
         
         # Initialize analyzers
