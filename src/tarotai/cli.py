@@ -1,4 +1,5 @@
 import typer
+import questionary
 from typing import Optional
 from pathlib import Path
 from .display import TarotDisplay
