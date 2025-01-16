@@ -1,33 +1,57 @@
-# Makefile for TarotAI project setup
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-.PHONY: install test clean
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-install:
-	@echo "Setting up virtual environment and installing dependencies..."
-	uv venv .venv
-	. .venv/bin/activate && uv pip install -r requirements.txt
-	@echo "\nSetup complete! Run 'make activate' to start working."
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
 
-activate:
-	@echo "Activating virtual environment..."
-	@bash -c "source .venv/bin/activate && exec bash"
+# Logs and databases
+*.log
+*.sqlite
+*.sqlite3
 
-test:
-	@echo "Running tests..."
-	. .venv/bin/activate && pytest tests/
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
 
-clean:
-	@echo "Cleaning up..."
-	rm -rf .venv
-	rm -rf .pytest_cache
-	rm -rf __pycache__
-	rm -rf .mypy_cache
-	@echo "Clean complete!"
+# System
+.DS_Store
+Thumbs.db
 
-help:
-	@echo "Available commands:"
-	@echo "  make install    - Set up virtual environment and install dependencies"
-	@echo "  make activate   - Activate virtual environment"
-	@echo "  make test       - Run tests"
-	@echo "  make clean      - Clean up project files"
-	@echo "  make help       - Show this help message"
+# Project specific
+data/embeddings.json
+data/readings.json
