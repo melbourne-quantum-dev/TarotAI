@@ -84,16 +84,40 @@ class TarotEnricher:
         except Exception as e:
             raise EnrichmentError(f"Failed to record reading: {str(e)}")
 
-    async def learn_from_readings(self, card_name: str) -> Dict[str, Any]:
-        """Update card meanings based on reading history."""
-        try:
-            readings = self.reading_manager.get_readings_for_card(card_name)
-            stats = self.reading_manager.get_card_statistics(card_name)
-            
-            if not readings:
-                return {}
-            
-            return await self._analyze_reading_patterns(readings, card_name, stats)
+    async def analyze_reading_patterns(self, card_name: str):
+        readings = self.get_readings_for_card(card_name)
+        stats = self.get_card_statistics(card_name)
+        
+        prompt = MultiStagePrompt([
+            PromptStage(
+                name="pattern_identification",
+                system_message="Identify patterns in tarot readings",
+                user_message=f"""
+                Analyze {len(readings)} readings for card {card_name}.
+                Identify:
+                1. Common themes
+                2. Position patterns
+                3. Interpretation effectiveness
+                4. Notable combinations
+                """
+            ),
+            PromptStage(
+                name="meaning_refinement",
+                system_message="Refine card meanings based on reading patterns",
+                user_message="""
+                Based on the identified patterns:
+                1. Suggest updated keywords
+                2. Refine upright meaning
+                3. Refine reversed meaning
+                4. Add contextual notes
+                """
+            )
+        ])
+        
+        return await prompt.execute(self.ai_client, {
+            "readings": readings,
+            "statistics": stats
+        })
         except Exception as e:
             raise EnrichmentError(f"Failed to learn from readings: {str(e)}")
 
@@ -131,26 +155,45 @@ class TarotEnricher:
             raise EnrichmentError(f"Failed to analyze readings: {str(e)}")
 
     async def _base_enrichment(self, card: CardMeaning) -> CardMeaning:
-        """Initial AI-based enrichment of card."""
-        try:
-            prompt = f"""
-            Enrich this tarot card with detailed meanings and correspondences:
-            {json.dumps(card.dict(), indent=2)}
-            
-            Provide:
-            1. Keywords (max 7)
-            2. Upright meaning (concise)
-            3. Reversed meaning (concise)
-            4. Astrological correspondence
-            5. Kabbalistic attribution
-            6. Elemental association
-            7. Decan (if applicable)
-            
-            Format as JSON matching the input structure.
-            """
-            
-            response = await self.ai_client.json_prompt(prompt)
-            return CardMeaning(**response)
+        prompt = MultiStagePrompt([
+            PromptStage(
+                name="initial_analysis",
+                system_message="Analyze the core symbolism of this tarot card",
+                user_message=f"""
+                Card: {card.name}
+                Current Keywords: {card.keywords}
+                Provide:
+                1. 3-5 additional keywords
+                2. Core archetypal meaning
+                3. Psychological significance
+                """
+            ),
+            PromptStage(
+                name="correspondences",
+                system_message="Identify esoteric correspondences",
+                user_message="""
+                For this card, provide:
+                1. Astrological correspondence
+                2. Elemental association
+                3. Kabbalistic path
+                4. Numerological significance
+                """
+            ),
+            PromptStage(
+                name="practical_application",
+                system_message="Provide practical interpretations",
+                user_message="""
+                For this card, provide:
+                1. Upright meaning (concise)
+                2. Reversed meaning (concise)
+                3. 3 practical applications
+                4. Common misinterpretations
+                """
+            )
+        ])
+        
+        results = await prompt.execute(self.ai_client)
+        return CardMeaning(**{**card.dict(), **results})
         except Exception as e:
             raise EnrichmentError(f"Failed base enrichment: {str(e)}")
 

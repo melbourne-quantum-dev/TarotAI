@@ -60,30 +60,38 @@ class TarotInterpreter:
             </interpretation>"""
         }
         
-    def _build_interpretation_prompt(
-        self,
-        spread_type: SpreadType,
-        cards: List[Tuple[CardMeaning, bool]],
-        question: Optional[str] = None
-    ) -> str:
-        """Build structured interpretation prompt with embeddings context"""
-        template = self.prompt_templates.get("interpretation")
-        card_descriptions = []
-        
-        for card, is_reversed in cards:
-            meaning = card.reversed_meaning if is_reversed else card.upright_meaning
-            embedding = card.embeddings.get("reversed" if is_reversed else "upright", [])
-            card_descriptions.append(
-                f"{card.name} ({'Reversed' if is_reversed else 'Upright'}):\n"
-                f"Meaning: {meaning}\n"
-                f"Embedding: {embedding[:5]}..."  # Show first 5 dimensions for context
+    def _create_interpretation_prompt(self, spread_type, cards, question):
+        return MultiStagePrompt([
+            PromptStage(
+                name="context_analysis",
+                system_message="Analyze the reading context and identify key themes",
+                user_message=f"""
+                Spread Type: {spread_type}
+                Question: {question}
+                Cards: {[c.name for c in cards]}
+                Identify 3-5 key themes in this reading.
+                """
+            ),
+            PromptStage(
+                name="card_analysis",
+                system_message="Analyze each card's meaning in context",
+                user_message="""
+                For each card, provide:
+                - Core meaning
+                - Position significance
+                - Relation to other cards
+                - Practical implications
+                """
+            ),
+            PromptStage(
+                name="synthesis",
+                system_message="Synthesize the reading into a coherent interpretation",
+                user_message="""
+                Combine the card analyses into a unified interpretation.
+                Focus on practical advice and actionable insights.
+                """
             )
-            
-        return template.format(
-            spread_type=spread_type.name,
-            cards="\n".join(card_descriptions),
-            question=question or "No specific question"
-        )
+        ])
 
     def interpret_reading(
         self,
