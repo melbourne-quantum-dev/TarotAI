@@ -7,6 +7,7 @@ from typing import List, Optional, Dict, Any
 from dotenv import load_dotenv
 from .clients.base import BaseAIClient
 from .knowledge.golden_dawn import GoldenDawnKnowledgeBase
+from tarotai.core.prompts import MultiStagePrompt, PromptStage
 
 from tarotai.core.types import CardMeaning, Reading, CardSuit, SpreadPosition, QuestionContext
 from tarotai.core.exceptions import EnrichmentError, EmbeddingError
