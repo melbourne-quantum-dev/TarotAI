@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 from typing import List, Tuple, Dict, Optional
 from .types import CardMeaning, SpreadType, Reading
+from .prompts import MultiStagePrompt, PromptStage
 
 class TarotInterpreter:
     def __init__(self, config_path: Path = Path("config/interpreter.yaml")):
