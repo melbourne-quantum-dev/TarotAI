@@ -1,4 +1,0 @@
-include README.md
-include data/*.json
-include data/*.pdf
-recursive-include src/tarotai/data *

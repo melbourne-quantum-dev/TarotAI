@@ -1,5 +1,0 @@
-# Core requirements - use pyproject.toml as source
--e .
-
-# Development tools
--r pyproject.toml[dev]
