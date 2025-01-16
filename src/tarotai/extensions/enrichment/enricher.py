@@ -22,21 +22,18 @@ class TarotEnricher:
     def __init__(
         self,
         cards_file: Path = Path("data/cards_ordered.json"),
-        ai_client: str = "anthropic"  # Default to Anthropic
+        ai_client: BaseAIClient = None
     ):
         self.cards_file = cards_file
         self.cards: List[CardMeaning] = self._load_cards()
         self.reading_manager = ReadingHistoryManager()
         self.embeddings_file = Path("data/embeddings.json")
         
-        # Initialize AI clients
-        self.ai_client = ai_client
-        if self.ai_client == "anthropic":
-            self.client = ClaudeClient(api_key=os.getenv("ANTHROPIC_API_KEY"))
-        elif self.ai_client == "deepseek":
-            self.client = DeepSeekClient(api_key=os.getenv("DEEPSEEK_API_KEY"))
+        # Initialize AI client
+        if ai_client is None:
+            self.ai_client = DeepSeekClient(api_key=os.getenv("DEEPSEEK_API_KEY"))
         else:
-            raise EnrichmentError(f"Unsupported AI client: {self.ai_client}")
+            self.ai_client = ai_client
         
         # Voyage is still used for embeddings
         self.voyage = VoyageClient(api_key=os.getenv("VOYAGE_API_KEY"))
@@ -159,30 +156,37 @@ class TarotEnricher:
             raise EmbeddingError(f"Failed to generate embeddings: {str(e)}")
 
     async def enrich_card(self, card: CardMeaning) -> CardMeaning:
-        """Add basic AI-generated meanings to a card."""
+        """Enrich card meanings using AI"""
         try:
-            # Generate basic meanings if they're missing
-            if not card.upright_meaning or not card.reversed_meaning:
-                prompt = f"""
-                Generate concise tarot card meanings for {card.name}.
-                Provide:
-                1. 3-5 keywords
-                2. Upright meaning (1-2 sentences)
-                3. Reversed meaning (1-2 sentences)
-                
-                Format as JSON with keys: keywords, upright_meaning, reversed_meaning
-                """
-                response = await self.claude.analyze(prompt)
-                meanings = json.loads(response)
-                
-                # Update card with generated meanings
-                card.keywords = meanings.get("keywords", card.keywords)
-                card.upright_meaning = meanings.get("upright_meaning", card.upright_meaning)
-                card.reversed_meaning = meanings.get("reversed_meaning", card.reversed_meaning)
+            # Generate enhanced meaning
+            prompt = f"""
+            Enhance the meaning of {card.name} tarot card.
+            Provide:
+            1. Expanded keywords (5-7)
+            2. Detailed upright meaning (2-3 sentences)
+            3. Detailed reversed meaning (2-3 sentences)
+            4. Astrological correspondences
+            5. Elemental associations
+            """
+            enhanced_meaning = await self.ai_client.json_prompt(prompt)
+            
+            # Generate insights
+            insights_prompt = f"""
+            Provide insights about {card.name} including:
+            1. Common interpretations
+            2. Historical context
+            3. Modern applications
+            4. Psychological aspects
+            """
+            insights = await self.ai_client.json_prompt(insights_prompt)
+            
+            # Update card with enriched data
+            card.ai_enhanced_meaning = enhanced_meaning
+            card.insights = insights
             
             return card
         except Exception as e:
-            raise EnrichmentError(f"Failed to enrich card {card.name}: {str(e)}")
+            raise EnrichmentError(f"Failed to enrich card: {str(e)}")
 
     async def process_all_cards(self) -> None:
         """Process all cards with both enrichment and embeddings."""
