@@ -11,6 +11,11 @@ authors = [
 ]
 readme = "SSOT.md"
 requires-python = ">=3.10"
+
+[project.urls]
+Homepage = "https://github.com/melbourne-quantum-dev/tarotai"
+Repository = "https://github.com/melbourne-quantum-dev/tarotai"
+Documentation = "https://github.com/melbourne-quantum-dev/tarotai/blob/main/SSOT.md"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: End Users/Desktop",
