@@ -14,6 +14,12 @@ if ! command -v uv &> /dev/null; then
     pip install uv || { echo "Failed to install uv"; exit 1; }
 fi
 
+# Reset virtual environment if it exists
+if [ -d ".venv" ]; then
+    echo "Existing virtual environment found. Resetting..."
+    rm -rf .venv || { echo "Failed to remove existing virtual environment"; exit 1; }
+fi
+
 # Create virtual environment
 echo "Creating virtual environment..."
 uv venv .venv || { echo "Failed to create virtual environment"; exit 1; }
