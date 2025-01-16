@@ -37,6 +37,18 @@ scripts/maintenance/clean.sh
 scripts/maintenance/format.sh
 ```
 
+## Voice Interface
+
+The voice interface allows hands-free interaction:
+
+```bash
+# Start voice interface
+tarotai voice
+
+# Configure voice settings
+tarotai voice --config
+```
+
 ## Best Practices
 
 1. Always run scripts from the project root directory

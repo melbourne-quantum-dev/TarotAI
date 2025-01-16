@@ -289,7 +289,21 @@ The system uses an iterative, AI-assisted process to generate and refine card me
 6. **Persistence**:
    - Save updated card data to `data/cards_ordered.json`.
 
-### 9.2 Key Components
+### 9.2 Extension Configuration
+
+Extensions can be configured via environment variables:
+
+```bash
+# Enrichment settings
+export ENRICHMENT_MODEL="deepseek"
+export VOYAGEAI_API_KEY="your_key"
+
+# Voice settings
+export VOICE_MODEL="elevenlabs"
+export VOICE_SPEED=1.0
+```
+
+### 9.3 Key Components
 
 #### Prompt Templates
 ```python

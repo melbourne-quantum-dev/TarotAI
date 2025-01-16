@@ -57,6 +57,23 @@ tarotai interactive
 tarotai voice
 ```
 
+### Extension Commands
+
+#### Enrichment
+```bash
+tarotai enrich --card "The Fool"
+```
+
+#### Voice Interface
+```bash
+tarotai voice --listen
+```
+
+#### Golden Dawn Integration
+```bash
+tarotai golden-dawn --extract
+```
+
 #### Generate Card Meanings
 ```bash
 tarotai generate-meanings
