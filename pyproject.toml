@@ -67,4 +67,10 @@ generate-meanings = "scripts.generate_meanings:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-tarotai = ["data/*.json"]
+tarotai = [
+    "data/*.json",
+    "data/*.pdf", 
+    "docs/*.md",
+    "docs/guides/*",
+    "docs/scripts/*"
+]

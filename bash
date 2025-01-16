@@ -23,3 +23,13 @@ source .venv/bin/activate
 uv run black src/ tests/
 uv run flake8 src/ tests/
 uv run mypy src/ tests/
+mkdir -p scripts/data_processing docs/guides docs/scripts
+mv bookT.py scripts/data_processing/
+mv enrich.py src/tarotai/extensions/enrichment/cli.py
+mv SSOT.md docs/
+mv markdown docs/guides/
+mv bash docs/scripts/
+mkdir -p tests/unit tests/integration
+mv tests/test_core.py tests/unit/
+touch tests/integration/test_enrichment.py
+touch tests/unit/test_voice.py
