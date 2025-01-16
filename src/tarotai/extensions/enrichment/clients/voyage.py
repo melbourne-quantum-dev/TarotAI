@@ -24,13 +24,9 @@ class VoyageClient(BaseAIClient):
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    f"{self.base_url}/chat/completions",
+                    f"{self.base_url}/generate",
                     headers={"Authorization": f"Bearer {self.api_key}"},
-                    json={
-                        "model": self.model,
-                        "messages": [{"role": "user", "content": prompt}],
-                        **kwargs
-                    }
+                    json={"prompt": prompt, **kwargs}
                 )
                 response.raise_for_status()
                 return response.json()

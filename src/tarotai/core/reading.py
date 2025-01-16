@@ -26,6 +26,6 @@ class ManualInput(ReadingInput):
         
     def get_cards(self) -> List[Tuple[CardMeaning, bool]]:
         return [
-            (self.deck.get_card_by_name(name), rev)
-            for name, rev in zip(self.card_names, self.reversed)
+            (self.deck.get_card_by_name(card_name), is_reversed)
+            for card_name, is_reversed in zip(self.card_names, self.reversed)
         ]

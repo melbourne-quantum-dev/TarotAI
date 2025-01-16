@@ -8,7 +8,7 @@ from .config import get_config
 
 class TarotInterpreter:
     def __init__(self, config_path: Path = Path("config/interpreter.yaml")):
-        self.interpretation_cache = {}
+        self.interpretation_cache: Dict[str, Any] = {}
         self.logger = self._setup_logging()
         self.config = self._load_config(config_path)
         self.prompt_templates = self._load_prompt_templates()
