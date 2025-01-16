@@ -66,15 +66,22 @@ class TarotInterpreter:
         cards: List[Tuple[CardMeaning, bool]],
         question: Optional[str] = None
     ) -> str:
-        """Build structured interpretation prompt"""
+        """Build structured interpretation prompt with embeddings context"""
         template = self.prompt_templates.get("interpretation")
-        card_descriptions = "\n".join(
-            f"{card.name} ({'Reversed' if is_reversed else 'Upright'})"
-            for card, is_reversed in cards
-        )
+        card_descriptions = []
+        
+        for card, is_reversed in cards:
+            meaning = card.reversed_meaning if is_reversed else card.upright_meaning
+            embedding = card.embeddings.get("reversed" if is_reversed else "upright", [])
+            card_descriptions.append(
+                f"{card.name} ({'Reversed' if is_reversed else 'Upright'}):\n"
+                f"Meaning: {meaning}\n"
+                f"Embedding: {embedding[:5]}..."  # Show first 5 dimensions for context
+            )
+            
         return template.format(
             spread_type=spread_type.name,
-            cards=card_descriptions,
+            cards="\n".join(card_descriptions),
             question=question or "No specific question"
         )
 
