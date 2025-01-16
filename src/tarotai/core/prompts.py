@@ -12,7 +12,7 @@ class PromptStage(BaseModel):
 class MultiStagePrompt:
     def __init__(self, stages: List[PromptStage]):
         self.stages = stages
-        self.results = []
+        self.results: List[Dict[str, Any]] = []
         
     async def execute(self, ai_client, initial_context: Dict = {}):
         context = initial_context.copy()

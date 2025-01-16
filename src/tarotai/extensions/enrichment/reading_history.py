@@ -1,9 +1,9 @@
 # reading_history.py
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, cast
 import json
-from tarotai.core.types import Reading, CardMeaning
+from tarotai.core.types import Reading, CardMeaning, SpreadPosition
 
 class ReadingHistoryManager:
     def __init__(self, history_file: Path = Path("data/readings.json")):
@@ -55,11 +55,12 @@ class ReadingHistoryManager:
 
     def _analyze_positions(self, readings: List[Reading], card_name: str) -> Dict[str, int]:
         """Analyze in which positions the card appears most frequently."""
-        position_counts = {}
+        position_counts: Dict[str, int] = {}
         for reading in readings:
             for card, position in zip(reading.cards, reading.positions):
                 if card.name == card_name:
-                    position_counts[position] = position_counts.get(position, 0) + 1
+                    pos_name = cast(SpreadPosition, position).name
+                    position_counts[pos_name] = position_counts.get(pos_name, 0) + 1
         return position_counts
 
     def _calculate_average_resonance(self, readings: List[Reading]) -> float:

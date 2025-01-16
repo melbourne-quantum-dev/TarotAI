@@ -1,10 +1,10 @@
 from pathlib import Path
 import logging
-from datetime import datetime
-from typing import List, Tuple, Dict, Optional, Generator, Any
-from .types import CardMeaning, SpreadType, Reading
+from typing import List, Tuple, Dict, Optional, Generator, Any, cast
+from .types import CardMeaning, SpreadType, Reading, SpreadPosition
 from .prompts import MultiStagePrompt, PromptStage
 from .reading import ReadingInput
+from .config import get_config
 
 class TarotInterpreter:
     def __init__(self, config_path: Path = Path("config/interpreter.yaml")):
@@ -30,17 +30,14 @@ class TarotInterpreter:
         logger.addHandler(ch)
         return logger
         
-    def _load_config(self, config_path: Path) -> Dict:
+    def _load_config(self, config_path: Path) -> Dict[str, Any]:
         """Load interpreter configuration"""
-        from .config import get_config, validate_config
-        
         try:
-            validate_config(config_path)
             return {
-                'interpretation_style': get_config("tarot.interpretation.style", default="standard"),
-                'max_cache_size': get_config("tarot.interpretation.max_cache_size", default=100),
-                'prompt_template_dir': get_config("tarot.interpretation.prompt_template_dir", default="prompts"),
-                'include_reversed': get_config("tarot.interpretation.include_reversed", default=True)
+                'interpretation_style': cast(str, get_config("tarot.interpretation.style", default="standard")),
+                'max_cache_size': cast(int, get_config("tarot.interpretation.max_cache_size", default=100)),
+                'prompt_template_dir': cast(str, get_config("tarot.interpretation.prompt_template_dir", default="prompts")),
+                'include_reversed': cast(bool, get_config("tarot.interpretation.include_reversed", default=True))
             }
         except Exception as e:
             self.logger.error(f"Failed to load config: {str(e)}")
@@ -62,7 +59,12 @@ class TarotInterpreter:
             </interpretation>"""
         }
         
-    def _create_interpretation_prompt(self, spread_type, cards, question):
+    def _create_interpretation_prompt(
+        self, 
+        spread_type: str,
+        cards: List[Tuple[CardMeaning, bool]],
+        question: Optional[str]
+    ) -> MultiStagePrompt:
         return MultiStagePrompt([
             PromptStage(
                 name="context_analysis",
