@@ -684,8 +684,8 @@
       "astrological": "Uranus",
       "kabbalistic": "Aleph",
       "embeddings": {
-        "upright": [0.123, 0.456, 0.789, ...],  // 1024-dimensional vector
-        "reversed": [0.321, 0.654, 0.987, ...] // 1024-dimensional vector
+        "upright": [0.123, 0.456, 0.789],
+        "reversed": [0.321, 0.654, 0.987]
       },
       "metadata": {
         "last_updated": "2025-01-17",
