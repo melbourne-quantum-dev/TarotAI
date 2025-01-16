@@ -2,53 +2,83 @@
 
 # TarotAI Setup Script for macOS/Linux
 
-# Check Python version
-if ! python3 -c 'import sys; assert sys.version_info >= (3,10)' &> /dev/null; then
-    echo "Python 3.10 or higher is required. Please install it and try again."
+# Configuration
+VENV_DIR=".venv"
+REQUIREMENTS="requirements.txt"
+PYTHON_MIN_VERSION="3.10"
+SETUP_DIR="scripts/setup"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Functions
+function log_info() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
+
+function log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+function log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
     exit 1
-fi
+}
 
-# Check if uv is installed
-if ! command -v uv &> /dev/null; then
-    echo "uv could not be found. Installing..."
-    python3 -m pip install uv || { echo "Failed to install uv"; exit 1; }
-fi
+function check_python_version() {
+    if ! python3 -c "import sys; assert sys.version_info >= (3,10)" &> /dev/null; then
+        log_error "Python ${PYTHON_MIN_VERSION} or higher is required. Please install it and try again."
+    fi
+    log_info "Python version check passed"
+}
 
-# Reset virtual environment if it exists
-if [ -d ".venv" ]; then
-    echo "Existing virtual environment found. Resetting..."
-    rm -rf .venv || { echo "Failed to remove existing virtual environment"; exit 1; }
-fi
+function install_uv() {
+    if ! command -v uv &> /dev/null; then
+        log_info "Installing uv..."
+        python3 -m pip install uv || log_error "Failed to install uv"
+    fi
+    log_info "uv is installed"
+}
 
-# Create virtual environment
-echo "Creating virtual environment..."
-uv venv .venv || { echo "Failed to create virtual environment"; exit 1; }
+function create_venv() {
+    if [ -d "${VENV_DIR}" ]; then
+        log_warn "Existing virtual environment found. Resetting..."
+        rm -rf "${VENV_DIR}" || log_error "Failed to remove existing virtual environment"
+    fi
+    
+    log_info "Creating virtual environment..."
+    uv venv "${VENV_DIR}" || log_error "Failed to create virtual environment"
+}
 
-# Activate virtual environment
-echo "Activating virtual environment..."
-source .venv/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
+function activate_venv() {
+    log_info "Activating virtual environment..."
+    source "${VENV_DIR}/bin/activate" || log_error "Failed to activate virtual environment"
+}
 
-# Ensure pip is installed in the virtual environment
-if ! python -m ensurepip --default-pip; then
-    echo "Failed to install pip in the virtual environment."
-    exit 1
-fi
+function install_dependencies() {
+    log_info "Installing dependencies..."
+    uv pip install -r "${REQUIREMENTS}" || log_error "Failed to install dependencies"
+}
 
-# Upgrade pip
-echo "Upgrading pip..."
-python -m pip install --upgrade pip || { echo "Failed to upgrade pip"; exit 1; }
+function verify_installation() {
+    log_info "Verifying installation..."
+    python3 -c "import tarotai; print('TarotAI setup successful!')" || log_error "Setup verification failed"
+}
 
-# Install dependencies
-echo "Installing dependencies..."
-uv pip install -r requirements.txt || { echo "Failed to install dependencies"; exit 1; }
+# Main execution
+check_python_version
+install_uv
+create_venv
+activate_venv
+install_dependencies
+verify_installation
 
-# Verify installation
-echo "Verifying installation..."
-python -c "import tarotai; print('TarotAI setup successful!')" || { echo "Setup failed!"; exit 1; }
-
-echo ""
-echo "Setup complete! To activate the virtual environment, run:"
-echo "  source .venv/bin/activate"
-echo ""
-echo "To run tests:"
-echo "  pytest tests/"
+log_info ""
+log_info "Setup complete! To activate the virtual environment, run:"
+log_info "  source ${VENV_DIR}/bin/activate"
+log_info ""
+log_info "To run tests:"
+log_info "  pytest tests/"
