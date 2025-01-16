@@ -1,38 +1,100 @@
-# TarotAI System Documentation
+# TarotAI - Neural-Enhanced Tarot Reading System
 
-// Book T Sequence:
-// 
-// 1. Aces: Wands, Cups, Swords, Pentacles
-// 2. Pips:
-//    5-7 of Wands
-//    8-10 of Pentacles
-//    2-4 of Swords
-//    5-7 of Cups
-//    8-10 of Wands
-//    2-4 of Pentacles
-//    5-7 of Swords
-//    8-10 of Cups
-//    2-4 of Wands
-//    5-7 of Pentacles
-//    8-10 of Swords
-//    2-4 of Cups
-// 3. Court Cards:
-//    Wands (Knight, Queen, King, Princess)
-//    Cups (Knight, Queen, King, Princess)
-//    Swords (Knight, Queen, King, Princess)
-//    Pentacles (Knight, Queen, King, Princess)
-// 4. Major Arcana: 0 (Fool), I-XXI
+[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Version 2.0.0
+TarotAI is a neural-enhanced tarot reading system that combines traditional divination with modern AI-powered insights. It provides programmatic access to tarot readings through a CLI interface and offers advanced features like:
 
-## Table of Contents
-1. System Overview
-2. Architecture
-3. Implementation Guidelines
-4. Testing & Quality Assurance
-5. Deployment & Operations
-6. API Reference
-7. Developer Guide
+- AI-enhanced card interpretations
+- Multiple spread types
+- Context-aware interpretation engine
+- Reading history and pattern analysis
+- Voice interface support
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/melbourne-quantum-dev/tarotai.git
+   cd tarotai
+   ```
+
+2. Set up the environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # Linux/macOS
+   # .\.venv\Scripts\activate  # Windows
+   pip install -e .
+   ```
+
+3. Configure environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API keys
+   ```
+
+## Usage
+
+### Command Line Interface
+```bash
+# Perform a reading
+tarotai read --spread-type three_card --focus "Career" --question "What should I focus on?"
+
+# Interactive mode
+tarotai interactive
+
+# Voice interface
+tarotai voice
+```
+
+### Python API
+```python
+from tarotai import TarotReader
+
+reader = TarotReader()
+reading = reader.execute_reading(
+    spread_type="three_card",
+    focus="Relationships",
+    question="What should I know about my current relationship?"
+)
+```
+
+## Development
+
+### Setup
+```bash
+pip install -e ".[dev]"
+```
+
+### Running Tests
+```bash
+pytest tests/
+```
+
+### Code Formatting
+```bash
+black src/ tests/
+```
+
+### Type Checking
+```bash
+mypy src/ tests/
+```
+
+## Contributing
+
+We welcome contributions! Please see our [Contribution Guidelines](CONTRIBUTING.md) for details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Inspired by the Golden Dawn tradition
+- Built with modern Python tools
+- Powered by AI technologies
 
 ## 1. System Overview
 
