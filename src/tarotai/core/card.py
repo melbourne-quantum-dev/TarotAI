@@ -133,6 +133,11 @@ class CardManager:
     - src/tarotai/core/types.py for card type definitions
     """
     def __init__(self, cards_file: Path = Path("data/cards_ordered.json")):
+        """Initialize card manager.
+        
+        Args:
+            cards_file: Path to JSON file containing card definitions
+        """
         self.cards_file = cards_file
         self.cards: List[TarotCard] = self._load_cards()
 
