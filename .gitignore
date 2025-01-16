@@ -58,3 +58,6 @@ local_settings.py
 # System files
 .DS_Store
 Thumbs.db
+
+# Large PDF files
+data/I.Regardie_Complete_Golden_Dawn_(II ed.deluxe).pdf
