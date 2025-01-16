@@ -5,6 +5,7 @@ import httpx
 from dotenv import load_dotenv
 from openai import OpenAI
 from ..exceptions import EnrichmentError
+from .base import BaseAIClient
 
 load_dotenv()
 

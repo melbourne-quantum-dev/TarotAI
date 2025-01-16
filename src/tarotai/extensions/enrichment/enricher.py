@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from dotenv import load_dotenv
+from .clients.base import BaseAIClient
 
 from tarotai.core.types import CardMeaning, Reading, CardSuit, SpreadPosition, QuestionContext
 from tarotai.core.exceptions import EnrichmentError, EmbeddingError
