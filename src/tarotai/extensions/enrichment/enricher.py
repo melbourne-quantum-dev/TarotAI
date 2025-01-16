@@ -23,7 +23,8 @@ class TarotEnricher:
     def __init__(
         self,
         cards_file: Path = Path("data/cards_ordered.json"),
-        ai_client: BaseAIClient = None
+        ai_client: BaseAIClient = None,
+        golden_dawn_path: Path = Path("data/golden_dawn.pdf")
     ):
         self.cards_file = cards_file
         self.cards: List[CardMeaning] = self._load_cards()
@@ -43,6 +44,9 @@ class TarotEnricher:
         self.temporal_analyzer = TemporalAnalyzer()
         self.combination_analyzer = CombinationAnalyzer()
         self.insight_generator = InsightGenerator()
+        
+        # Initialize Golden Dawn knowledge base
+        self.golden_dawn = GoldenDawnKnowledgeBase(str(golden_dawn_path))
 
     def _load_cards(self) -> List[CardMeaning]:
         """Load cards from JSON file and validate against CardMeaning model."""
@@ -157,33 +161,54 @@ class TarotEnricher:
             raise EmbeddingError(f"Failed to generate embeddings: {str(e)}")
 
     async def enrich_card(self, card: CardMeaning) -> CardMeaning:
-        """Enrich card meanings using AI"""
+        """Enrich card meanings using AI and Golden Dawn context"""
         try:
-            # Generate enhanced meaning
-            prompt = f"""
-            Enhance the meaning of {card.name} tarot card.
-            Provide:
-            1. Expanded keywords (5-7)
-            2. Detailed upright meaning (2-3 sentences)
-            3. Detailed reversed meaning (2-3 sentences)
-            4. Astrological correspondences
-            5. Elemental associations
-            """
-            enhanced_meaning = await self.ai_client.json_prompt(prompt)
+            # Get Golden Dawn context
+            card_embedding = await self.voyage.generate_embedding(
+                f"{card.name} {' '.join(card.keywords)}"
+            )
+            relevant_sections = self.golden_dawn.find_relevant_sections(card_embedding)
+            context = "\n\n".join(
+                f"Page {s['metadata']['page']}:\n{s['content']}" 
+                for s in relevant_sections
+            )
             
-            # Generate insights
-            insights_prompt = f"""
-            Provide insights about {card.name} including:
-            1. Common interpretations
-            2. Historical context
-            3. Modern applications
-            4. Psychological aspects
+            # Build prompt with Golden Dawn context
+            prompt = f"""
+            You are an expert tarot interpreter with deep knowledge of:
+            - Golden Dawn traditions
+            - Astrological correspondences
+            - Psychological archetypes
+            - Modern applications
+
+            Relevant Golden Dawn Context:
+            {context}
+
+            Card Details:
+            - Name: {card.name}
+            - Element: {card.element}
+            - Keywords: {', '.join(card.keywords)}
+
+            Provide interpretation considering:
+            1. Traditional Golden Dawn meanings
+            2. Modern psychological insights
+            3. Practical applications
+
+            Format your response as JSON with these fields:
+            - expanded_keywords: List of 5-7 keywords
+            - upright_meaning: 2-3 sentence interpretation
+            - reversed_meaning: 2-3 sentence interpretation
+            - astrological_correspondences: List of astrological associations
+            - elemental_associations: List of elemental associations
+            - golden_dawn_insights: Key insights from Golden Dawn context
             """
-            insights = await self.ai_client.json_prompt(insights_prompt)
+            
+            # Get enhanced meaning
+            enhanced_meaning = await self.ai_client.json_prompt(prompt)
             
             # Update card with enriched data
             card.ai_enhanced_meaning = enhanced_meaning
-            card.insights = insights
+            card.golden_dawn_context = context
             
             return card
         except Exception as e:

@@ -10,3 +10,4 @@ realtimestt>=0.3.93
 realtimetts[system]==0.4.40
 elevenlabs>=1.50.3
 pyttsx3>=2.98
+PyPDF2>=3.0.0
