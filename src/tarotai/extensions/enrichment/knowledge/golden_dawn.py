@@ -11,28 +11,48 @@ from ..exceptions import EnrichmentError
 load_dotenv()
 
 def extract_pdf_content(pdf_path: str) -> List[Dict[str, str]]:
-    """Extract structured content from PDF"""
+    """Extract structured content from PDF with card-specific sections"""
     if not Path(pdf_path).exists():
         raise FileNotFoundError(f"PDF file not found at {pdf_path}")
     
     try:
         reader = PdfReader(pdf_path)
         sections = []
+        current_section = None
         
         print(f"Processing {pdf_path}...")
         for i, page in tqdm(enumerate(reader.pages), total=len(reader.pages)):
             text = page.extract_text()
-            if text:
-                sections.append({
-                    "page": i + 1,
-                    "content": text,
-                    "metadata": {
-                        "source": "Golden Dawn Book",
-                        "chapter": "Unknown"
+            if not text:
+                continue
+                
+            # Split text into lines and process
+            lines = text.split('\n')
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                    
+                # Check if line starts a new card section
+                if any(keyword in line.lower() for keyword in ["the fool", "the magician", "ace of", "king of", "queen of"]):
+                    if current_section:
+                        sections.append(current_section)
+                    current_section = {
+                        "page": i + 1,
+                        "content": line,
+                        "metadata": {
+                            "source": "Golden Dawn Book",
+                            "chapter": "Unknown",
+                            "card_name": line.split(' - ')[0].strip() if ' - ' in line else line
+                        }
                     }
-                })
-        
-        print(f"Processed {len(sections)} sections from {len(reader.pages)} pages")
+                elif current_section:
+                    current_section["content"] += "\n" + line
+                    
+        if current_section:
+            sections.append(current_section)
+            
+        print(f"Processed {len(sections)} card sections from {len(reader.pages)} pages")
         return sections
     except Exception as e:
         raise ValueError(f"Failed to extract PDF content: {str(e)}")

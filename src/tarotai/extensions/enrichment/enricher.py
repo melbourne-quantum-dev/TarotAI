@@ -42,12 +42,11 @@ class TarotEnricher:
         # Voyage is still used for embeddings
         self.voyage = VoyageClient(api_key=os.getenv("VOYAGE_API_KEY"))
         
-        # Analysis capabilities handled directly by AI client
+        # Initialize Golden Dawn knowledge base
+        self.golden_dawn = GoldenDawnKnowledgeBase(golden_dawn_path)
         
-        # Initialize Golden Dawn knowledge base with specific PDF path
-        self.golden_dawn = GoldenDawnKnowledgeBase(
-            "/home/fuar/projects/TarotAI/data/I.Regardie_Complete_Golden_Dawn_(II ed.deluxe).pdf"
-        )
+        # Cache for processed cards
+        self.processed_cards: Dict[str, Dict[str, Any]] = {}
 
     def _load_cards(self) -> List[CardMeaning]:
         """Load cards from JSON file and validate against CardMeaning model."""
@@ -96,7 +95,7 @@ class TarotEnricher:
         except Exception as e:
             raise EnrichmentError(f"Failed to analyze reading patterns: {str(e)}")
 
-    async def _base_enrichment(self, card: CardMeaning) -> CardMeaning:
+    async def _base_enrichment(self, card: CardMeaning, context: str = "") -> CardMeaning:
         try:
             prompt = MultiStagePrompt([
                 PromptStage(
@@ -193,27 +192,65 @@ class TarotEnricher:
         except Exception as e:
             raise EnrichmentError(f"Failed to enrich card: {str(e)}")
 
-    async def process_all_cards(self) -> None:
-        """Process all cards with both enrichment and embeddings."""
+    async def process_all_cards(self, batch_size: int = 5) -> None:
+        """Process all cards with both enrichment and embeddings in batches."""
         embeddings = {}
+        total_cards = len(self.cards)
         
-        for card in self.cards:
-            try:
-                print(f"Processing {card.name}...")
-                enriched_card = await self.enrich_card(card)
-                embedding = await self.generate_embeddings(enriched_card)
-                embeddings[card.name] = embedding
+        for i in range(0, total_cards, batch_size):
+            batch = self.cards[i:i + batch_size]
+            print(f"Processing batch {i//batch_size + 1} of {total_cards//batch_size + 1}")
+            
+            # Process cards in parallel
+            tasks = []
+            for card in batch:
+                tasks.append(self._process_card(card))
+            
+            # Wait for all tasks in batch to complete
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # Update cards and embeddings
+            for result in results:
+                if isinstance(result, Exception):
+                    print(f"Error processing card: {str(result)}")
+                    continue
+                
+                card_name, enriched_card, embedding = result
+                embeddings[card_name] = embedding
                 
                 # Update card in list
-                idx = next(i for i, c in enumerate(self.cards) if c.name == card.name)
+                idx = next(i for i, c in enumerate(self.cards) if c.name == card_name)
                 self.cards[idx] = enriched_card
                 
-            except Exception as e:
-                print(f"Error processing {card.name}: {str(e)}")
-                continue
+            # Save progress after each batch
+            self._save_cards()
+            self._save_embeddings(embeddings)
             
-        self._save_cards()
-        self._save_embeddings(embeddings)
+        print("All cards processed successfully!")
+
+    async def _process_card(self, card: CardMeaning) -> Tuple[str, CardMeaning, List[float]]:
+        """Process a single card and return enriched data."""
+        try:
+            print(f"Processing {card.name}...")
+            
+            # Get Golden Dawn context
+            card_embedding = await self.voyage.generate_embedding(card.name)
+            relevant_sections = self.golden_dawn.find_relevant_sections(card_embedding)
+            context = "\n\n".join(
+                f"Page {s['metadata']['page']}:\n{s['content']}" 
+                for s in relevant_sections
+            )
+            
+            # Enrich card with AI
+            enriched = await self._base_enrichment(card, context)
+            
+            # Generate embeddings
+            embedding = await self.generate_embeddings(enriched)
+            
+            return card.name, enriched, embedding
+            
+        except Exception as e:
+            raise EnrichmentError(f"Failed to process card {card.name}: {str(e)}")
 
 async def main():
     enricher = TarotEnricher()
