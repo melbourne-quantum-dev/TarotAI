@@ -9,8 +9,9 @@ setup(
     author="Your Name",
     author_email="your.email@example.com",
     url="https://github.com/melbourne-quantum-dev/tarotai",
-    packages=find_packages(where="src"),
+    packages=find_packages(where="src", include=["tarotai*"]),
     package_dir={"": "src"},
+    namespace_packages=["tarotai"],
     install_requires=[
         "anthropic>=0.3.0,<1.0.0",
         "rich>=13.0.0,<14.0.0",

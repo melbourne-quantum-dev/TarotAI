@@ -77,11 +77,14 @@ generate-meanings = "scripts.generate_meanings:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["tarotai*"]
+exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 tarotai = [
     "data/*.json",
     "data/*.pdf",
     "docs/guides/*",
-    "docs/scripts/*"
+    "docs/scripts/*",
+    "py.typed"
 ]
