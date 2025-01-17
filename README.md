@@ -26,22 +26,35 @@
    cd tarotai
    ```
 
-2. Set up the environment:
+2. Run the setup script:
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # Linux/macOS
-   # .\.venv\Scripts\activate  # Windows
-   
-   pip install -r requirements.txt && \
-   pip install -e ".[dev]" && \
-   pip install types-pydantic types-httpx types-python-dotenv types-requests
+   ./setup.sh
    ```
 
-3. Configure environment variables:
+   This will:
+   - Create a virtual environment
+   - Install all dependencies
+   - Set up environment variables
+   - Verify the installation
+
+3. Activate the virtual environment:
    ```bash
-   cp .env.example .env
-   # Edit .env with your API keys
+   # Linux/macOS
+   source .venv/bin/activate
+   
+   # Windows (WSL)
+   .\.venv\Scripts\activate
    ```
+
+4. Configure API keys:
+   ```bash
+   nano .env  # or your preferred text editor
+   ```
+
+   Add your API keys for:
+   - Anthropic
+   - VoyageAI
+   - OpenAI (if using)
 
 ### Basic Usage
 
@@ -59,6 +72,34 @@ tarotai voice
 ```bash
 tarotai generate-meanings
 ```
+
+### Troubleshooting
+
+If you encounter issues:
+1. Verify Python version (3.10+ required):
+   ```bash
+   python3 --version
+   ```
+
+2. Check virtual environment activation:
+   ```bash
+   which python  # Should point to .venv/bin/python
+   ```
+
+3. Verify dependencies:
+   ```bash
+   pip list | grep tarotai
+   ```
+
+4. Check environment variables:
+   ```bash
+   cat .env
+   ```
+
+5. Run tests to verify installation:
+   ```bash
+   pytest tests/
+   ```
 
 ### Example Output
 
