@@ -1,57 +1,25 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+.PHONY: setup test lint format clean
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+setup:
+	@echo "Setting up development environment..."
+	@./setup.sh
 
-# Editor/IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*.sublime-workspace
-*.sublime-project
+test:
+	@echo "Running tests..."
+	@uv run pytest tests/ --cov=tarotai --cov-report=term-missing
 
-# Logs and databases
-*.log
-*.sqlite
-*.sqlite3
+lint:
+	@echo "Running linting..."
+	@uv run flake8 src/ tests/
+	@uv run mypy src/ tests/
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
+format:
+	@echo "Formatting code..."
+	@uv run black src/ tests/
 
-# System
-.DS_Store
-Thumbs.db
-
-# Project specific
-data/embeddings.json
-data/readings.json
+clean:
+	@echo "Cleaning up..."
+	@rm -rf .venv/ __pycache__/ .pytest_cache/ .mypy_cache/
+	@find . -name '*.pyc' -delete
+	@find . -name '*.pyo' -delete
+	@find . -name '__pycache__' -delete

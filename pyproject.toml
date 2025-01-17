@@ -89,3 +89,6 @@ tarotai = [
     "docs/scripts/*",
     "py.typed"
 ]
+
+[tool.uv]
+cache-dir = ".uv_cache"
