@@ -210,11 +210,23 @@ class TarotEnricher:
         except Exception as e:
             raise EmbeddingError(f"Failed to generate embeddings: {str(e)}")
 
-    async def enrich_card(self, card: CardMeaning) -> CardMeaning:
+    async def enrich_card(self, card: CardMeaning, use_rag: bool = True) -> CardMeaning:
         """Enrich a single card with AI-generated content and reading history."""
         try:
-            # Base enrichment
-            enriched = await self._base_enrichment(card)
+            # Retrieve relevant context if RAG is enabled
+            context = ""
+            if use_rag:
+                card_embedding = await self.voyage.generate_embedding(
+                    f"{card.name} {' '.join(card.keywords)}"
+                )
+                relevant_sections = self.golden_dawn.find_relevant_sections(card_embedding)
+                context = "\n\n".join(
+                    f"Page {s['metadata']['page']}:\n{s['content']}" 
+                    for s in relevant_sections
+                )
+            
+            # Base enrichment with context
+            enriched = await self._base_enrichment(card, context)
             
             # Additional enrichment from reading history
             reading_insights = await self.learn_from_readings(card.name)

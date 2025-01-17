@@ -199,7 +199,8 @@ class TarotInterpreter:
         spread_type: str,
         cards: List[Tuple[CardMeaning, bool]],
         question: Optional[str],
-        context: Optional[QuestionContext] = None
+        context: Optional[QuestionContext] = None,
+        chain_of_thought: bool = True
     ) -> MultiStagePrompt:
         """Create context-aware interpretation prompt"""
         # Build context summary
@@ -210,7 +211,26 @@ class TarotInterpreter:
             f"{i+1}. {card.name} ({'Reversed' if reversed else 'Upright'})"
             for i, (card, reversed) in enumerate(cards)
         )
-        return MultiStagePrompt([
+        stages = []
+        
+        if chain_of_thought:
+            stages.append(PromptStage(
+                name="chain_of_thought",
+                system_message="Think step by step about the reading",
+                user_message=f"""
+                Let's analyze this reading step by step:
+                
+                1. First, identify the key components of the question: {question}
+                2. Then, consider the spread type: {spread_type}
+                3. Analyze each card's meaning in context:
+                   {formatted_cards}
+                4. Consider the overall context:
+                   {context_summary}
+                5. Finally, synthesize the interpretation
+                """
+            ))
+            
+        stages.extend([
             PromptStage(
                 name="context_analysis",
                 system_message="Analyze the reading context and identify key themes",

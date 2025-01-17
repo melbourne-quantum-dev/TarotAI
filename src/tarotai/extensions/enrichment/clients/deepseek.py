@@ -58,6 +58,7 @@ class DeepSeekClient(BaseAIClient):
         presence_penalty: float = 0.0,
         tools: Optional[List[Dict[str, Any]]] = None,
         tool_choice: Optional[Union[str, Dict[str, Any]]] = None,
+        response_format: Optional[Dict[str, str]] = None,
         **kwargs
     ) -> Dict[str, Any]:
         """Generate a response from DeepSeek with MTP support and conversation history."""
