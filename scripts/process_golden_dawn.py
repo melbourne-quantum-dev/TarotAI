@@ -27,7 +27,10 @@ from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (
     GoldenDawnKnowledgeBase,
     save_knowledge
 )
+from pydantic import BaseModel, Field, validator
+from pathlib import Path
 from src.tarotai.core.config import get_config
+from src.tarotai.core.logging import setup_logging
 from src.tarotai.core.logging import setup_logging
 
 # Configure logging
@@ -306,8 +309,9 @@ async def process_golden_dawn(pdf_path: Path, voyage_client) -> Dict[str, Any]:
         processed_cards = []
         
         # Split cards into batches
-        for i in range(0, len(cards), config.batch_size):
-            batch = cards[i:i + config.batch_size]
+        batch_size = config.batch_size
+        for i in range(0, len(cards), batch_size):
+            batch = cards[i:i + batch_size]
             logger.info(f"Processing batch {i//batch_size + 1} of {len(cards)//batch_size + 1}")
             
             processed_batch = await knowledge_processor.process_batch(
