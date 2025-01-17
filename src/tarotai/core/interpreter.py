@@ -11,7 +11,7 @@ from .clients.voyage import VoyageClient
 from .clients.deepseek import DeepSeekClient
 from .clients.anthropic import AnthropicClient
 from .clients.openai import OpenAIClient
-from .rag import RAGSystem
+from ..ai.rag.generator import RAGSystem
 
 class BaseAIClient(ABC):
     """Base interface for AI clients"""

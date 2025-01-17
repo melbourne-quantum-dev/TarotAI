@@ -2052,6 +2052,19 @@ wheels = [
 ]
 
 [[package]]
+name = "pydantic-settings"
+version = "2.7.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/73/7b/c58a586cd7d9ac66d2ee4ba60ca2d241fa837c02bca9bea80a9a8c3d22a9/pydantic_settings-2.7.1.tar.gz", hash = "sha256:10c9caad35e64bfb3c2fbf70a078c0e25cc92499782e5200747f942a065dec93", size = 79920 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b4/46/93416fdae86d40879714f72956ac14df9c7b76f7d41a4d68aa9f71a0028b/pydantic_settings-2.7.1-py3-none-any.whl", hash = "sha256:590be9e6e24d06db33a4262829edef682500ef008565a969c73d39d5f8bfb3fd", size = 29718 },
+]
+
+[[package]]
 name = "pydub"
 version = "0.25.1"
 source = { registry = "https://pypi.org/simple" }
@@ -4810,6 +4823,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pytest-asyncio"
+version = "0.25.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/72/df/adcc0d60f1053d74717d21d58c0048479e9cab51464ce0d2965b086bd0e2/pytest_asyncio-0.25.2.tar.gz", hash = "sha256:3f8ef9a98f45948ea91a0ed3dc4268b5326c0e7bce73892acc654df4262ad45f", size = 53950 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/d8/defa05ae50dcd6019a95527200d3b3980043df5aa445d40cb0ef9f7f98ab/pytest_asyncio-0.25.2-py3-none-any.whl", hash = "sha256:0d0bb693f7b99da304a0634afc0a4b19e49d5e0de2d670f38dc4bfa5727c5075", size = 19400 },
+]
+
+[[package]]
 name = "pytest-cov"
 version = "6.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -5359,6 +5384,7 @@ dependencies = [
     { name = "ollama" },
     { name = "openai", extra = ["realtime"] },
     { name = "pydantic" },
+    { name = "pydantic-settings" },
     { name = "pypdf2" },
     { name = "python-dotenv" },
     { name = "pyttsx3" },
@@ -5372,15 +5398,12 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-ai = [
-    { name = "openai" },
-    { name = "voyageai" },
-]
 dev = [
     { name = "black" },
     { name = "flake8" },
     { name = "mypy" },
     { name = "pytest" },
+    { name = "pytest-asyncio" },
     { name = "pytest-cov" },
 ]
 
@@ -5399,11 +5422,12 @@ requires-dist = [
     { name = "llm-gemini", specifier = ">=0.4.2" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "ollama", specifier = ">=0.4.1" },
-    { name = "openai", marker = "extra == 'ai'", specifier = ">=1.0.0" },
     { name = "openai", extras = ["realtime"], specifier = ">=1.59.0" },
     { name = "pydantic", specifier = ">=2.10.2" },
+    { name = "pydantic-settings", specifier = ">=2.2.1" },
     { name = "pypdf2", specifier = ">=3.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.3" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "pyttsx3", specifier = ">=2.98" },
@@ -5414,7 +5438,6 @@ requires-dist = [
     { name = "rich", specifier = ">=13.9.4" },
     { name = "typer", specifier = ">=0.13.1" },
     { name = "voyageai", specifier = ">=0.3.0" },
-    { name = "voyageai", marker = "extra == 'ai'", specifier = ">=0.3.0" },
 ]
 
 [[package]]

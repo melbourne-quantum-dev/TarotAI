@@ -1,5 +1,5 @@
 import pytest
-from tarotai.core.vector_store import VectorStore
+from tarotai.ai.rag.vector_store import VectorStore
 from tarotai.core.embedding_manager import EmbeddingManager, CardEmbeddings
 from tarotai.core.types import Reading, CardMeaning
 from pathlib import Path
