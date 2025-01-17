@@ -1,5 +1,13 @@
 """Core module for TarotAI"""
 
+from .errors import (
+    TarotError,
+    TarotHTTPException,
+    DeckError,
+    ConfigError,
+    EnrichmentError
+)
+
 from .models.types import (
     CardMeaning,
     Reading,
@@ -19,6 +27,13 @@ from .services.reading import ReadingInput
 from .services.card_processor import CardProcessor
 
 __all__ = [
+    # Errors
+    'TarotError',
+    'TarotHTTPException',
+    'DeckError',
+    'ConfigError',
+    'EnrichmentError',
+    
     # Types
     'CardMeaning',
     'Reading',

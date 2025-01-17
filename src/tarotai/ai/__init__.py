@@ -3,7 +3,7 @@ TarotAI AI subsystem - unified interface for all AI operations
 """
 from .clients import BaseAIClient, UnifiedAIClient
 from .embeddings import EmbeddingManager, EmbeddingStorage
-from ...ai.prompts import PromptManager
+from .prompts import PromptManager
 from .rag import KnowledgeBase, RAGSystem
 
 __all__ = [
