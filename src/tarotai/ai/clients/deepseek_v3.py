@@ -224,6 +224,31 @@ class DeepSeekClient(BaseAIClient):
         """
         return await self.json_prompt(evaluation_prompt)
 
+    async def generate_meaning_from_correspondences(
+        self,
+        card: Dict[str, Any],
+        gd_knowledge: Dict[str, Any],
+        reversed: bool = False
+    ) -> str:
+        """Generate meaning using DeepSeek's chain-of-thought"""
+        context = {
+            "card_name": card["name"],
+            "element": card["element"],
+            "astrological": card["astrological"],
+            "kabbalistic": card["kabbalistic"],
+            "position": "reversed" if reversed else "upright"
+        }
+        
+        prompt = f"""
+        Generate a {context['position']} meaning for {context['card_name']} considering:
+        - Element: {context['element']}
+        - Astrological: {context['astrological']}
+        - Kabbalistic: {context['kabbalistic']}
+        - Golden Dawn Symbolism: {gd_knowledge.get('symbolism', [])}
+        """
+        
+        return await self.chain_of_thought(prompt)
+
     async def conversational_prompt(
         self,
         messages: List[Dict[str, str]],

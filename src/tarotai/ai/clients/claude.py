@@ -139,3 +139,21 @@ class ClaudeClient(BaseAIClient):
                     yield chunk.text
         except Exception as e:
             raise EnrichmentError(f"Streaming failed: {str(e)}")
+
+    async def extract_structured_knowledge(
+        self,
+        pdf_content: str
+    ) -> Dict[str, Any]:
+        """Extract structured knowledge using Claude's JSON capabilities"""
+        prompt = f"""
+        Extract Golden Dawn knowledge from this content:
+        {pdf_content[:10000]}  # First 10k chars
+        
+        Return structured JSON with:
+        - astrological_correspondences
+        - kabbalistic_paths
+        - elemental_attributions
+        - card_symbolism
+        """
+        
+        return await self.json_prompt(prompt)

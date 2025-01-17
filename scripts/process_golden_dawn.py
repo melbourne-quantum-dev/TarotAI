@@ -190,33 +190,90 @@ class KnowledgeProcessor:
         for field in required_fields:
             assert field in card, f"Missing required field: {field}"
 
-class KnowledgeValidator:
-    """Validation framework for processed knowledge"""
+class EnhancedCardValidator:
+    """Extended validation with AI-assisted checks"""
     
-    def validate_card(self, card: Dict[str, Any]) -> bool:
-        """Comprehensive card validation"""
-        try:
-            self._validate_structure(card)
-            self._validate_content_quality(card)
-            self._validate_embeddings(card.get("embeddings", {}))
-            return True
-        except Exception as e:
-            logger.error(f"Validation failed: {str(e)}")
-            return False
-            
-    def _validate_content_quality(self, card: Dict[str, Any]) -> None:
-        """Validate content meets quality standards"""
-        assert len(card["upright_meaning"]) >= 50, "Upright meaning too short"
-        assert len(card["reversed_meaning"]) >= 50, "Reversed meaning too short"
-        assert 3 <= len(card["keywords"]) <= 7, "Invalid keyword count"
+    def __init__(self, expected_fields: List[str]):
+        self.expected_fields = expected_fields
         
-    def _validate_embeddings(self, embeddings: Dict[str, Any]) -> None:
-        """Validate embedding structure and quality"""
-        required_embeddings = ["base", "upright", "reversed", "combined"]
-        for emb in required_embeddings:
-            assert emb in embeddings, f"Missing required embedding: {emb}"
-            assert isinstance(embeddings[emb], list), f"Invalid embedding format for {emb}"
-            assert len(embeddings[emb]) == 1024, f"Invalid embedding dimension for {emb}"
+    def validate_card(self, card: Dict[str, Any]) -> Dict[str, Any]:
+        """Comprehensive card validation"""
+        validation = {
+            "complete": True,
+            "missing_fields": [],
+            "issues": []
+        }
+        
+        # Check for missing fields
+        for field in self.expected_fields:
+            if field not in card or not card[field]:
+                validation["complete"] = False
+                validation["missing_fields"].append(field)
+                
+        # Validate content quality
+        if "upright_meaning" in card and len(card["upright_meaning"]) < 50:
+            validation["issues"].append("Upright meaning too short")
+        if "reversed_meaning" in card and len(card["reversed_meaning"]) < 50:
+            validation["issues"].append("Reversed meaning too short")
+        if "keywords" in card and not (3 <= len(card["keywords"]) <= 7):
+            validation["issues"].append("Invalid keyword count")
+            
+        return validation
+    
+    async def validate_with_ai(self, card: Dict[str, Any], ai_client) -> Dict[str, Any]:
+        """Perform AI-assisted validation"""
+        validation = self.validate_card(card)
+        
+        if not validation["complete"]:
+            # Use AI to suggest missing fields
+            prompt = f"""
+            Suggest values for missing fields in {card['name']}:
+            {validation['missing_fields']}
+            
+            Consider:
+            - Element: {card.get('element')}
+            - Astrological: {card.get('astrological')}
+            - Kabbalistic: {card.get('kabbalistic')}
+            """
+            
+            suggestions = await ai_client.json_prompt(prompt)
+            validation["suggestions"] = suggestions
+        
+        return validation
+
+async def process_card_batch(
+    cards: List[Dict[str, Any]],
+    gd_knowledge: Dict[str, Any],
+    ai_clients: Dict[str, BaseAIClient]
+) -> List[Dict[str, Any]]:
+    """Process batch of cards with optimized AI client usage"""
+    
+    # Use DeepSeek for meaning generation
+    meaning_tasks = [
+        ai_clients["deepseek"].generate_meaning_from_correspondences(card, gd_knowledge)
+        for card in cards
+    ]
+    
+    # Use Claude for structured knowledge extraction
+    knowledge_tasks = [
+        ai_clients["claude"].extract_structured_knowledge(card.get("raw_content", ""))
+        for card in cards
+    ]
+    
+    # Run in parallel
+    meanings, knowledge = await asyncio.gather(
+        asyncio.gather(*meaning_tasks),
+        asyncio.gather(*knowledge_tasks)
+    )
+    
+    # Update cards
+    for i, card in enumerate(cards):
+        card.update({
+            "upright_meaning": meanings[i],
+            "golden_dawn": knowledge[i]
+        })
+    
+    return cards
 
 async def generate_keywords(card: Dict, ai_client, gd_info: Dict) -> List[str]:
     """Generate keywords for a card using AI and Golden Dawn knowledge"""
@@ -291,54 +348,46 @@ async def process_cards(cards: List[Dict[str, Any]], ai_client, voyage_client, g
             processed_cards.append(card)  # Keep the original card data
     return processed_cards
 
-async def process_golden_dawn(pdf_path: Path, voyage_client) -> Dict[str, Any]:
-    """Main processing function for Golden Dawn PDF"""
+async def enhanced_process_golden_dawn(
+    pdf_path: Path,
+    voyage_client,
+    ai_clients: Dict[str, BaseAIClient]
+) -> Dict[str, Any]:
+    """Enhanced processing with AI client optimization"""
     try:
-        logger.info(f"Starting Golden Dawn PDF processing: {pdf_path}")
+        logger.info(f"Starting enhanced Golden Dawn processing: {pdf_path}")
         
-        # Initialize knowledge base and embedding manager
-        golden_dawn = GoldenDawnKnowledgeBase(pdf_path)
+        # Extract knowledge using Claude
+        pdf_content = extract_pdf_content(pdf_path)
+        gd_knowledge = await ai_clients["claude"].extract_structured_knowledge(pdf_content)
+        
+        # Process cards in optimized batches
+        cards = gd_knowledge.get("cards", [])
+        processed_cards = await process_card_batch(cards, gd_knowledge, ai_clients)
+        
+        # Validate results
+        validator = EnhancedCardValidator(EXPECTED_FIELDS)
+        validation_results = await asyncio.gather(*[
+            validator.validate_with_ai(card, ai_clients["deepseek"])
+            for card in processed_cards
+        ])
+        
+        # Generate embeddings
         embedding_manager = CardEmbeddings()
-        knowledge_processor = KnowledgeProcessor(embedding_manager)
-        
-        # Get processed knowledge
-        knowledge = golden_dawn.knowledge.dict()
-        
-        # Process cards in batches for better performance
-        cards = knowledge.get("cards", [])
-        processed_cards = []
-        
-        # Split cards into batches
-        batch_size = config.batch_size
-        for i in range(0, len(cards), batch_size):
-            batch = cards[i:i + batch_size]
-            logger.info(f"Processing batch {i//batch_size + 1} of {len(cards)//batch_size + 1}")
-            
-            processed_batch = await knowledge_processor.process_batch(
-                batch,
-                voyage_client
+        for card in processed_cards:
+            card["embeddings"] = await embedding_manager.generate_card_embeddings(
+                card, voyage_client
             )
-            processed_cards.extend(processed_batch)
         
-        # Prepare output data
-        output = {
+        return {
+            "cards": processed_cards,
+            "validation": validation_results,
             "metadata": {
                 "processed_at": datetime.now().isoformat(),
-                "source_file": str(pdf_path),
-                "version": "2.0.0",
+                "ai_models_used": list(ai_clients.keys()),
                 "embedding_dimension": embedding_manager.dimension
-            },
-            "knowledge": {
-                "cards": processed_cards,
-                "correspondences": knowledge.get("correspondences", {})
-            },
-            "embeddings": {
-                "card_count": len(processed_cards),
-                "embedding_version": "2.0.0"
             }
         }
-        
-        return output
         
     except Exception as e:
         logger.error(f"Failed to process Golden Dawn PDF: {str(e)}")
