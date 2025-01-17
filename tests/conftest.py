@@ -1,8 +1,8 @@
 import pytest
 from pathlib import Path
-from tarotai.core.deck import TarotDeck
-from tarotai.core.config import get_config
-from tarotai.core.models.card import TarotCard
+from src.tarotai.core.models.deck import TarotDeck
+from src.tarotai.core.config import get_config
+from src.tarotai.core.models.card import TarotCard
 
 @pytest.fixture(scope="session")
 def config():
