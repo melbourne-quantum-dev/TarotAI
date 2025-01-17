@@ -18,11 +18,11 @@ if ! grep -q 'eval "$(direnv hook bash)"' ~/.bashrc; then
 fi
 
 # Check if .envrc exists in the project directory
-PROJECT_DIR="/home/fuar/projects/TarotAI"
+PROJECT_DIR="$(pwd)"
 if [ ! -f "$PROJECT_DIR/.envrc" ]; then
-    echo "❌ Error: .envrc file is missing in $PROJECT_DIR."
+    echo "❌ Error: .envrc file is missing in current directory."
     echo "Create it with:"
-    echo "  touch $PROJECT_DIR/.envrc"
+    echo "  touch .envrc"
     echo "And add the following content:"
     echo '  source .venv/bin/activate'
     echo '  export TAROTAI_DATA_DIR="$(pwd)/data"'
