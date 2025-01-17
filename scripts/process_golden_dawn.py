@@ -27,6 +27,7 @@ from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (
     save_knowledge
 )
 from src.tarotai.core.config import get_config
+from src.tarotai.ai.embeddings.voyage import VoyageClient  # Assuming this is the correct import path
 from src.tarotai.core.logging import setup_logging
 
 # Configure logging
@@ -206,7 +207,7 @@ async def process_cards(cards: List[Dict[str, Any]], ai_client, voyage_client, g
             processed_cards.append(card)  # Keep the original card data
     return processed_cards
 
-async def process_golden_dawn(pdf_path: Path) -> Dict[str, Any]:
+async def process_golden_dawn(pdf_path: Path, voyage_client) -> Dict[str, Any]:
     """Main processing function for Golden Dawn PDF"""
     try:
         logger.info(f"Starting Golden Dawn PDF processing: {pdf_path}")
@@ -266,8 +267,11 @@ async def main():
         # Ensure output directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
+        # Initialize Voyage client
+        voyage_client = VoyageClient()  # Assuming you have this import
+        
         # Process PDF
-        result = await process_golden_dawn(pdf_path)
+        result = await process_golden_dawn(pdf_path, voyage_client)
         
         # Save results
         save_knowledge(result, output_path)
