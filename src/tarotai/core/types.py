@@ -3,8 +3,9 @@ Type definitions for the TarotAI system.
 This module contains Pydantic models and type hints used throughout the application.
 """
 
+from datetime import date
 from enum import Enum
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any, Literal
 from pydantic import BaseModel, Field, validator
 
 class CardSuit(str, Enum):

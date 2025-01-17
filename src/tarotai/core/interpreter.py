@@ -1,7 +1,7 @@
 from pathlib import Path
 import logging
 from typing import List, Tuple, Dict, Optional, Generator, Any, cast
-from .types import CardMeaning, SpreadType, Reading, SpreadPosition
+from .types import CardMeaning, SpreadType, Reading, SpreadPosition, QuestionContext
 from .prompts import MultiStagePrompt, PromptStage
 from .reading import ReadingInput
 from .config import get_config, AISettings
