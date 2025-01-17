@@ -1,12 +1,41 @@
 from PyPDF2 import PdfReader
 from typing import List, Dict, Optional
 import os
-import pickle
+import json
 from pathlib import Path
 from tqdm import tqdm
 from voyageai import get_embedding
 from dotenv import load_dotenv
+from pydantic import BaseModel
 from ..exceptions import EnrichmentError
+
+class GoldenDawnReadingMethod(BaseModel):
+    name: str
+    description: str
+    steps: List[str]
+    positions: List[str]
+    notes: Optional[str] = None
+
+class HistoricalApproach(BaseModel):
+    reader: str
+    era: str
+    approach: str
+    key_insights: List[str]
+    notes: Optional[str] = None
+
+class GoldenDawnLore(BaseModel):
+    topic: str
+    description: str
+    symbolism: List[str]
+    references: List[str]
+    notes: Optional[str] = None
+
+class GoldenDawnKnowledge(BaseModel):
+    reading_methods: Dict[str, GoldenDawnReadingMethod]
+    historical_approaches: Dict[str, HistoricalApproach]
+    lore: Dict[str, GoldenDawnLore]
+    optimal_practices: List[str]
+    miscellaneous: Dict[str, str]
 
 load_dotenv()
 
