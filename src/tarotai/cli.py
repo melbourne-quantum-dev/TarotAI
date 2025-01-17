@@ -3,8 +3,7 @@ import questionary
 from typing import Optional, Callable, List
 from pathlib import Path
 from rich.panel import Panel
-from .display import TarotDisplay, TarotASCII
-from .reader import TarotReader
+from .display import TarotDisplay
 from .core.voice import TarotVoice
 from .core.deck import TarotDeck
 from .core.reading import RandomDrawInput, ManualInput

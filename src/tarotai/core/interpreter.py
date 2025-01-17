@@ -118,20 +118,23 @@ class TarotInterpreter:
         )
 
     def _setup_logging(self) -> logging.Logger:
-        """Configure logging system"""
-        logger = logging.getLogger("tarot_interpreter")
+        """Configure logging system using module name"""
+        logger = logging.getLogger(__name__)
         logger.setLevel(logging.INFO)
         
-        # Create console handler
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-        
-        # Create formatter and add to handler
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        
-        # Add handler to logger
-        logger.addHandler(ch)
+        if not logger.handlers:
+            # Create console handler
+            ch = logging.StreamHandler()
+            ch.setLevel(logging.INFO)
+            
+            # Create formatter and add to handler
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            ch.setFormatter(formatter)
+            
+            # Add handler to logger
+            logger.addHandler(ch)
         return logger
         
     def _load_config(self, config_path: Path) -> Dict[str, Any]:

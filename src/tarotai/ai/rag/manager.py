@@ -41,6 +41,22 @@ class RAGResult:
             confidence=data["confidence"],
             metadata=data["metadata"]
         )
+        
+    def validate(self) -> bool:
+        """Validate the RAG result"""
+        if not self.content:
+            return False
+        if not isinstance(self.sources, list):
+            return False
+        if not 0.0 <= self.confidence <= 1.0:
+            return False
+        return True
+        
+    def __str__(self) -> str:
+        """String representation of the result"""
+        return (f"RAGResult(content={self.content[:50]}..., "
+                f"confidence={self.confidence:.2f}, "
+                f"sources={len(self.sources)})")
 
 class RAGManager:
     """Manages the RAG system for TarotAI"""
