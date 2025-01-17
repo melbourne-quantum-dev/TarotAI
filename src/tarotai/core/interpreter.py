@@ -7,6 +7,10 @@ from .types import CardMeaning, SpreadType, Reading, SpreadPosition, QuestionCon
 from .prompts import MultiStagePrompt, PromptStage
 from .reading import ReadingInput
 from .config import get_config, AISettings
+from .clients.voyage import VoyageClient
+from .clients.deepseek import DeepSeekClient
+from .clients.anthropic import AnthropicClient
+from .clients.openai import OpenAIClient
 
 class BaseAIClient(ABC):
     """Base interface for AI clients"""
