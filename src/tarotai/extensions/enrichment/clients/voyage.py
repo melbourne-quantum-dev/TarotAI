@@ -98,6 +98,12 @@ class VoyageClient(BaseAIClient):
                 }
             )
             response.raise_for_status()
+            
+            # Update usage tracking
+            self.usage_tracker["total_tokens"] += len(text.split())
+            self.usage_tracker["requests"] += 1
+            self.usage_tracker["total_characters"] += len(text)
+            
             return response.json()["data"][0]
         except Exception as e:
             raise EnrichmentError(f"Voyage embedding request failed: {str(e)}")
