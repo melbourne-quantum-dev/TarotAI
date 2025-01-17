@@ -1,5 +1,8 @@
 from pathlib import Path
 
+# Declare namespace package
+__import__('pkg_resources').declare_namespace(__name__)
+
 # Package version
 __version__ = "2.1.0"
 

@@ -79,6 +79,7 @@ generate-meanings = "scripts.generate_meanings:main"
 where = ["src"]
 include = ["tarotai*"]
 exclude = ["tests*"]
+namespace_packages = ["tarotai"]
 
 [tool.setuptools.package-data]
 tarotai = [
