@@ -6,7 +6,7 @@ from rich.panel import Panel
 from .display import TarotDisplay
 from .core.voice import TarotVoice
 from .core.deck import TarotDeck
-from .core.reading import RandomDrawInput, ManualInput
+from .core.reading import RandomDrawInput, ManualInput, Reading
 from .core.interpreter import TarotInterpreter
 
 app = typer.Typer(
@@ -314,7 +314,25 @@ def voice(
             # Process commands
             if "start reading" in text.lower():
                 # Execute reading
-                reading = reader.execute_reading(spread_type, focus, question)
+                # Create reading input
+                deck = TarotDeck(Path("data/cards_ordered.json"))
+                input_method = RandomDrawInput(deck, count=3)
+                
+                # Execute reading
+                results = list(interpreter.interpret_reading(
+                    input_method,
+                    question=question,
+                    show_static=True
+                ))
+                
+                # Create reading object from results
+                reading = Reading(
+                    cards=[(card[0].name, card[1]) for card in input_method.get_cards()],
+                    interpretation="\n".join(r["content"] for r in results),
+                    spread_type=spread_type,
+                    focus=focus,
+                    question=question
+                )
                 display.show_reading(reading)
                 
                 # Speak interpretation
