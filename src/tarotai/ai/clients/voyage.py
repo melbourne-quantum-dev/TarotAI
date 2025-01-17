@@ -1,8 +1,11 @@
 import os
+import io
+import base64
 from typing import Dict, Any, List, Optional, Union
 from voyageai import AsyncClient
 from dotenv import load_dotenv
 from tenacity import retry, wait_exponential, stop_after_attempt
+from PIL import Image
 from ..exceptions import EnrichmentError
 from .base import BaseAIClient
 
