@@ -28,6 +28,31 @@ from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (
     save_knowledge
 )
 from src.tarotai.core.config import get_config
+from src.tarotai.core.logging import setup_logging
+
+# Configure logging
+setup_logging()
+logger = logging.getLogger(__name__)
+
+class GoldenDawnConfig(BaseModel):
+    """Configuration specific to Golden Dawn processing"""
+    voyage_api_key: str = Field(..., env="VOYAGE_API_KEY")
+    data_dir: Path = Field(default=Path("data"))
+    batch_size: int = Field(default=10, description="Number of cards to process per batch")
+    
+    @validator('data_dir')
+    def validate_data_dir(cls, v):
+        if not v.exists():
+            v.mkdir(parents=True, exist_ok=True)
+        return v
+
+def get_golden_dawn_config() -> GoldenDawnConfig:
+    """Get Golden Dawn specific configuration"""
+    try:
+        return GoldenDawnConfig()
+    except Exception as e:
+        logger.error(f"Failed to load Golden Dawn configuration: {str(e)}")
+        raise
 from src.tarotai.ai.embeddings.voyage import VoyageClient  # Assuming this is the correct import path
 from src.tarotai.core.logging import setup_logging
 
@@ -277,13 +302,12 @@ async def process_golden_dawn(pdf_path: Path, voyage_client) -> Dict[str, Any]:
         knowledge = golden_dawn.knowledge.dict()
         
         # Process cards in batches for better performance
-        batch_size = 10  # Adjust based on VoyageClient's batch limits
         cards = knowledge.get("cards", [])
         processed_cards = []
         
         # Split cards into batches
-        for i in range(0, len(cards), batch_size):
-            batch = cards[i:i + batch_size]
+        for i in range(0, len(cards), config.batch_size):
+            batch = cards[i:i + config.batch_size]
             logger.info(f"Processing batch {i//batch_size + 1} of {len(cards)//batch_size + 1}")
             
             processed_batch = await knowledge_processor.process_batch(
@@ -319,13 +343,12 @@ async def process_golden_dawn(pdf_path: Path, voyage_client) -> Dict[str, Any]:
 async def main():
     """Main execution function"""
     try:
-        # Get configuration
-        config = get_config()
-        data_dir = Path(config.data_dir)
+        # Get Golden Dawn specific configuration
+        config = get_golden_dawn_config()
         
         # Define paths
-        pdf_path = data_dir / "golden_dawn.pdf"
-        output_path = data_dir / "knowledge_cache" / "golden_dawn_processed.json"
+        pdf_path = config.data_dir / "golden_dawn.pdf"
+        output_path = config.data_dir / "knowledge_cache" / "golden_dawn_processed.json"
         
         # Ensure output directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
