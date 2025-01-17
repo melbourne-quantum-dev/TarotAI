@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from tarotai.core.deck import TarotDeck
+from tarotai.core import TarotDeck
 from tarotai.core.config import get_config
 from tarotai.core.card import TarotCard
 

@@ -2,7 +2,7 @@
 TarotAI Core Module - Contains all core functionality for the tarot reading system.
 """
 
-from .display import TarotDisplay
+from tarotai.ui.display import TarotDisplay
 from .errors import (
     TarotError, DeckError, ConfigError, 
     EnrichmentError, EmbeddingError, ReadingError
