@@ -7,10 +7,10 @@ import random
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
 import json
+import traceback
 
 from .types import CardMeaning, CardSuit
-
-from .errors import DeckError
+from .errors import DeckError, ErrorSeverity
 
 class TarotDeck:
     """
