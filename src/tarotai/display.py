@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Tuple, Dict, Optional
 from pathlib import Path
 from rich.console import Console
+from .core.config import Settings, get_config
 from rich.table import Table
 from rich.panel import Panel
 from rich.status import Status
