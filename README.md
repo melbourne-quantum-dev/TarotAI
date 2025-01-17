@@ -1,29 +1,24 @@
 # TarotAI - Neural-Enhanced Tarot Reading System
 
-Version 2.1.0
-
-## Documentation
-
-For detailed technical documentation, see [SSOT.md](docs/SSOT.md).
-
-For contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-For community standards, see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
-
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Tests](https://github.com/melbourne-quantum-dev/tarotai/actions/workflows/ci.yml/badge.svg)](https://github.com/melbourne-quantum-dev/tarotai/actions/workflows/ci.yml)
 
-TarotAI is a neural-enhanced tarot reading system that combines traditional divination with modern AI-powered insights. It provides programmatic access to tarot readings through a CLI interface and offers advanced features like:
+✨ **TarotAI** is a neural-enhanced tarot reading system that combines traditional divination with modern AI-powered insights. ✨
 
-- AI-enhanced card interpretations
-- Multiple spread types (Single, Three Card, Celtic Cross, Horseshoe)
-- Context-aware interpretation engine
-- Reading history and pattern analysis
-- Voice interface support
-- Golden Dawn tradition integration
+## Features
 
-## Installation
+- 🃏 AI-enhanced card interpretations
+- 🌟 Multiple spread types (Single, Three Card, Celtic Cross, Horseshoe)
+- 🔮 Context-aware interpretation engine
+- 📜 Reading history and pattern analysis
+- 🎙️ Voice interface support
+- 🕯️ Golden Dawn tradition integration
+
+## Quickstart
+
+### Installation
 
 1. Clone the repository:
    ```bash
@@ -48,18 +43,11 @@ TarotAI is a neural-enhanced tarot reading system that combines traditional divi
    # Edit .env with your API keys
    ```
 
-## Usage
+### Basic Usage
 
-### Command Line Interface Examples
-
-#### Basic Reading
+#### Interactive Reading
 ```bash
 tarotai read --spread-type three_card --focus "Career" --question "What should I focus on?"
-```
-
-#### Interactive Mode
-```bash
-tarotai interactive
 ```
 
 #### Voice Interface
@@ -67,37 +55,43 @@ tarotai interactive
 tarotai voice
 ```
 
-### Extension Commands
-
-#### Enrichment
-```bash
-tarotai enrich --card "The Fool"
-```
-
-#### Voice Interface
-```bash
-tarotai voice --listen
-```
-
-#### Golden Dawn Integration
-```bash
-tarotai golden-dawn --extract
-```
-
 #### Generate Card Meanings
 ```bash
 tarotai generate-meanings
 ```
 
-#### View System Status
-```bash
-tarotai status
-```
+### Example Output
 
-#### Help and Documentation
-```bash
-tarotai --help
-tarotai read --help
+```plaintext
+╔═══════════════════════  TAROT-AI  ══════════════════════════╗
+║ ┌─────────────────────────────────────────────────────────┐ ║
+║ │  ▀█▀ ▄▀█ █▀█ █▀█ ▀█▀    ▄▀█ █    ▓▒░                  │ ║
+║ │   █  █▀█ █▀▄ █▄█  █     █▀█ █    ░▒▓                  │ ║
+║ │                                      v2.0               │ ║
+║ └─────────────────────────────────────────────────────────┘ ║
+║           ◈  Neural  Divination  Interface  ◈               ║
+║     ╭───────────────────  ⚡  ───────────────────╮         ║
+║     │    QUANTUM-ENHANCED HERMETIC PATTERNS      │         ║
+║     ╰────────────────────────────────────────────╯         ║
+╚══════════════════════════════════════════════════════════════╝
+
+Your Reading:
+┌────────────────────────┐
+│ ☽  ▓▒░      ░▒▓  ☉ │
+├────────────────────────┤
+│     ╭──[ 01 ]──╮     │
+│     │  The Magician  │     │
+│     ╰──────────╯     │
+│                      │
+│    ⚡ △ ⚡     │
+│    ▲ ▼ ▲     │
+│    ⚡ △ ⚡     │
+│                      │
+│ ◈                  ◈ │
+└────────────────────────┘
+
+Interpretation:
+The Magician represents manifestation and resourcefulness...
 ```
 
 ### Python API Examples
@@ -126,6 +120,14 @@ reading = reader.execute_reading(
     custom_positions=["Past", "Present", "Future", "Advice"]
 )
 ```
+
+## Documentation
+
+For detailed technical documentation, see [SSOT.md](docs/SSOT.md).
+
+For contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+For community standards, see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Development
 
