@@ -26,3 +26,26 @@ def test_reading_from_deck():
     )
     assert len(reading.cards) == 3
     assert all(isinstance(card[0], str) for card in reading.cards)
+
+def test_manual_reading_creation():
+    """Test manual reading creation"""
+    deck = TarotDeck(Path("data/cards_ordered.json"))
+    manual_input = ManualInput(
+        deck,
+        cards=[("The Fool", True), ("The Magician", False)]
+    )
+    cards = manual_input.get_cards()
+    assert len(cards) == 2
+    assert cards[0][0].name == "The Fool"
+    assert cards[0][1] is True
+    assert cards[1][0].name == "The Magician"
+    assert cards[1][1] is False
+
+def test_manual_reading_invalid_card():
+    """Test manual reading with invalid card"""
+    deck = TarotDeck(Path("data/cards_ordered.json"))
+    with pytest.raises(ValueError):
+        ManualInput(
+            deck,
+            cards=[("Invalid Card", False)]
+        ).get_cards()
