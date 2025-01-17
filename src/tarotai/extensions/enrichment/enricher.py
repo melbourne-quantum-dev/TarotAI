@@ -42,10 +42,7 @@ class TarotEnricher:
         # Voyage is still used for embeddings
         self.voyage = VoyageClient(api_key=os.getenv("VOYAGE_API_KEY"))
         
-        # Initialize analyzers
-        self.temporal_analyzer = TemporalAnalyzer()
-        self.combination_analyzer = CombinationAnalyzer()
-        self.insight_generator = InsightGenerator()
+        # Analysis capabilities handled directly by AI client
         
         # Initialize Golden Dawn knowledge base with specific PDF path
         self.golden_dawn = GoldenDawnKnowledgeBase(
@@ -85,76 +82,19 @@ class TarotEnricher:
         except Exception as e:
             raise EnrichmentError(f"Failed to record reading: {str(e)}")
 
-    async def analyze_reading_patterns(self, card_name: str):
+    async def analyze_reading_patterns(self, card_name: str) -> Dict[str, Any]:
+        """Analyze reading patterns using AI client directly"""
         try:
             readings = self.get_readings_for_card(card_name)
             stats = self.get_card_statistics(card_name)
             
-            prompt = MultiStagePrompt([
-                PromptStage(
-                    name="pattern_identification",
-                    system_message="Identify patterns in tarot readings",
-                    user_message=f"""
-                    Analyze {len(readings)} readings for card {card_name}.
-                    Identify:
-                    1. Common themes
-                    2. Position patterns
-                    3. Interpretation effectiveness
-                    4. Notable combinations
-                    """
-                ),
-                PromptStage(
-                    name="meaning_refinement",
-                    system_message="Refine card meanings based on reading patterns",
-                    user_message="""
-                    Based on the identified patterns:
-                    1. Suggest updated keywords
-                    2. Refine upright meaning
-                    3. Refine reversed meaning
-                    4. Add contextual notes
-                    """
-                )
-            ])
-            
-            return await prompt.execute(self.ai_client, {
-                "readings": readings,
-                "statistics": stats
-            })
+            return await self.ai_client.analyze_reading_patterns(
+                card_name=card_name,
+                readings=readings,
+                statistics=stats
+            )
         except Exception as e:
-            raise EnrichmentError(f"Failed to learn from readings: {str(e)}")
-
-    async def _analyze_reading_patterns(self, readings: List[Reading], card_name: str, stats: Dict[str, Any]) -> Dict[str, Any]:
-        """Use AI to analyze patterns in readings for a specific card."""
-        if not readings:
-            return {}
-            
-        try:
-            prompt = f"""
-            Analyze these {len(readings)} tarot readings where the card '{card_name}' appeared.
-            Consider:
-            - Position patterns in spreads
-            - Question contexts and themes
-            - Interpretation effectiveness (based on feedback)
-            - Correlations with other cards
-            
-            Card statistics:
-            {json.dumps(stats, indent=2)}
-            
-            Provide a structured analysis with:
-            1. Most common themes and contexts
-            2. Position-specific meanings
-            3. Successful interpretation patterns
-            4. Suggested meaning refinements
-            5. Notable card combinations and their significance
-            
-            Readings data:
-            {json.dumps([r.dict() for r in readings], indent=2)}
-            """
-            
-            response = await self.ai_client.json_prompt(prompt)
-            return response
-        except Exception as e:
-            raise EnrichmentError(f"Failed to analyze readings: {str(e)}")
+            raise EnrichmentError(f"Failed to analyze reading patterns: {str(e)}")
 
     async def _base_enrichment(self, card: CardMeaning) -> CardMeaning:
         try:

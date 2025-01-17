@@ -23,6 +23,15 @@ class BaseAIClient(ABC):
         """Generate a structured JSON response"""
         pass
         
+    async def analyze_reading_patterns(
+        self,
+        card_name: str,
+        readings: List[Dict[str, Any]],
+        statistics: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Analyze reading patterns for a specific card"""
+        pass
+        
     @abstractmethod
     async def conversational_prompt(
         self,
