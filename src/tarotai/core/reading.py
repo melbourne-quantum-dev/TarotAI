@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Optional
+from typing import List, Tuple, Dict, Optional, Any
 from pathlib import Path
 from dataclasses import dataclass
 from .types import CardMeaning

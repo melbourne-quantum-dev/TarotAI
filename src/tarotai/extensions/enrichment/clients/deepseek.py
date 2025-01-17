@@ -1,6 +1,6 @@
 import os
 import json
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 import httpx
 from dotenv import load_dotenv
 from ..exceptions import EnrichmentError
