@@ -3,7 +3,7 @@ import os
 import asyncio
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from dotenv import load_dotenv
 from .clients.base import BaseAIClient
 from .knowledge.golden_dawn import GoldenDawnKnowledgeBase
