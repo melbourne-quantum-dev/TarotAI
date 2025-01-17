@@ -2,6 +2,20 @@ from pathlib import Path
 import yaml
 from .manager import MultiStagePrompt, PromptStage
 
+# Tarot Meaning Generation Prompts
+UPRIGHT_PROMPT = """
+Generate an upright meaning for the {card_name} tarot card. 
+The card is associated with {element} and represents {keywords}.
+The astrological correspondence is {astrological}, and the Kabbalistic path is {kabbalistic}.
+Provide a concise, modern interpretation.
+"""
+
+REVERSED_PROMPT = """
+Generate a reversed meaning for the {card_name} tarot card.
+The upright meaning is: {upright_meaning}.
+Provide a concise, modern interpretation of the reversed energy.
+"""
+
 class PromptTemplateManager:
     def __init__(self, template_dir: Path = Path("prompts")):
         self.template_dir = template_dir
