@@ -3,10 +3,27 @@ from pathlib import Path
 from .types import CardMeaning
 from .deck import TarotDeck
 
+from typing import Dict, List, Tuple, Optional
+from dataclasses import dataclass
+from .types import CardMeaning
+from .deck import TarotDeck
+
+@dataclass
+class ReadingEmbeddings:
+    """Container for hierarchical embeddings of a reading"""
+    card_embeddings: List[List[float]]
+    position_embeddings: List[List[float]] 
+    context_embedding: List[float]
+    version: int = 1
+
 class ReadingInput:
     """Base class for reading input methods"""
     def get_cards(self) -> List[Tuple[CardMeaning, bool]]:
         raise NotImplementedError
+        
+    async def generate_embeddings(self, voyage_client) -> Optional[ReadingEmbeddings]:
+        """Generate hierarchical embeddings for the reading"""
+        return None
 
 class RandomDrawInput(ReadingInput):
     """Input method using random card draw"""
