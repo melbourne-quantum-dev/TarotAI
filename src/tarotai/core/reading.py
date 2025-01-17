@@ -27,6 +27,31 @@ class ReadingInput:
     def get_cards(self) -> List[Tuple[CardMeaning, bool]]:
         raise NotImplementedError
         
+    async def analyze_combinations(self, ai_client) -> Dict[str, Any]:
+        """Analyze card combinations using tool calling"""
+        tools = [
+            {
+                "name": "analyze_card_combinations",
+                "description": "Analyze interactions between cards",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "cards": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        }
+                    }
+                }
+            }
+        ]
+        
+        card_names = [card[0].name for card in self.get_cards()]
+        return await ai_client.generate_response(
+            f"Analyze these card combinations: {', '.join(card_names)}",
+            tools=tools,
+            tool_choice="auto"
+        )
+        
     async def generate_embeddings(self, voyage_client) -> Optional[ReadingEmbeddings]:
         """Generate hierarchical embeddings for the reading"""
         cards = self.get_cards()

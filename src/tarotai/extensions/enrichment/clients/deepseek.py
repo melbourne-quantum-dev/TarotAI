@@ -49,7 +49,17 @@ class DeepSeekClient(BaseAIClient):
             }
         )
 
-    async def generate_response(self, prompt: str, **kwargs) -> Dict[str, Any]:
+    async def generate_response(
+        self,
+        prompt: str,
+        temperature: float = 0.7,
+        top_p: float = 1.0,
+        frequency_penalty: float = 0.0,
+        presence_penalty: float = 0.0,
+        tools: Optional[List[Dict[str, Any]]] = None,
+        tool_choice: Optional[Union[str, Dict[str, Any]]] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
         """Generate a response from DeepSeek with MTP support and conversation history."""
         try:
             # Add system prompt if not already in history
@@ -62,16 +72,27 @@ class DeepSeekClient(BaseAIClient):
             # Add user message to conversation history
             self.conversation_history.append({"role": "user", "content": prompt})
             
+            params = {
+                "model": self.model,
+                "messages": self.conversation_history,
+                "temperature": temperature,
+                "top_p": top_p,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+                **kwargs
+            }
+            
+            if tools:
+                params["tools"] = tools
+            if tool_choice:
+                params["tool_choice"] = tool_choice
+            
             if self.mtp_enabled:
-                response = await self._generate_with_mtp(prompt, **kwargs)
+                response = await self._generate_with_mtp(prompt, **params)
             else:
                 response = await self.session.post(
                     f"{self.base_url}/chat/completions",
-                    json={
-                        "model": self.model,
-                        "messages": self.conversation_history,
-                        **kwargs
-                    }
+                    json=params
                 )
                 response.raise_for_status()
                 response = response.json()
@@ -150,6 +171,19 @@ class DeepSeekClient(BaseAIClient):
         except Exception as e:
             raise EnrichmentError(f"DeepSeek FP8 embedding request failed: {str(e)}")
 
+    async def chain_of_thought(self, question: str) -> str:
+        """Generate a response using chain-of-thought prompting."""
+        prompt = f"""
+        Let's think step by step:
+        
+        Question: {question}
+        
+        First, analyze the key components of the question.
+        Then, consider the relevant tarot symbolism.
+        Finally, provide a detailed interpretation.
+        """
+        return await self.generate_response(prompt)
+
     async def json_prompt(self, prompt: str) -> Dict[str, Any]:
         """Generate a JSON response from DeepSeek with structured output."""
         try:
@@ -173,6 +207,21 @@ class DeepSeekClient(BaseAIClient):
             return json.loads(response["choices"][0]["message"]["content"])
         except Exception as e:
             raise EnrichmentError(f"DeepSeek JSON request failed: {str(e)}")
+
+    async def evaluate_response(self, response: str) -> Dict[str, float]:
+        """Evaluate a tarot interpretation response."""
+        evaluation_prompt = f"""
+        Evaluate this tarot interpretation:
+        
+        {response}
+        
+        Provide scores for:
+        - Accuracy (0-1)
+        - Relevance (0-1)
+        - Depth (0-1)
+        - Clarity (0-1)
+        """
+        return await self.json_prompt(evaluation_prompt)
 
     async def conversational_prompt(
         self,
