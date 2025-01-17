@@ -1,13 +1,14 @@
 """
-Type definitions for the TarotAI system.
-This module contains Pydantic models and type hints used throughout the application.
+Core type definitions for TarotAI system.
+This module contains all Pydantic models and type hints used throughout the application.
 """
 
 from datetime import date
 from enum import Enum
-from typing import List, Dict, Optional, Any, Literal
+from typing import List, Dict, Optional, Any, Literal, Tuple
 from pydantic import BaseModel, Field, validator
 
+# Enums
 class CardSuit(str, Enum):
     MAJOR = "major"
     WANDS = "wands"
@@ -36,6 +37,7 @@ class ReadingType(str, Enum):
     CELTIC_CROSS = "celtic_cross"
     CUSTOM = "custom"
 
+# Models
 class UserProfile(BaseModel):
     """User profile information for personalized readings"""
     name: Optional[str] = Field(None, description="User's preferred name")
@@ -101,3 +103,8 @@ class Reading(BaseModel):
     is_reversed: List[bool]
     timestamp: str = Field(..., description="ISO format timestamp of the reading")
     interpretation: Optional[str] = None
+
+# Type Aliases
+CardTuple = Tuple[CardMeaning, bool]
+CardEmbedding = List[float]
+ReadingEmbedding = Dict[str, CardEmbedding]
