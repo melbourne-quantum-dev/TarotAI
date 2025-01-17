@@ -235,7 +235,8 @@ statistics = history_manager.get_card_statistics("The Fool")
 
 ## Documentation
 
-For detailed technical documentation, see [SSOT.md](docs/SSOT.md).
+- [Technical Documentation](docs/SSOT.md) - Detailed technical specifications
+- [Non-Technical Overview](docs/non-technical-overview.md) - Friendly introduction to the system
 
 For contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
