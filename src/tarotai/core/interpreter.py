@@ -1,10 +1,103 @@
 from pathlib import Path
 import logging
+import httpx
 from typing import List, Tuple, Dict, Optional, Generator, Any, cast
+from abc import ABC, abstractmethod
 from .types import CardMeaning, SpreadType, Reading, SpreadPosition, QuestionContext
 from .prompts import MultiStagePrompt, PromptStage
 from .reading import ReadingInput
 from .config import get_config, AISettings
+
+class BaseAIClient(ABC):
+    """Base interface for AI clients"""
+    
+    @abstractmethod
+    async def generate_response(self, prompt: str, **kwargs) -> Dict[str, Any]: ...
+    
+    @abstractmethod
+    async def generate_embedding(self, text: str) -> List[float]: ...
+    
+    @abstractmethod
+    async def json_prompt(self, prompt: str) -> Dict[str, Any]: ...
+
+class OllamaClient(BaseAIClient):
+    """Client for local Ollama models"""
+    
+    def __init__(self, base_url: str = "http://localhost:11434"):
+        self.base_url = base_url
+        self.session = httpx.AsyncClient(base_url=base_url)
+        
+    async def generate_response(self, prompt: str, model: str = "llama2", **kwargs) -> Dict[str, Any]:
+        response = await self.session.post(
+            "/api/generate",
+            json={
+                "model": model,
+                "prompt": prompt,
+                **kwargs
+            }
+        )
+        return response.json()
+        
+    async def generate_embedding(self, text: str, model: str = "llama2") -> List[float]:
+        response = await self.session.post(
+            "/api/embeddings",
+            json={
+                "model": model,
+                "prompt": text
+            }
+        )
+        return response.json()["embedding"]
+        
+    async def json_prompt(self, prompt: str) -> Dict[str, Any]:
+        response = await self.generate_response(
+            f"Return JSON only for: {prompt}",
+            format="json"
+        )
+        return response
+
+class UnifiedAIClient:
+    """Unified interface for multiple AI providers"""
+    
+    def __init__(self, config: AISettings):
+        self.clients = {
+            "voyage": VoyageClient(config.voyage_model),
+            "deepseek": DeepSeekClient(config.deepseek_model),
+            "anthropic": AnthropicClient(config.anthropic_model),
+            "openai": OpenAIClient(config.openai_model),
+            "ollama": OllamaClient() if config.ollama_enabled else None
+        }
+        self.default_client = self.clients[config.default_provider]
+        
+    async def generate_response(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        return await self.default_client.generate_response(prompt, **kwargs)
+        
+    async def generate_embedding(self, text: str) -> List[float]:
+        return await self.clients["voyage"].generate_embedding(text)
+        
+    async def json_prompt(self, prompt: str) -> Dict[str, Any]:
+        return await self.default_client.json_prompt(prompt)
+
+class ModelRouter:
+    """Routes requests to appropriate models"""
+    
+    def __init__(self, config: AISettings):
+        self.config = config
+        self.clients = UnifiedAIClient(config)
+        
+    async def route_request(self, task_type: str, **kwargs) -> Any:
+        """Route requests to appropriate model"""
+        if task_type == "embedding":
+            return await self.clients.generate_embedding(kwargs["text"])
+        elif task_type == "interpretation":
+            return await self.clients.generate_response(
+                kwargs["prompt"],
+                model=self.config.interpretation_model
+            )
+        elif task_type == "enrichment":
+            return await self.clients.generate_response(
+                kwargs["prompt"],
+                model=self.config.enrichment_model
+            )
 
 class TarotInterpreter:
     def __init__(self, config: AISettings):
@@ -13,6 +106,7 @@ class TarotInterpreter:
         self.config = config
         self.stage_limits = config.interpretation_limits
         self.prompt_templates = self._load_prompt_templates()
+        self.model_router = ModelRouter(config)
 
     def _setup_logging(self) -> logging.Logger:
         """Configure logging system"""
@@ -176,12 +270,12 @@ class TarotInterpreter:
         interpretation = self._generate_interpretation(cards, question)
         yield {"type": "interpretation", "content": interpretation}
 
-    def _generate_interpretation(
+    async def _generate_interpretation(
         self,
         cards: List[Tuple[CardMeaning, bool]],
         question: Optional[str] = None
     ) -> str:
-        """Generate interpretation for a reading"""
+        """Generate interpretation for a reading using model router"""
         self.logger.info("Starting interpretation")
         
         try:
@@ -189,18 +283,16 @@ class TarotInterpreter:
             prompt = self._create_interpretation_prompt("custom", cards, question)
             self.logger.debug(f"Using prompt: {prompt}")
             
-            # Generate interpretation
-            interpretation = []
+            # Generate interpretation using model router
+            response = await self.model_router.route_request(
+                "interpretation",
+                prompt=prompt
+            )
             
-            for i, (card, is_reversed) in enumerate(cards, start=1):
-                meaning = card.reversed_meaning if is_reversed else card.upright_meaning
-                interpretation.append(
-                    f"Position {i} ({card.name}): {meaning}"
-                )
-                
-            result = "\n".join(interpretation)
-            self.logger.info("Interpretation completed successfully")
-            return result
+            # Process response
+            if isinstance(response, dict):
+                return response.get("text", str(response))
+            return str(response)
             
         except Exception as e:
             self.logger.error(f"Interpretation failed: {str(e)}")
