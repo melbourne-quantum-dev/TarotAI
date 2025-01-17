@@ -18,6 +18,7 @@ import logging
 from typing import Dict, Any, List
 import json
 
+from src.tarotai.ai.prompts.templates import UPRIGHT_PROMPT, REVERSED_PROMPT
 from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (
     GoldenDawnKnowledgeBase,
     save_knowledge
