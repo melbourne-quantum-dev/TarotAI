@@ -19,11 +19,12 @@ class VoyageClient(BaseAIClient):
         self.client = AsyncClient(api_key=self.api_key, max_retries=5)
         self.model = "voyage-large-2"
         self.embedding_dim = 1024
-        self.usage_tracker = {
-            "text_tokens": 0,
-            "image_pixels": 0,
+        self.usage_stats = {
+            "total_requests": 0,
             "total_tokens": 0,
-            "requests": 0
+            "total_characters": 0,
+            "image_pixels": 0,
+            "errors": 0
         }
 
     def get_usage_stats(self) -> Dict[str, Any]:

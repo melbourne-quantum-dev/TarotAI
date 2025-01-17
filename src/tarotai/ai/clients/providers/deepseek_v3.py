@@ -23,6 +23,16 @@ class DeepSeekClient(BaseAIClient):
         self.precision = "fp8"  # Default to FP8 precision
         self.load_balancing = "auxiliary-free"  # New load balancing strategy
         
+        # Initialize usage tracking
+        self.usage_stats = {
+            "total_requests": 0,
+            "total_tokens": 0,
+            "total_characters": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "errors": 0
+        }
+        
         # Conversation history and caching
         self.conversation_history = []
         self.usage_stats = {

@@ -18,6 +18,20 @@ class ClaudeClient(BaseAIClient):
         self.client = anthropic.AsyncAnthropic(api_key=self.api_key)
         self.model = "claude-3-5-sonnet-latest"
 
+    def __init__(self, api_key: Optional[str] = None):
+        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
+        if not self.api_key:
+            raise EnrichmentError("Anthropic API key not found in environment variables.")
+        
+        self.client = anthropic.AsyncAnthropic(api_key=self.api_key)
+        self.model = "claude-3-5-sonnet-latest"
+        self.usage_stats = {
+            "total_requests": 0,
+            "total_tokens": 0,
+            "total_characters": 0,
+            "errors": 0
+        }
+
     async def generate_response(self, prompt: str, **kwargs) -> Dict[str, Any]:
         """Generate a response from Claude 3.5 Sonnet."""
         try:
@@ -27,15 +41,68 @@ class ClaudeClient(BaseAIClient):
                 messages=[{"role": "user", "content": prompt}],
                 **kwargs
             )
+            
+            # Update usage stats
+            self.usage_stats["total_requests"] += 1
+            self.usage_stats["total_tokens"] += response.usage.input_tokens + response.usage.output_tokens
+            self.usage_stats["total_characters"] += len(prompt)
+            
             return response.dict()
         except anthropic.APIConnectionError as e:
-            raise EnrichmentError(f"Connection error: {e}")
+            self.usage_stats["errors"] += 1
+            raise EnrichmentError(
+                f"Connection error: {e}",
+                detail={
+                    "type": "connection_error",
+                    "message": str(e),
+                    "retryable": True
+                }
+            )
         except anthropic.RateLimitError as e:
-            raise EnrichmentError(f"Rate limit exceeded: {e}")
+            self.usage_stats["errors"] += 1
+            raise EnrichmentError(
+                f"Rate limit exceeded: {e}",
+                detail={
+                    "type": "rate_limit",
+                    "message": str(e),
+                    "retryable": True,
+                    "retry_after": e.response.headers.get("Retry-After", 60)
+                }
+            )
         except anthropic.APIStatusError as e:
-            raise EnrichmentError(f"API error: {e.status_code} - {e.response}")
+            self.usage_stats["errors"] += 1
+            raise EnrichmentError(
+                f"API error: {e.status_code} - {e.response}",
+                detail={
+                    "type": "api_error",
+                    "status_code": e.status_code,
+                    "response": str(e.response),
+                    "retryable": e.status_code >= 500
+                }
+            )
         except Exception as e:
-            raise EnrichmentError(f"Claude API request failed: {str(e)}")
+            self.usage_stats["errors"] += 1
+            raise EnrichmentError(
+                f"Claude API request failed: {str(e)}",
+                detail={
+                    "type": "unknown_error",
+                    "message": str(e),
+                    "retryable": False
+                }
+            )
+
+    def get_usage_stats(self) -> Dict[str, Any]:
+        """Get detailed usage statistics"""
+        return {
+            **self.usage_stats,
+            "estimated_cost": self._calculate_cost()
+        }
+
+    def _calculate_cost(self) -> float:
+        """Calculate estimated API costs based on Anthropic pricing"""
+        # Pricing as of 2025-01-17
+        input_cost = (self.usage_stats["total_tokens"] / 1000) * 0.01  # $0.01 per 1k tokens
+        return input_cost
 
     async def generate_batch_responses(self, prompts: List[str]) -> List[Dict[str, Any]]:
         """Generate responses for multiple prompts in a batch."""
