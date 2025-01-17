@@ -135,6 +135,7 @@ def manual(
             )
             
             # Execute reading
+            interpreter = TarotInterpreter()
             results = list(interpreter.interpret_reading(
                 input_method,
                 question=question,
