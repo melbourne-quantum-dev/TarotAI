@@ -282,7 +282,168 @@ reading = reader.execute_reading(
 
 ## 8. System Implementation Details
 
-## 9. Meaning Generation Workflow
+## 9. AI and Embedding Architecture
+
+### 9.1 Overview
+The system integrates multiple AI providers for meaning generation and embedding services:
+- **DeepSeek V3**: Primary model for card meaning generation
+- **VoyageAI**: Primary embedding service for semantic analysis
+- **Anthropic Claude**: Secondary model for meaning generation and structured responses
+
+### 9.2 AI Client Implementations
+
+#### DeepSeekClient
+- Supports Multi-Token Prediction (MTP)
+- FP8 and BF16 precision modes
+- Advanced load balancing strategies
+- Key features:
+  ```python
+  async def generate_with_mtp(self, prompt: str) -> Dict[str, Any]
+  async def generate_fp8_embedding(self, text: str) -> List[float]
+  ```
+
+#### VoyageClient
+- Multimodal embeddings (text + image)
+- Reranking capabilities
+- Quantized embeddings (int8)
+- Usage tracking and cost estimation
+- Key features:
+  ```python
+  async def generate_multimodal_embedding(content: List[Dict[str, Any]]) -> List[float]
+  async def rerank_documents(query: str, documents: List[str]) -> List[Dict[str, Any]]
+  ```
+
+#### ClaudeClient
+- Tool use (function calling)
+- Batch message processing
+- Streaming responses
+- Structured JSON responses
+- Key features:
+  ```python
+  async def generate_batch_responses(prompts: List[str]) -> List[Dict[str, Any]]
+  async def generate_structured_response(prompt: str, tools: List[Dict[str, Any]]) -> Dict[str, Any]
+  ```
+
+### 9.3 Embedding Management
+
+#### CardEmbeddings Class
+```python
+class CardEmbeddings:
+    text_embedding: List[float]
+    image_embedding: Optional[List[float]]
+    multimodal_embedding: Optional[List[float]]
+    quantized_embedding: Optional[List[int]]
+    reduced_dimension_embedding: Optional[List[float]]
+```
+
+#### ReadingEmbeddings Class
+```python
+class ReadingEmbeddings:
+    card_embeddings: List[CardEmbeddings]
+    position_embeddings: List[List[float]]
+    context_embedding: List[float]
+```
+
+### 9.4 Integration Points
+
+#### Reading Input
+```python
+async def generate_embeddings(self, voyage_client) -> Optional[ReadingEmbeddings]:
+    # Generate hierarchical embeddings for the reading
+    cards = self.get_cards()
+    
+    # Generate text embeddings
+    text_embeddings = await voyage_client.generate_batch_embeddings(
+        [card[0].upright_meaning for card in cards]
+    )
+    
+    # Generate multimodal embeddings if images available
+    card_embeddings = []
+    for card, text_embedding in zip(cards, text_embeddings):
+        embeddings = CardEmbeddings(text_embedding=text_embedding)
+        
+        if card[0].image_url:
+            content = [
+                {"type": "text", "text": card[0].upright_meaning},
+                {"type": "image_url", "image_url": card[0].image_url}
+            ]
+            embeddings.multimodal_embedding = await voyage_client.generate_multimodal_embedding(content)
+```
+
+## 10. Meaning Generation Workflow (Updated)
+
+### 10.1 Enhanced Workflow Steps
+1. **Initialization**:
+   - Load existing card data
+   - Initialize AI clients (DeepSeek, VoyageAI, Claude)
+   
+2. **Meaning Generation**:
+   - Use DeepSeek for primary meaning generation
+   - Use Claude for structured responses and tool use
+   - Apply validation rules
+
+3. **Embedding Generation**:
+   - Generate text embeddings using VoyageAI
+   - Generate multimodal embeddings for cards with images
+   - Store embeddings in hierarchical structure
+
+4. **Validation**:
+   - Semantic consistency checks
+   - Embedding dimensionality validation
+   - Cross-provider consistency verification
+
+5. **Refinement**:
+   - AI-assisted refinement using multiple providers
+   - Semantic similarity analysis
+   - Pattern recognition across readings
+
+6. **Persistence**:
+   - Save updated card data
+   - Store embeddings separately
+   - Update usage statistics
+
+### 10.2 Example Workflow
+```python
+async def main():
+    # Initialize clients
+    deepseek = DeepSeekClient()
+    voyage = VoyageClient()
+    claude = ClaudeClient()
+    
+    # Load cards
+    cards = load_cards("data/cards_ordered.json")
+    
+    # Generate meanings
+    meanings = await deepseek.generate_batch_responses(
+        [card.upright_meaning for card in cards]
+    )
+    
+    # Generate embeddings
+    embeddings = await voyage.generate_batch_embeddings(
+        [meaning["text"] for meaning in meanings]
+    )
+    
+    # Store results
+    save_cards(cards, "data/cards_enhanced.json")
+    save_embeddings(embeddings, "data/embeddings.json")
+```
+
+## 11. Performance Considerations
+
+### 11.1 Batch Processing
+- Use batch APIs for meaning generation and embeddings
+- Implement efficient batching strategies
+- Monitor API rate limits
+
+### 11.2 Caching
+- Cache embeddings and meanings
+- Implement LRU cache for frequent queries
+- Use versioning for cache invalidation
+
+### 11.3 Cost Optimization
+- Track API usage
+- Implement cost estimation
+- Use quantized embeddings where possible
 
 The system uses an iterative, AI-assisted process to generate and refine card meanings. This workflow ensures consistency and quality while maintaining alignment with traditional tarot interpretations.
 
