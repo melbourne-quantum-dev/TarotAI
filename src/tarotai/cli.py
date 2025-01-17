@@ -95,16 +95,99 @@ def interactive():
     """Start interactive tarot session"""
     display = TarotDisplay()
     reader = TarotReader(display)
+    deck = TarotDeck(Path("data/cards_ordered.json"))
     
     try:
         display.display_welcome()
         while True:
-            spread_type = questionary.text("What spread would you like to use?").ask()
+            # Get spread type
+            spread_type = questionary.select(
+                "What spread would you like to use?",
+                choices=[
+                    {"name": "Single Card", "value": "single"},
+                    {"name": "Three Card", "value": "three_card"},
+                    {"name": "Celtic Cross", "value": "celtic_cross"},
+                    {"name": "Horseshoe", "value": "horseshoe"}
+                ]
+            ).ask()
+
+            # Get card selection method
+            draw_method = questionary.select(
+                "How would you like to select cards?",
+                choices=[
+                    {"name": "Random Draw", "value": "random"},
+                    {"name": "Manual Selection", "value": "manual"}
+                ]
+            ).ask()
+
+            # Manual card selection
+            if draw_method == "manual":
+                cards = []
+                spread_size = {
+                    "single": 1,
+                    "three_card": 3,
+                    "celtic_cross": 10,
+                    "horseshoe": 7
+                }[spread_type]
+                
+                for i in range(spread_size):
+                    card_name = questionary.text(f"Enter card #{i+1} name:").ask()
+                    reversed = questionary.confirm("Is this card reversed?").ask()
+                    cards.append((card_name, reversed))
+                input_method = ManualInput(deck, cards)
+            else:
+                input_method = RandomDrawInput(deck, count=spread_size)
+
+            # Get reading context
+            if questionary.confirm("Would you like guidance on framing your question?").ask():
+                display.console.print(Panel(
+                    "Try to focus on open-ended questions that explore possibilities rather than yes/no answers.\n"
+                    "Examples:\n"
+                    "- What should I focus on in my career?\n" 
+                    "- How can I improve my relationships?\n"
+                    "- What lessons can I learn from my current situation?",
+                    title="Question Guidance",
+                    border_style="blue"
+                ))
+
             focus = questionary.text("What is the focus of your reading?").ask()
             question = questionary.text("What is your question or area of focus?").ask()
-            reading = reader.execute_reading(spread_type, focus, question)
-            display.show_reading(reading)
-            
+
+            # Execute reading with loading indicators
+            try:
+                with display.display_loading("Shuffling cards..."):
+                    deck.shuffle()
+                
+                with display.display_loading("Interpreting reading..."):
+                    interpreter = TarotInterpreter()
+                    results = list(interpreter.interpret_reading(
+                        input_method,
+                        question=question,
+                        show_static=True
+                    ))
+                    
+                # Display results
+                display.console.print("\n[bold magenta]✨ THE CARDS SPEAK ✨[/bold magenta]")
+                for result in results:
+                    if result["type"] == "static_meanings":
+                        display.console.print(Panel(
+                            result["content"],
+                            title="[bold cyan]ARCANE KNOWLEDGE[/bold cyan]",
+                            border_style="magenta"
+                        ))
+                    else:
+                        display.console.print(Panel(
+                            result["content"],
+                            title="[bold magenta]QUANTUM INTERPRETATION[/bold magenta]",
+                            border_style="cyan"
+                        ))
+                        
+            except Exception as e:
+                display.display_error("Reading failed", str(e))
+                if not questionary.confirm("Try again?").ask():
+                    break
+                continue
+                
             if not questionary.confirm(
                 "Perform another reading?",
                 default=False
