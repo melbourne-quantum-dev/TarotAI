@@ -2,7 +2,7 @@ from pydantic import Field, validator, root_validator, ValidationError
 from pydantic_settings import BaseSettings
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-from .errors import ConfigError
+from tarotai.core.errors import ConfigError
 import yaml
 import logging
 
