@@ -697,13 +697,97 @@ Key features:
 - Changelog maintenance
 - Deployment verification
 
-## 9. Extensions
+## 9. Reading Interpretation
 
-### 9.1 Enrichment Extension
+The TarotInterpreter class handles reading interpretation with RAG and AI integration:
+
+```python
+class TarotInterpreter:
+    def __init__(self, config: AISettings):
+        self.interpretation_cache: Dict[str, Any] = {}
+        self.model_router = ModelRouter(config)
+        self.rag = RAGSystem(
+            voyage_client=VoyageClient(config.voyage_model),
+            ai_client=UnifiedAIClient(config)
+        )
+
+    async def _generate_interpretation(
+        self,
+        cards: List[Tuple[CardMeaning, bool]],
+        question: Optional[str] = None
+    ) -> str:
+        """Generate interpretation using model router and RAG"""
+```
+
+Key features:
+- Retrieval Augmented Generation (RAG) integration
+- Model routing for different tasks
+- Context-aware interpretation
+- Golden Dawn symbolism integration
+
+### 10. Card Processing Workflow
+
+The CardProcessor class handles core card processing logic:
+
+```python
+class CardProcessor:
+    """Centralized card processing logic"""
+    
+    def __init__(self, ai_client: BaseAIClient, voyage_client: VoyageClient):
+        self.ai_client = ai_client
+        self.voyage_client = voyage_client
+
+    async def generate_meanings(self, card: Dict[str, Any], golden_dawn: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate upright and reversed meanings for a card"""
+        
+    async def generate_embeddings(self, card: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate embeddings for a card's meanings"""
+        
+    async def _generate_keywords(self, card: Dict[str, Any], golden_dawn: Dict[str, Any]) -> List[str]:
+        """Generate keywords for a card using AI and Golden Dawn knowledge"""
+```
+
+Key features:
+- AI-assisted meaning generation
+- Multimodal embedding support
+- Golden Dawn integration
+- Structured validation
+
+### 11. Data Structures
+
+#### 11.1 Card Embeddings
+
+```python
+@dataclass
+class CardEmbeddings:
+    """Multi-vector embeddings for a tarot card"""
+    text_embedding: List[float]
+    image_embedding: Optional[List[float]] = None
+    multimodal_embedding: Optional[List[float]] = None
+    quantized_embedding: Optional[List[int]] = None
+    reduced_dimension_embedding: Optional[List[float]] = None
+    version: str = "2.0"
+```
+
+#### 11.2 Reading Embeddings
+
+```python
+@dataclass
+class ReadingEmbeddings:
+    """Container for hierarchical embeddings of a reading"""
+    card_embeddings: List[CardEmbeddings]
+    position_embeddings: List[List[float]] 
+    context_embedding: List[float]
+    version: int = 2
+```
+
+### 12. Extensions
+
+### 12.1 Enrichment Extension
 
 The enrichment extension enhances the core tarot system with AI-powered features and historical analysis.
 
-#### 9.1.1 Key Capabilities
+#### 12.1.1 Key Capabilities
 - AI-enhanced card meanings beyond static definitions (via Anthropic or DeepSeek)
 - Reading pattern analysis and insights
 - Historical reading tracking and analysis
