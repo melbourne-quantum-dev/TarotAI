@@ -9,15 +9,15 @@
 
 ## Features
 
-- 🃏 AI-enhanced card interpretations
+- 🃏 AI-enhanced card interpretations using DeepSeek, Claude, and VoyageAI
 - 🌟 Multiple spread types (Single, Three Card, Celtic Cross, Horseshoe)
-- 🔮 Context-aware interpretation engine
+- 🔮 Context-aware interpretation engine with RAG integration
 - 📜 Reading history and pattern analysis
-- 🎙️ Voice interface support
-- 🕯️ Golden Dawn tradition integration
-- 🖼️ Multimodal embeddings (text + image)
-- 📚 Golden Dawn PDF processing
+- 🎙️ Voice interface support with real-time speech processing
+- 🕯️ Golden Dawn tradition integration with PDF processing
+- 🖼️ Multimodal embeddings (text + image) using VoyageAI
 - 🔍 Semantic search across modalities
+- ⚡ Advanced AI features: Multi-token prediction, FP8 embeddings, chain-of-thought prompting
 
 ## Quickstart
 
@@ -29,40 +29,62 @@
    cd tarotai
    ```
 
-2. Run the setup script:
+2. Install dependencies using uv:
    ```bash
-   ./setup.sh
-   ```
-
-3. Install additional dependencies for multimodal support:
-   ```bash
-   pip install PyPDF2 pymupdf Pillow
-   ```
-
-   This will:
-   - Create a virtual environment
-   - Install all dependencies
-   - Set up environment variables
-   - Verify the installation
-
-3. Activate the virtual environment:
-   ```bash
-   # Linux/macOS
+   pip install uv
+   uv venv .venv
    source .venv/bin/activate
-   
-   # Windows (WSL)
-   .\.venv\Scripts\activate
+   uv pip install -r requirements.txt
    ```
 
-4. Configure API keys:
+3. Configure API keys:
    ```bash
    nano .env  # or your preferred text editor
    ```
 
    Add your API keys for:
+   - DeepSeek
    - Anthropic
    - VoyageAI
-   - OpenAI (if using)
+   - OpenAI (optional)
+
+4. Configure settings in `assistant_config.yml`:
+   ```yaml
+   version: 2.0.0
+   environment: development
+   
+   ai_providers:
+     deepseek:
+       enabled: true
+       api_key: ${DEEPSEEK_API_KEY}
+       model: deepseek-chat
+       temperature: 0.7
+       max_tokens: 4000
+       timeout: 30
+     anthropic:
+       enabled: false
+       api_key: ${ANTHROPIC_API_KEY}
+       model: claude-3-opus
+       temperature: 0.7
+       max_tokens: 1000
+       timeout: 30
+   
+   tarot:
+     default_spread: three_card
+     shuffle_on_start: true
+     card_order: book_t
+     max_cache_size: 100
+     data_dir: data
+     allowed_spreads:
+       - single
+       - three_card
+       - celtic_cross
+   
+   log_level: INFO
+   debug: false
+   dev_mode: false
+   api_mode: false
+   ```
 
 ### Basic Usage
 
@@ -76,9 +98,9 @@ tarotai read --spread-type three_card --focus "Career" --question "What should I
 tarotai voice
 ```
 
-#### Generate Card Meanings
+#### Manual Reading
 ```bash
-tarotai generate-meanings
+tarotai manual --cards "The Fool" "The Magician" --reversed False True --focus "Relationships"
 ```
 
 #### Process Golden Dawn PDF
@@ -89,6 +111,16 @@ tarotai process-golden-dawn --pdf data/golden_dawn.pdf
 #### Multimodal Search
 ```bash
 tarotai search-symbols --query "The Fool"
+```
+
+#### Generate Card Meanings
+```bash
+tarotai generate-meanings
+```
+
+#### View Reading History
+```bash
+tarotai history --card "The Fool"
 ```
 
 ### Troubleshooting
@@ -178,6 +210,27 @@ reading = reader.execute_reading(
     question="What areas should I focus on for self-improvement?",
     custom_positions=["Past", "Present", "Future", "Advice"]
 )
+```
+
+#### Generate Card Meanings
+```python
+from tarotai.core.card_processor import CardProcessor
+from tarotai.ai.clients import initialize_ai_clients
+
+ai_clients = initialize_ai_clients()
+card_processor = CardProcessor(ai_clients["deepseek"], ai_clients["voyage"])
+
+card = {"name": "The Fool", "element": "Air"}
+card = await card_processor.generate_meanings(card, golden_dawn_knowledge)
+card = await card_processor.generate_embeddings(card)
+```
+
+#### Query Reading History
+```python
+from tarotai.extensions.enrichment.reading_history import ReadingHistoryManager
+
+history_manager = ReadingHistoryManager()
+statistics = history_manager.get_card_statistics("The Fool")
 ```
 
 ## Documentation
