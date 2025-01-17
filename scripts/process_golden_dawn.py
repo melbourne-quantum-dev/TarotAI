@@ -1,6 +1,4 @@
 """
-DEPRECATED - This functionality has been moved to process_golden_dawn.py
-
 Golden Dawn PDF Processing Script
 
 This script handles:
@@ -9,6 +7,9 @@ This script handles:
 3. Embedding generation
 4. Cache management
 5. Integration with TarotAI system
+
+Version: 2.0.0
+Last Updated: 2025-01-17
 """
 
 import asyncio
