@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, Tuple, Dict, Optional
 from pathlib import Path
 from rich.console import Console
-from .core.config import Settings, get_config
+from tarotai.core.config import Settings, get_config
 from rich.table import Table
 from rich.panel import Panel
 from rich.status import Status
@@ -11,7 +11,7 @@ from rich.columns import Columns
 from rich.text import Text
 from rich.box import DOUBLE
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from .core.types import Reading
+from tarotai.core.types import Reading
 
 @dataclass
 class TarotASCII:
