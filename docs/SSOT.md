@@ -282,7 +282,35 @@ reading = reader.execute_reading(
 
 ## 8. System Implementation Details
 
-## 9. AI and Embedding Architecture
+## 9. Multimodal Architecture
+
+### 9.1 Overview
+The system now supports multimodal embeddings combining:
+- Text from card meanings
+- Images from Golden Dawn PDF
+- Structured knowledge
+
+### 9.2 Data Flow
+1. Extract images from PDF
+2. Generate multimodal embeddings
+3. Store with text embeddings
+4. Enable semantic search
+
+### 9.3 API Reference
+#### VoyageClient
+```python
+async def generate_multimodal_embedding(
+    content: List[Dict[str, Any]]
+) -> List[float]:
+    """Generate embeddings for text + image content"""
+```
+
+## 10. Golden Dawn Integration
+- PDF processing pipeline
+- Knowledge extraction
+- Traditional symbolism mapping
+
+## 11. AI and Embedding Architecture
 
 ### 9.1 Overview
 The system integrates multiple AI providers for meaning generation and embedding services:

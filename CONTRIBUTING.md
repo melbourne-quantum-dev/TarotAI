@@ -46,6 +46,23 @@ Thank you for your interest in contributing to TarotAI! We welcome contributions
 - Use black for code formatting
 - Use flake8 for linting
 
+## Multimodal Development Guidelines
+
+1. Image Processing:
+- Use PyPDF2 for PDF extraction
+- Convert to PIL format
+- Maintain aspect ratio
+
+2. Embedding Generation:
+- Use VoyageAI multimodal API
+- Store embeddings with metadata
+- Implement similarity search
+
+3. Testing:
+- Mock API responses
+- Verify image dimensions
+- Test edge cases
+
 ## Testing
 
 - Write tests for new features

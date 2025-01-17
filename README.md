@@ -15,6 +15,9 @@
 - 📜 Reading history and pattern analysis
 - 🎙️ Voice interface support
 - 🕯️ Golden Dawn tradition integration
+- 🖼️ Multimodal embeddings (text + image)
+- 📚 Golden Dawn PDF processing
+- 🔍 Semantic search across modalities
 
 ## Quickstart
 
@@ -29,6 +32,11 @@
 2. Run the setup script:
    ```bash
    ./setup.sh
+   ```
+
+3. Install additional dependencies for multimodal support:
+   ```bash
+   pip install PyPDF2 pymupdf Pillow
    ```
 
    This will:
@@ -71,6 +79,16 @@ tarotai voice
 #### Generate Card Meanings
 ```bash
 tarotai generate-meanings
+```
+
+#### Process Golden Dawn PDF
+```bash
+tarotai process-golden-dawn --pdf data/golden_dawn.pdf
+```
+
+#### Multimodal Search
+```bash
+tarotai search-symbols --query "The Fool"
 ```
 
 ### Troubleshooting
