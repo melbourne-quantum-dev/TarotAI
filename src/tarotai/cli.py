@@ -2,7 +2,7 @@ import typer
 import questionary
 from typing import Optional, Callable
 from pathlib import Path
-from .display import TarotDisplay
+from .display import TarotDisplay, TarotASCII
 from .reader import TarotReader
 from .core.voice import TarotVoice
 from .core.deck import TarotDeck
@@ -47,7 +47,7 @@ def read(
     display = TarotDisplay()
     
     try:
-        with display.display_loading("Initializing reading..."):
+        with display.display_loading("Initializing quantum divination matrix..."):
             reader = TarotReader(display)
             interpreter = TarotInterpreter()
             
@@ -61,17 +61,27 @@ def read(
             input_method = RandomDrawInput(deck, count=3)
             
             # Execute reading
-            for result in interpreter.interpret_reading(
+            results = list(interpreter.interpret_reading(
                 input_method,
                 question=question,
                 show_static=True
-            ):
+            ))
+            
+            # Display results with new theme
+            display.console.print("\n[bold magenta]✨ THE CARDS SPEAK ✨[/bold magenta]")
+            for result in results:
                 if result["type"] == "static_meanings":
-                    display.console.print("\n[bold]Static Meanings:[/]")
-                    display.console.print(result["content"])
+                    display.console.print(Panel(
+                        result["content"],
+                        title="[bold cyan]ARCANE KNOWLEDGE[/bold cyan]",
+                        border_style="magenta"
+                    ))
                 else:
-                    display.console.print("\n[bold]Interpretation:[/]")
-                    display.console.print(result["content"])
+                    display.console.print(Panel(
+                        result["content"],
+                        title="[bold magenta]QUANTUM INTERPRETATION[/bold magenta]",
+                        border_style="cyan"
+                    ))
             
     except Exception as e:
         display.display_error("Reading failed", str(e))
