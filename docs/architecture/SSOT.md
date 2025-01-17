@@ -282,28 +282,169 @@ reading = reader.execute_reading(
 
 ## 8. System Implementation Details
 
-## 9. Multimodal Architecture
+## Advanced AI Implementation: Beyond ChatGPT
 
-### 9.1 Overview
-The system now supports multimodal embeddings combining:
-- Text from card meanings
-- Images from Golden Dawn PDF
-- Structured knowledge
+TarotAI goes far beyond standard AI chatbots through its sophisticated architecture and specialized components:
 
-### 9.2 Data Flow
-1. Extract images from PDF
-2. Generate multimodal embeddings
-3. Store with text embeddings
-4. Enable semantic search
+### 1. Specialized AI Clients
+The system uses multiple AI providers, each optimized for specific tasks:
 
-### 9.3 API Reference
-#### VoyageClient
 ```python
-async def generate_multimodal_embedding(
-    content: List[Dict[str, Any]]
-) -> List[float]:
-    """Generate embeddings for text + image content"""
+class UnifiedAIClient:
+    def __init__(self, config: AISettings):
+        self.clients = {
+            "voyage": VoyageClient(config.voyage_model),
+            "deepseek": DeepSeekClient(config.deepseek_model),
+            "anthropic": AnthropicClient(config.anthropic_model)
+        }
 ```
+
+- **DeepSeek**: Handles core meaning generation with multi-token prediction
+- **VoyageAI**: Manages advanced embeddings and semantic search
+- **Claude**: Provides structured responses and tool calling
+
+### 2. Multimodal Embeddings
+Unlike standard chatbots, TarotAI uses multiple types of embeddings:
+
+```python
+class CardEmbeddings:
+    text_embedding: List[float]
+    image_embedding: Optional[List[float]]
+    multimodal_embedding: Optional[List[float]]
+```
+
+This allows the system to understand both text and visual symbolism, creating richer interpretations.
+
+### 3. Retrieval Augmented Generation (RAG)
+The RAG system combines traditional knowledge with modern AI:
+
+```python
+class RAGSystem:
+    def __init__(self, voyage_client: VoyageClient, ai_client: BaseAIClient):
+        self.voyage = voyage_client
+        self.ai = ai_client
+        self.knowledge_base = KnowledgeBase()
+```
+
+Key features:
+- Context-aware responses
+- Semantic search across modalities
+- Dynamic knowledge integration
+
+## Meaning Generation Process
+
+The system generates card meanings through a sophisticated pipeline:
+
+### 1. Initial Data Extraction
+The `process_golden_dawn.py` script extracts knowledge from the Golden Dawn PDF:
+
+```python
+async def enhanced_process_golden_dawn(pdf_path, ai_clients, card_processor):
+    # Extract knowledge using Claude
+    pdf_content = extract_pdf_content(pdf_path)
+    gd_knowledge = await ai_clients["claude"].extract_structured_knowledge(pdf_content)
+```
+
+### 2. Meaning Generation
+The CardProcessor class generates meanings using multiple AI models:
+
+```python
+class CardProcessor:
+    async def generate_meanings(self, card, golden_dawn):
+        # Generate keywords if missing
+        if not card.get("keywords"):
+            card["keywords"] = await self._generate_keywords(card, golden_dawn)
+        
+        # Generate meanings
+        card["upright_meaning"] = await self.ai_client.generate_response(
+            f"Generate upright meaning for {card['name']}"
+        )
+        card["reversed_meaning"] = await self.ai_client.generate_response(
+            f"Generate reversed meaning for {card['name']}"
+        )
+```
+
+### 3. Embedding Creation
+The system generates multiple types of embeddings:
+
+```python
+async def generate_embeddings(self, card):
+    if not card.get("embeddings"):
+        card["embeddings"] = {}
+    
+    card["embeddings"]["upright"] = await self.voyage_client.generate_embedding(
+        card["upright_meaning"]
+    )
+    card["embeddings"]["reversed"] = await self.voyage_client.generate_embedding(
+        card["reversed_meaning"]
+    )
+```
+
+### 4. Data Storage
+The processed data is stored in `cards_ordered.json`:
+
+```json
+{
+  "cards": [
+    {
+      "name": "The Fool",
+      "keywords": ["beginnings", "innocence"],
+      "upright_meaning": "New beginnings, taking a leap of faith...",
+      "reversed_meaning": "Recklessness, lack of direction...",
+      "embeddings": {
+        "upright": [0.123, 0.456, 0.789],
+        "reversed": [0.321, 0.654, 0.987]
+      }
+    }
+  ]
+}
+```
+
+## Why This is Better Than Standard AI
+
+1. **Specialized Knowledge**:
+   - Trained specifically on tarot symbolism
+   - Understands Golden Dawn correspondences
+   - Maintains traditional accuracy
+
+2. **Contextual Understanding**:
+   - Considers card positions and spreads
+   - Understands relationships between cards
+   - Provides personalized interpretations
+
+3. **Multimodal Capabilities**:
+   - Processes both text and images
+   - Creates semantic connections
+   - Generates richer insights
+
+4. **Structured Responses**:
+   - Provides clear, actionable advice
+   - Maintains logical flow
+   - Offers practical applications
+
+5. **Continuous Learning**:
+   - Improves with each reading
+   - Learns from user feedback
+   - Adapts to individual styles
+
+## The Future of TarotAI
+
+We're constantly enhancing the system with:
+- Better multimodal understanding
+- More intuitive interfaces
+- Deeper integration with traditional knowledge
+- Advanced pattern recognition
+
+```python
+╔══════════════════════════════════════════════════════════════╗
+║           ◈  Experience the Future of Divination  ◈          ║
+║     ╭───────────────────  ⚡  ───────────────────╮         ║
+║     │    Where Ancient Wisdom Meets Modern AI    │         ║
+║     ╰────────────────────────────────────────────╯         ║
+╚══════════════════════════════════════════════════════════════╝
+```
+
+This advanced system provides a unique blend of traditional wisdom and cutting-edge technology, offering insights that go far beyond standard AI chatbots.
 
 ## 10. Golden Dawn Integration
 - PDF processing pipeline
