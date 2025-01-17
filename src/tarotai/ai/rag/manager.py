@@ -22,6 +22,25 @@ class RAGResult:
     sources: List[str]
     confidence: float
     metadata: Dict[str, Any]
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert result to dictionary for serialization"""
+        return {
+            "content": self.content,
+            "sources": self.sources,
+            "confidence": self.confidence,
+            "metadata": self.metadata
+        }
+        
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RAGResult":
+        """Create RAGResult from dictionary"""
+        return cls(
+            content=data["content"],
+            sources=data["sources"],
+            confidence=data["confidence"],
+            metadata=data["metadata"]
+        )
 
 class RAGManager:
     """Manages the RAG system for TarotAI"""
