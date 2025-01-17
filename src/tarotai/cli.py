@@ -1,6 +1,6 @@
 import typer
 import questionary
-from typing import Optional, Callable
+from typing import Optional, Callable, List
 from pathlib import Path
 from rich.panel import Panel
 from .display import TarotDisplay, TarotASCII
@@ -8,6 +8,7 @@ from .reader import TarotReader
 from .core.voice import TarotVoice
 from .core.deck import TarotDeck
 from .core.reading import RandomDrawInput, ManualInput
+from .core.interpreter import TarotInterpreter
 from .core.interpreter import TarotInterpreter
 
 app = typer.Typer(
@@ -62,6 +63,7 @@ def read(
             input_method = RandomDrawInput(deck, count=3)
             
             # Execute reading
+            interpreter = TarotInterpreter()
             results = list(interpreter.interpret_reading(
                 input_method,
                 question=question,

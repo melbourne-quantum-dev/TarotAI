@@ -1,4 +1,6 @@
+import pytest
 from tarotai.core.types import Reading
+from tarotai.core.reading import ManualInput
 from tarotai.core.deck import TarotDeck
 from pathlib import Path
 
