@@ -8,7 +8,6 @@ from .core.voice import TarotVoice
 from .core.deck import TarotDeck
 from .core.reading import RandomDrawInput, ManualInput
 from .core.interpreter import TarotInterpreter
-from .core.interpreter import TarotInterpreter
 
 app = typer.Typer(
     help="TarotAI - Neural-Enhanced Tarot Reading System",
@@ -49,7 +48,6 @@ def read(
     
     try:
         with display.display_loading("Initializing quantum divination matrix..."):
-            reader = TarotReader(display)
             interpreter = TarotInterpreter()
             
             # Validate inputs
@@ -93,8 +91,8 @@ def read(
 def interactive():
     """Start interactive tarot session"""
     display = TarotDisplay()
-    reader = TarotReader(display)
     deck = TarotDeck(Path("data/cards_ordered.json"))
+    interpreter = TarotInterpreter()
     
     try:
         display.display_welcome()
@@ -303,7 +301,7 @@ def voice(
 ):
     """Perform a tarot reading using voice commands"""
     display = TarotDisplay()
-    reader = TarotReader(display)
+    interpreter = TarotInterpreter()
     voice = TarotVoice()
 
     try:
