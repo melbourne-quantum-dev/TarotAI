@@ -1,10 +1,15 @@
 from pathlib import Path
 
-# Declare namespace package
-__import__('pkg_resources').declare_namespace(__name__)
+# Package version handling
+try:
+    from importlib.metadata import version, PackageNotFoundError
+except ImportError:  # Python < 3.8
+    from importlib_metadata import version, PackageNotFoundError
 
-# Package version
-__version__ = "2.1.0"
+try:
+    __version__ = version("tarotai")
+except PackageNotFoundError:
+    __version__ = "2.1.0"  # Fallback to hardcoded version
 
 # Package data files
 def get_data_path():
