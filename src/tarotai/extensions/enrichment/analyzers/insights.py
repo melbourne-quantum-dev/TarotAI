@@ -1,4 +1,5 @@
-from typing import Dict, List, Optional
+import json
+from typing import Dict, List, Optional, Any
 from ..exceptions import EnrichmentError
 from ..clients.base import BaseAIClient
 
