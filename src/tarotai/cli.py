@@ -48,7 +48,6 @@ def read(
     
     try:
         with display.display_loading("Initializing reading..."):
-            interface = TarotInterface()
             reader = TarotReader(display)
             interpreter = TarotInterpreter()
             
