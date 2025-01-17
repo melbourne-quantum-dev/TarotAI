@@ -99,30 +99,57 @@ def interactive():
     
     try:
         display.display_welcome()
+        
+        # Welcome message
+        display.console.print(Panel(
+            "Welcome to TarotAI's interactive reading mode.\n"
+            "I will guide you through the process of performing a tarot reading.\n\n"
+            "Do you have a physical tarot deck in front of you? If so, I can guide you\n"
+            "through selecting and interpreting your own cards.\n\n"
+            "If not, I can perform a virtual reading for you.",
+            title="[bold magenta]Welcome to TarotAI[/]",
+            border_style="blue"
+        ))
+        
         while True:
-            # Get spread type
-            spread_type = questionary.select(
-                "What spread would you like to use?",
+            # Choose reading method
+            reading_method = questionary.select(
+                "How would you like to perform your reading?",
                 choices=[
-                    {"name": "Single Card", "value": "single"},
-                    {"name": "Three Card", "value": "three_card"},
-                    {"name": "Celtic Cross", "value": "celtic_cross"},
-                    {"name": "Horseshoe", "value": "horseshoe"}
+                    {"name": "Use my own tarot deck", "value": "manual"},
+                    {"name": "Perform a virtual reading", "value": "virtual"},
+                    {"name": "Exit", "value": "exit"}
                 ]
             ).ask()
-
-            # Get card selection method
-            draw_method = questionary.select(
-                "How would you like to select cards?",
-                choices=[
-                    {"name": "Random Draw", "value": "random"},
-                    {"name": "Manual Selection", "value": "manual"}
-                ]
-            ).ask()
-
-            # Manual card selection
-            if draw_method == "manual":
-                cards = []
+            
+            if reading_method == "exit":
+                break
+                
+            # Manual reading flow
+            if reading_method == "manual":
+                display.console.print(Panel(
+                    "Wonderful! Let's perform a reading with your physical deck.\n\n"
+                    "I'll guide you through each step:\n"
+                    "1. Select your spread type\n"
+                    "2. Shuffle and draw your cards\n"
+                    "3. Enter each card and its orientation\n"
+                    "4. Receive your interpretation\n\n"
+                    "Let's begin!",
+                    title="[bold cyan]Manual Reading Guide[/]",
+                    border_style="green"
+                ))
+                
+                # Get spread type
+                spread_type = questionary.select(
+                    "What spread would you like to use?",
+                    choices=[
+                        {"name": "Single Card", "value": "single"},
+                        {"name": "Three Card (Past/Present/Future)", "value": "three_card"},
+                        {"name": "Celtic Cross", "value": "celtic_cross"},
+                        {"name": "Horseshoe", "value": "horseshoe"}
+                    ]
+                ).ask()
+                
                 spread_size = {
                     "single": 1,
                     "three_card": 3,
@@ -130,14 +157,38 @@ def interactive():
                     "horseshoe": 7
                 }[spread_type]
                 
+                # Guide through card selection
+                cards = []
                 for i in range(spread_size):
-                    card_name = questionary.text(f"Enter card #{i+1} name:").ask()
-                    reversed = questionary.confirm("Is this card reversed?").ask()
+                    display.console.print(Panel(
+                        f"Step {i+1} of {spread_size}:\n"
+                        "1. Shuffle your deck while focusing on your question\n"
+                        "2. Draw a card from the top\n"
+                        "3. Note whether it's upright or reversed\n"
+                        "4. Enter the card details below",
+                        title=f"[bold]Card {i+1} Selection[/]",
+                        border_style="blue"
+                    ))
+                    
+                    card_name = questionary.text(
+                        f"Enter the name of card #{i+1}:",
+                        validate=lambda text: len(text) > 0
+                    ).ask()
+                    
+                    reversed = questionary.confirm(
+                        "Is this card reversed?",
+                        default=False
+                    ).ask()
+                    
                     cards.append((card_name, reversed))
+                
+                # Create manual input
                 input_method = ManualInput(deck, cards)
+                
+            # Virtual reading flow
             else:
-                input_method = RandomDrawInput(deck, count=spread_size)
-
+                input_method = RandomDrawInput(deck, count=3)
+                
             # Get reading context
             if questionary.confirm("Would you like guidance on framing your question?").ask():
                 display.console.print(Panel(
