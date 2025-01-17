@@ -1,0 +1,10 @@
+class EnvVars:
+    """Centralized environment variable names"""
+    DEEPSEEK_API_KEY = "DEEPSEEK_API_KEY"
+    ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY"
+    OPENAI_API_KEY = "OPENAI_API_KEY"
+    VOYAGE_API_KEY = "VOYAGE_API_KEY"
+    LOG_LEVEL = "LOG_LEVEL"
+    DEBUG = "DEBUG"
+    DEV_MODE = "DEV_MODE"
+    API_MODE = "API_MODE"
