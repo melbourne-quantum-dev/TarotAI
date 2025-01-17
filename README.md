@@ -392,10 +392,37 @@ class TarotDeck:
 ### 6.2 Constants
 ```python
 SPREADS = {
-    "◈ Single Card": ("single", 1),
-    "◈ Three Card": ("three", 3),
-    "◈ Celtic Cross": ("celtic_cross", 10),
-    "◈ Horseshoe": ("horseshoe", 7)
+    "◈ Single Card": {
+        "type": "single",
+        "cards": 1,
+        "description": "Quick insight into a specific question"
+    },
+    "◈ Three Card": {
+        "type": "three",
+        "cards": 3,
+        "description": "Past-Present-Future reading",
+        "positions": ["Past", "Present", "Future"]
+    },
+    "◈ Celtic Cross": {
+        "type": "celtic_cross",
+        "cards": 10,
+        "description": "Traditional Golden Dawn spread",
+        "positions": [
+            "Present", "Crossing", "Crown", "Root", 
+            "Past", "Future", "Self", "Environment",
+            "Hopes/Fears", "Outcome"
+        ]
+    },
+    "◈ Horseshoe": {
+        "type": "horseshoe",
+        "cards": 7,
+        "description": "Golden Dawn horseshoe spread",
+        "positions": [
+            "Past", "Present", "Future",
+            "Advice", "External Influences",
+            "Hopes/Fears", "Outcome"
+        ]
+    }
 }
 ```
 

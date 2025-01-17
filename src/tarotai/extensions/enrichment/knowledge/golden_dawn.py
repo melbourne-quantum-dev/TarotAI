@@ -131,6 +131,21 @@ class GoldenDawnKnowledgeBase:
                 
         self.embeddings = self._generate_embeddings()
         self.card_index = self._create_card_index()
+        self.version = "2.1.0"
+        self._setup_validation_rules()
+        
+    def _setup_validation_rules(self):
+        """Setup validation rules for Golden Dawn knowledge"""
+        self.validation_rules = {
+            "required_fields": [
+                "title", "symbolism", "reading_methods"
+            ],
+            "allowed_symbols": [
+                "Wand", "Cup", "Sword", "Pentacle",
+                "Flame", "Water", "Air", "Earth"
+            ],
+            "max_reading_methods": 5
+        }
     
     def _create_card_index(self) -> Dict[str, Dict]:
         """Create a quick lookup index for card information"""

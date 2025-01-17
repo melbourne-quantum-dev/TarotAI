@@ -308,14 +308,21 @@ class TarotInterpreter:
         self.logger.info("Starting interpretation")
         
         try:
-            # Build structured prompt
+            # Build structured prompt with Golden Dawn context
+            gd_context = "\n".join(
+                f"{card[0].name} Golden Dawn Symbolism: {card[0].golden_dawn.get('symbolism', [])}"
+                for card in cards
+            )
+            
             prompt = self._create_interpretation_prompt("custom", cards, question)
+            prompt += f"\n\nGolden Dawn Context:\n{gd_context}"
+            
             self.logger.debug(f"Using prompt: {prompt}")
             
             # Retrieve relevant context using RAG
             card_names = [card[0].name for card in cards]
             context = await self.rag.retrieve_context(
-                f"Interpret this tarot reading: {', '.join(card_names)}"
+                f"Interpret this tarot reading using Golden Dawn methods: {', '.join(card_names)}"
             )
             
             # Generate interpretation using model router with RAG context
