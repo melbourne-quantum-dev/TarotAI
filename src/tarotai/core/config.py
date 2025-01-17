@@ -1,4 +1,5 @@
-from pydantic import BaseSettings, Field, validator
+from pydantic import Field, validator
+from pydantic_settings import BaseSettings
 from pathlib import Path
 from typing import Dict, Any, Optional
 from .errors import ConfigError
