@@ -3,7 +3,6 @@ import questionary
 from typing import Optional, Callable
 from pathlib import Path
 from .display import TarotDisplay
-from .interface import TarotInterface
 from .reader import TarotReader
 from .core.voice import TarotVoice
 from .core.deck import TarotDeck
@@ -83,13 +82,14 @@ def read(
 def interactive():
     """Start interactive tarot session"""
     display = TarotDisplay()
-    interface = TarotInterface()
     reader = TarotReader(display)
     
     try:
         display.display_welcome()
         while True:
-            spread_type, focus, question = interface.gather_context()
+            spread_type = questionary.text("What spread would you like to use?").ask()
+            focus = questionary.text("What is the focus of your reading?").ask()
+            question = questionary.text("What is your question or area of focus?").ask()
             reading = reader.execute_reading(spread_type, focus, question)
             display.show_reading(reading)
             
@@ -111,7 +111,6 @@ def voice(
 ):
     """Perform a tarot reading using voice commands"""
     display = TarotDisplay()
-    interface = TarotInterface()
     reader = TarotReader(display)
     voice = TarotVoice()
 
