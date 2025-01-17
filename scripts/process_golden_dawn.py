@@ -21,6 +21,15 @@ import json
 from dataclasses import dataclass
 import numpy as np
 from pydantic import BaseModel, validator
+from src.tarotai.ai.clients.base import BaseAIClient
+from src.tarotai.extensions.enrichment.knowledge.golden_dawn import extract_pdf_content
+
+# Define expected fields for card validation
+EXPECTED_FIELDS = [
+    "name", "number", "suit", "element", 
+    "astrological", "kabbalistic", "keywords",
+    "upright_meaning", "reversed_meaning"
+]
 
 from src.tarotai.ai.prompts.templates import UPRIGHT_PROMPT, REVERSED_PROMPT
 from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (
@@ -410,7 +419,17 @@ async def main():
         voyage_client = VoyageClient()  # Assuming you have this import
         
         # Process PDF
-        result = await process_golden_dawn(pdf_path, voyage_client)
+        # Initialize AI clients
+        ai_clients = {
+            "deepseek": DeepSeekClient(),
+            "claude": ClaudeClient()
+        }
+        
+        result = await enhanced_process_golden_dawn(
+            pdf_path, 
+            voyage_client,
+            ai_clients
+        )
         
         # Save results
         save_knowledge(result, output_path)
