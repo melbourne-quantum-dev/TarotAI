@@ -1,27 +1,40 @@
-"""
-TarotAI Core Module - Contains all core functionality for the tarot reading system.
-"""
+"""Core module for TarotAI"""
 
-from tarotai.ui.display import TarotDisplay
-from .errors import (
-    TarotError, DeckError, ConfigError, 
-    EnrichmentError, EmbeddingError, ReadingError
+from .models.types import (
+    CardMeaning,
+    Reading,
+    QuestionContext,
+    CardEmbeddings,
+    ReadingEmbeddings,
+    CardSuit,
+    SpreadType,
+    ReadingType,
+    UserProfile
 )
-from .types import (
-    CardMeaning, Reading, CardSuit, SpreadType,
-    ReadingType, UserProfile, QuestionContext
-)
-from .config import get_config, UnifiedSettings
-from tarotai.core.voice import TarotVoice
-from .interpreter import TarotInterpreter
+
+from .models.deck import TarotDeck
+from .models.card import TarotCard, CardManager
+from .services.interpreter import TarotInterpreter
+from .services.reading import ReadingInput
+from .services.card_processor import CardProcessor
 
 __all__ = [
-    'TarotDisplay',
-    'TarotError', 'DeckError', 'ConfigError',
-    'EnrichmentError', 'EmbeddingError', 'ReadingError',
-    'CardMeaning', 'Reading', 'CardSuit', 'SpreadType',
-    'ReadingType', 'UserProfile', 'QuestionContext',
-    'get_config', 'UnifiedSettings',
-    'TarotVoice',
+    # Types
+    'CardMeaning',
+    'Reading',
+    'QuestionContext',
+    'CardEmbeddings',
+    'ReadingEmbeddings',
+    'CardSuit',
+    'SpreadType',
+    'ReadingType',
+    'UserProfile',
+    
+    # Core components
+    'TarotDeck',
+    'TarotCard',
+    'CardManager',
+    'ReadingInput',
+    'CardProcessor',
     'TarotInterpreter'
 ]

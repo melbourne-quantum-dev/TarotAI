@@ -1,11 +1,20 @@
 """
 AI client implementations and initialization for various providers
 """
-from ..core import BaseAIClient
-from .deepseek_v3 import DeepSeekClient
-from .claude import ClaudeClient
-from ..embeddings.voyage import VoyageClient
-from src.tarotai.config.schemas.config import get_config
+from .base import BaseAIClient  # Changed from ..core
+from .providers.deepseek import DeepSeekClient  # Updated path
+from .providers.claude import ClaudeClient    # Updated path
+from ...ai.clients.providers.voyage import VoyageClient    # Updated path
+from ...config.schemas.config import get_config  # Use relative import
+
+__all__ = [
+    'BaseAIClient',
+    'DeepSeekClient',
+    'VoyageClient',
+    'ClaudeClient',
+    'UnifiedAIClient',
+    'initialize_ai_clients'
+]
 
 def initialize_ai_clients():
     """Initialize and configure all AI clients"""
@@ -32,12 +41,3 @@ def initialize_ai_clients():
     }
     
     return clients
-
-__all__ = [
-    'BaseAIClient',
-    'DeepSeekClient',
-    'VoyageClient',
-    'ClaudeClient',
-    'UnifiedAIClient',
-    'initialize_ai_clients'
-]
