@@ -4,7 +4,7 @@ from typing import List, Tuple, Dict, Optional, Generator, Any, cast
 from .types import CardMeaning, SpreadType, Reading, SpreadPosition
 from .prompts import MultiStagePrompt, PromptStage
 from .reading import ReadingInput
-from .config import get_config
+from .config import get_config, AISettings
 
 class TarotInterpreter:
     def __init__(self, config: AISettings):
