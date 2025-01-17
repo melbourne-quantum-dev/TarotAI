@@ -1,42 +1,41 @@
-version: 1.0.0
-system:
-  name: "TarotAI"
-  version: "2.0.0"
-  environment: "development"
-  
-ai:
-  providers:
-    deepseek:
-      enabled: true
-      api_key: ${DEEPSEEK_API_KEY}
-      model: "deepseek-chat"
-    anthropic:
-      enabled: false
-      api_key: ${ANTHROPIC_API_KEY}
-      model: "claude-3-opus"
-    openai:
-      enabled: false
-      api_key: ${OPENAI_API_KEY}
-      model: "gpt-4-turbo"
+version: 2.0.0
+environment: development
+
+ai_providers:
+  deepseek:
+    enabled: true
+    api_key: ${DEEPSEEK_API_KEY}
+    model: deepseek-chat
+    temperature: 0.7
+    max_tokens: 1000
+    timeout: 30
+  anthropic:
+    enabled: false
+    api_key: ${ANTHROPIC_API_KEY}
+    model: claude-3-opus
+    temperature: 0.7
+    max_tokens: 1000
+    timeout: 30
+  openai:
+    enabled: false
+    api_key: ${OPENAI_API_KEY}
+    model: gpt-4-turbo
+    temperature: 0.7
+    max_tokens: 1000
+    timeout: 30
 
 tarot:
-  deck:
-    default_spread: "three_card"
-    shuffle_on_start: true
-    card_order: "book_t"
-  interpretation:
-    style: "modern"
-    depth: "detailed"
-    include_reversed: true
-    max_cache_size: 100
-    prompt_template_dir: "prompts"
-  voice:
-    enabled: true
-    tts_provider: "elevenlabs"
-    stt_provider: "realtimestt"
-    wake_word: "tarot"
+  default_spread: three_card
+  shuffle_on_start: true
+  card_order: book_t
+  max_cache_size: 100
+  data_dir: data
+  allowed_spreads:
+    - single
+    - three_card
+    - celtic_cross
 
-logging:
-  level: "INFO"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "logs/tarotai.log"
+log_level: INFO
+debug: false
+dev_mode: false
+api_mode: false
