@@ -62,9 +62,24 @@ class TarotDeck:
                 cards_raw = json.load(f)
                 return [CardMeaning(**card) for card in cards_raw]
         except (json.JSONDecodeError, FileNotFoundError) as e:
-            raise DeckError(f"Failed to load cards data: {e}")
+            raise DeckError(
+                f"Failed to load cards data: {e}",
+                detail={
+                    "file_path": str(cards_data),
+                    "error_type": type(e).__name__
+                },
+                severity=ErrorSeverity.CRITICAL
+            )
         except Exception as e:
-            raise DeckError(f"Invalid card data format: {e}")
+            raise DeckError(
+                f"Invalid card data format: {e}",
+                detail={
+                    "file_path": str(cards_data),
+                    "error_type": type(e).__name__,
+                    "traceback": traceback.format_exc() if self.config.dev_mode else None
+                },
+                severity=ErrorSeverity.CRITICAL
+            )
 
     def _arrange_deck(self) -> List[CardMeaning]:
         """Arrange cards in Book T sequence"""

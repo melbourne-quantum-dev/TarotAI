@@ -2,13 +2,40 @@ from typing import Optional, Dict, Any
 from pydantic import BaseModel
 from fastapi import HTTPException
 
+from enum import Enum, auto
+from datetime import datetime
+
+class ErrorSeverity(Enum):
+    INFO = auto()
+    WARNING = auto()
+    ERROR = auto()
+    CRITICAL = auto()
+
 class TarotError(Exception):
     """Base exception class for TarotAI system"""
-    def __init__(self, message: str, code: str = "UNKNOWN_ERROR", detail: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, 
+        message: str, 
+        code: str = "UNKNOWN_ERROR", 
+        detail: Optional[Dict[str, Any]] = None,
+        severity: ErrorSeverity = ErrorSeverity.ERROR
+    ):
         self.message = message
         self.code = code
         self.detail = detail or {}
+        self.severity = severity
+        self.timestamp = datetime.utcnow()
         super().__init__(message)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert error to dictionary for logging/reporting"""
+        return {
+            "code": self.code,
+            "message": self.message,
+            "detail": self.detail,
+            "severity": self.severity.name,
+            "timestamp": self.timestamp.isoformat()
+        }
 
 class TarotHTTPException(HTTPException):
     """Custom HTTP exception for TarotAI system"""
