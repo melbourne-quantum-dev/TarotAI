@@ -7,10 +7,11 @@ from .reading import ReadingInput
 from .config import get_config
 
 class TarotInterpreter:
-    def __init__(self, config_path: Path = Path("config/interpreter.yaml")):
+    def __init__(self, config: AISettings):
         self.interpretation_cache: Dict[str, Any] = {}
         self.logger = self._setup_logging()
-        self.config = self._load_config(config_path)
+        self.config = config
+        self.stage_limits = config.interpretation_limits
         self.prompt_templates = self._load_prompt_templates()
 
     def _setup_logging(self) -> logging.Logger:

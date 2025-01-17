@@ -5,14 +5,19 @@ from typing import Dict, Any, Optional, List
 from .errors import ConfigError
 import yaml
 
+from .limits import InterpretationLimits
+
 class AISettings(BaseSettings):
     """Configuration for AI providers"""
     enabled: bool = Field(default=True)
     api_key: str = Field(default="", env="AI_API_KEY")
     model: str = Field(default="deepseek-chat")
     temperature: float = Field(default=0.7, ge=0.0, le=1.0)
-    max_tokens: int = Field(default=1000, gt=0)
+    max_tokens: int = Field(default=4000, gt=0, description="Maximum tokens per API call")
     timeout: int = Field(default=30, gt=0)
+    interpretation_limits: InterpretationLimits = Field(
+        default_factory=InterpretationLimits
+    )
 
 class TarotSettings(BaseSettings):
     """Configuration for tarot-specific settings"""
