@@ -47,11 +47,10 @@ from src.tarotai.core.logging import setup_logging
 setup_logging()
 logger = logging.getLogger(__name__)
 
-class GoldenDawnConfig(BaseModel):
-    """Configuration specific to Golden Dawn processing"""
-    voyage_api_key: str = Field(..., env="VOYAGE_API_KEY")
+class BaseConfig(BaseModel):
+    """Base configuration class for shared settings"""
     data_dir: Path = Field(default=Path("data"))
-    batch_size: int = Field(default=10, description="Number of cards to process per batch")
+    api_keys: Dict[str, str] = Field(default_factory=dict)
     
     @validator('data_dir')
     def validate_data_dir(cls, v):
@@ -59,10 +58,40 @@ class GoldenDawnConfig(BaseModel):
             v.mkdir(parents=True, exist_ok=True)
         return v
 
+class GoldenDawnConfig(BaseConfig):
+    """Configuration specific to the Golden Dawn processing pipeline.
+    
+    Attributes:
+        voyage_api_key: API key for Voyage embeddings.
+        batch_size: Number of cards to process per batch.
+        data_dir: Directory for Golden Dawn data files.
+    """
+    voyage_api_key: str = Field(..., env="VOYAGE_API_KEY")
+    batch_size: int = Field(default=10, description="Number of cards to process per batch")
+    
+    @validator('batch_size')
+    def validate_batch_size(cls, v):
+        if not (1 <= v <= 100):
+            raise ValueError("Batch size must be between 1 and 100")
+        return v
+
 def get_golden_dawn_config() -> GoldenDawnConfig:
-    """Get Golden Dawn specific configuration"""
+    """Get Golden Dawn specific configuration.
+    
+    Returns:
+        GoldenDawnConfig: Configured instance with validated settings.
+        
+    Raises:
+        ValueError: If configuration validation fails.
+    """
     try:
-        return GoldenDawnConfig()
+        config = GoldenDawnConfig()
+        # Add any API keys to the shared dictionary
+        config.api_keys["voyage"] = config.voyage_api_key
+        return config
+    except ValidationError as e:
+        logger.error(f"Configuration validation failed: {str(e)}")
+        raise ValueError("Invalid Golden Dawn configuration") from e
     except Exception as e:
         logger.error(f"Failed to load Golden Dawn configuration: {str(e)}")
         raise
@@ -422,12 +451,16 @@ async def main():
                 + "\n".join(f"- {key}: {required_keys[key]}" for key in missing_keys)
             )
             
-        # Get Golden Dawn specific configuration
+        # Get and validate configuration
         config = get_golden_dawn_config()
         
-        # Define paths
+        # Define paths using validated data_dir
         pdf_path = config.data_dir / "golden_dawn.pdf"
         output_path = config.data_dir / "knowledge_cache" / "golden_dawn_processed.json"
+        
+        # Log configuration details
+        logger.info(f"Using batch size: {config.batch_size}")
+        logger.info(f"Data directory: {config.data_dir}")
         
         # Ensure output directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
