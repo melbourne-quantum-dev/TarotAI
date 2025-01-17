@@ -2,6 +2,7 @@ import typer
 import questionary
 from typing import Optional, Callable
 from pathlib import Path
+from rich.panel import Panel
 from .display import TarotDisplay, TarotASCII
 from .reader import TarotReader
 from .core.voice import TarotVoice
