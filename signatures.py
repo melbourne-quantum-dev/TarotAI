@@ -44,6 +44,51 @@ class SignatureManager:
             return self._format_html(content)
         return self._format_ascii(content)
 
+    def success(self) -> str:
+        """Signature for successful operations"""
+        content = """[bold green]
+╔══════════════════════════════════════════════════════════════╗
+║ ┌──────────────────────────────────────────────────────────┐ ║
+║ │                [blink]⚡[/] QUANTUM STATE ACHIEVED [blink]⚡[/]               │ ║
+║ └──────────────────────────────────────────────────────────┘ ║
+║                                                              ║
+║    ▓▒░ [bold magenta]Wavefunction Successfully Collapsed[/] ░▒▓              ║
+║         [bold yellow]Entanglement Verified[/]                               ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+[/]"""
+        return self._apply_formatting(content)
+
+    def loading(self) -> str:
+        """Signature for ongoing operations"""
+        content = """[bold yellow]
+╔══════════════════════════════════════════════════════════════╗
+║ ┌──────────────────────────────────────────────────────────┐ ║
+║ │               [blink]⚡[/] QUANTUM STATE LOADING [blink]⚡[/]               │ ║
+║ └──────────────────────────────────────────────────────────┘ ║
+║                                                              ║
+║    ▓▒░ [bold magenta]Collapsing Wavefunction...[/] ░▒▓                      ║
+║         [bold cyan]Please maintain quantum coherence[/]                     ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+[/]"""
+        return self._apply_formatting(content)
+
+    def shutdown(self) -> str:
+        """Signature for cleanup operations"""
+        content = """[bold red]
+╔══════════════════════════════════════════════════════════════╗
+║ ┌──────────────────────────────────────────────────────────┐ ║
+║ │               [blink]⚡[/] QUANTUM STATE SHUTDOWN [blink]⚡[/]              │ ║
+║ └──────────────────────────────────────────────────────────┘ ║
+║                                                              ║
+║    ▓▒░ [bold magenta]Decoherence Complete[/] ░▒▓                            ║
+║         [bold yellow]System returning to classical state[/]                 ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+[/]"""
+        return self._apply_formatting(content)
+
     def standard(self) -> str:
         """Standard signature for general use"""
         content = """[bold cyan]
