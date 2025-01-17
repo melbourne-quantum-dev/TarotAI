@@ -1,5 +1,16 @@
 # Contributing to TarotAI
 
+Version 2.1.0
+
+## Documentation Contributions
+
+When contributing to documentation:
+- Update all relevant files (SSOT.md, README.md)
+- Keep documentation in sync with code
+- Use consistent terminology
+- Follow Markdown style guide
+- Include examples where applicable
+
 Thank you for your interest in contributing to TarotAI! We welcome contributions from everyone.
 
 ## Getting Started

@@ -1,5 +1,15 @@
 # TarotAI - Neural-Enhanced Tarot Reading System
 
+Version 2.1.0
+
+## Documentation
+
+For detailed technical documentation, see [SSOT.md](docs/SSOT.md).
+
+For contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+For community standards, see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)

@@ -1,6 +1,27 @@
-# TarotAI System Documentation
+# TarotAI System Documentation (Single Source of Truth)
 
-// Book T Sequence:
+Version 2.1.0
+
+## Documentation Standards
+
+### File Structure
+- SSOT.md: Canonical technical documentation
+- README.md: Project overview and quickstart  
+- CONTRIBUTING.md: Development contribution guide
+- CODE_OF_CONDUCT.md: Community standards
+
+### Versioning
+- Documentation version must match package version
+- Use semantic versioning (MAJOR.MINOR.PATCH)
+- Update version in both SSOT.md and README.md
+
+### Style Guide
+- Use consistent terminology
+- Follow Markdown best practices
+- Include code samples where applicable
+- Use tables for complex information
+
+## Book T Sequence
 // 
 // 1. Aces: Wands, Cups, Swords, Pentacles
 // 2. Pips:

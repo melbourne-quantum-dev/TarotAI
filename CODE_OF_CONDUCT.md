@@ -1,5 +1,15 @@
 # Contributor Covenant Code of Conduct
 
+Version 2.1.0
+
+## Documentation Standards
+
+All community members should:
+- Maintain accurate documentation
+- Report documentation issues  
+- Help keep documentation up-to-date
+- Follow style guidelines
+
 ## Our Pledge
 
 We as members, contributors, and leaders pledge to make participation in our
