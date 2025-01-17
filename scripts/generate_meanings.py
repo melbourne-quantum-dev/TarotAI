@@ -10,6 +10,9 @@ You are an expert tarot interpreter with deep knowledge of:
 - Astrological correspondences
 - Psychological archetypes
 - Modern applications
+- Kabbalistic symbolism
+- Elemental associations
+- Decanic influences
 """
 
 INSTRUCTIONS = """
@@ -17,6 +20,10 @@ INSTRUCTIONS = """
 2. Include psychological insights
 3. Relate to common life situations
 4. Use clear, accessible language
+5. Incorporate traditional symbolism
+6. Consider elemental influences
+7. Include practical advice
+8. Maintain consistency with Golden Dawn tradition
 """
 
 FORMAT = """
@@ -24,6 +31,8 @@ Provide output as plain text with:
 - 2-3 sentence meaning
 - 1-2 practical applications
 - 1 psychological insight
+- 1 traditional symbolism reference
+- 1 elemental influence note
 """
 
 UPRIGHT_PROMPT = """
@@ -71,6 +80,19 @@ async def generate_meanings(card: Dict[str, Any], ai_client: DeepSeekClient) -> 
         **card
     }
     
+    # Generate keywords if missing
+    if not card.get("keywords"):
+        keywords_prompt = f"""
+        Generate 3-5 keywords for {card['name']} considering:
+        - Element: {card['element']}
+        - Astrological: {card['astrological']}
+        - Kabbalistic: {card['kabbalistic']}
+        - Decan: {card.get('decan', 'N/A')}
+        Return as JSON list.
+        """
+        card["keywords"] = await ai_client.json_prompt(keywords_prompt)
+    
+    # Generate meanings if missing
     if not card.get("upright_meaning"):
         prompt = UPRIGHT_PROMPT.format(**context)
         card["upright_meaning"] = await ai_client.generate_response(prompt)
@@ -78,6 +100,13 @@ async def generate_meanings(card: Dict[str, Any], ai_client: DeepSeekClient) -> 
     if not card.get("reversed_meaning"):
         prompt = REVERSED_PROMPT.format(**context)
         card["reversed_meaning"] = await ai_client.generate_response(prompt)
+    
+    # Add metadata
+    card["metadata"] = {
+        "last_updated": datetime.now().isoformat(),
+        "source": "generated",
+        "confidence": 0.95
+    }
     
     return card
 
