@@ -1,16 +1,20 @@
 .PHONY: setup test lint format clean
 
+
 setup:
 	@echo "Setting up development environment..."
 	@./setup.sh
 
 test:
 	@echo "Running tests..."
-	@uv run pytest tests/ --cov=tarotai --cov-report=term-missing
+	@uv run pytest tests/ \
+		--cov=tarotai \
+		--cov-report=term-missing
 
 lint:
 	@echo "Running linting..."
-	@uv run flake8 src/ tests/
+	@uv run flake8 src/ tests/ \
+		--max-line-length=79
 	@uv run mypy src/ tests/
 
 format:
