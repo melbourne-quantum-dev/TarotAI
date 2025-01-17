@@ -11,6 +11,7 @@ from .clients.voyage import VoyageClient
 from .clients.deepseek import DeepSeekClient
 from .clients.anthropic import AnthropicClient
 from .clients.openai import OpenAIClient
+from .rag import RAGSystem
 
 class BaseAIClient(ABC):
     """Base interface for AI clients"""
@@ -111,6 +112,10 @@ class TarotInterpreter:
         self.stage_limits = config.interpretation_limits
         self.prompt_templates = self._load_prompt_templates()
         self.model_router = ModelRouter(config)
+        self.rag = RAGSystem(
+            voyage_client=VoyageClient(config.voyage_model),
+            ai_client=UnifiedAIClient(config)
+        )
 
     def _setup_logging(self) -> logging.Logger:
         """Configure logging system"""
@@ -279,7 +284,7 @@ class TarotInterpreter:
         cards: List[Tuple[CardMeaning, bool]],
         question: Optional[str] = None
     ) -> str:
-        """Generate interpretation for a reading using model router"""
+        """Generate interpretation for a reading using model router and RAG"""
         self.logger.info("Starting interpretation")
         
         try:
@@ -287,10 +292,16 @@ class TarotInterpreter:
             prompt = self._create_interpretation_prompt("custom", cards, question)
             self.logger.debug(f"Using prompt: {prompt}")
             
-            # Generate interpretation using model router
+            # Retrieve relevant context using RAG
+            card_names = [card[0].name for card in cards]
+            context = await self.rag.retrieve_context(
+                f"Interpret this tarot reading: {', '.join(card_names)}"
+            )
+            
+            # Generate interpretation using model router with RAG context
             response = await self.model_router.route_request(
                 "interpretation",
-                prompt=prompt
+                prompt=f"{prompt}\n\nContext:\n{context}"
             )
             
             # Process response
