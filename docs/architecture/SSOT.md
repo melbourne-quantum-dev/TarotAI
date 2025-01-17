@@ -631,25 +631,39 @@ def interactive(): ...
 7. Results displayed via Rich console
 
 ### 8.3 Error Handling Strategy
-```python
-class TarotError(Exception): pass
-class DeckError(TarotError): pass
-class ReadingError(TarotError): pass
-class InterpretationError(TarotError): pass
 
-def handle_reading_errors(func):
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except TarotError as e:
-            logger.error(f"Reading error: {e}")
-            raise
-        except Exception as e:
-            logger.exception("Unexpected error during reading")
-            raise TarotError(f"Reading failed: {e}")
-    return wrapper
+The system uses a hierarchical error system with specific error types:
+
+```python
+class TarotError(Exception):
+    """Base exception class for TarotAI system"""
+    def __init__(
+        self, 
+        message: str, 
+        code: str = "UNKNOWN_ERROR", 
+        detail: Optional[Dict[str, Any]] = None,
+        severity: ErrorSeverity = ErrorSeverity.ERROR
+    ):
+        self.message = message
+        self.code = code
+        self.detail = detail or {}
+        self.severity = severity
+        self.timestamp = datetime.utcnow()
+        super().__init__(message)
+
+class DeckError(TarotError): ...
+class ConfigError(TarotError): ...
+class EnrichmentError(TarotError): ...
+class EmbeddingError(TarotError): ...
+class ReadingError(TarotError): ...
 ```
+
+Key features:
+- Structured error codes
+- Severity levels (INFO, WARNING, ERROR, CRITICAL)
+- Timestamped errors
+- Detailed error context
+- HTTP exception conversion
 
 ### 8.4 Testing Strategy
 - Unit tests for each core component
