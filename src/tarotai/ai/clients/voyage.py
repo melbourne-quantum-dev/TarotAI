@@ -1,13 +1,10 @@
 import os
-import io
-import base64
 from typing import Dict, Any, List, Optional, Union
 from voyageai import AsyncClient
 from dotenv import load_dotenv
 from tenacity import retry, wait_exponential, stop_after_attempt
-from PIL import Image
 from ..exceptions import EnrichmentError
-from .base import BaseAIClient
+from ..core import BaseAIClient
 
 load_dotenv()
 
@@ -46,45 +43,22 @@ class VoyageClient(BaseAIClient):
     async def generate_multimodal_embedding(
         self,
         content: List[Dict[str, Any]],
-        input_type: Optional[str] = None,
-        image_quality: str = "high",
-        max_image_size: int = 1024
+        input_type: Optional[str] = None
     ) -> List[float]:
-        """Generate embeddings for mixed text/image content with enhanced image handling"""
+        """Generate embeddings for mixed text/image content"""
         try:
-            # Preprocess images
-            processed_content = []
-            for item in content:
-                if item["type"] == "image":
-                    # Convert PIL Image to base64 if needed
-                    if isinstance(item["image"], Image.Image):
-                        buffered = io.BytesIO()
-                        item["image"].save(buffered, format="PNG", quality=95 if image_quality == "high" else 75)
-                        item["image"] = f"data:image/png;base64,{base64.b64encode(buffered.getvalue()).decode()}"
-                    # Resize if needed
-                    if max_image_size:
-                        if isinstance(item["image"], str) and item["image"].startswith("data:"):
-                            img_data = base64.b64decode(item["image"].split(",")[1])
-                            img = Image.open(io.BytesIO(img_data))
-                            img.thumbnail((max_image_size, max_image_size))
-                            buffered = io.BytesIO()
-                            img.save(buffered, format="PNG")
-                            item["image"] = f"data:image/png;base64,{base64.b64encode(buffered.getvalue()).decode()}"
-                
-                processed_content.append(item)
-
             result = await self.client.embed_multimodal(
-                processed_content,
+                content,
                 model="voyage-multimodal-3",
                 input_type=input_type
             )
             
             # Update usage tracking
             self.usage_tracker["requests"] += 1
-            for item in processed_content:
+            for item in content:
                 if item["type"] == "text":
                     self.usage_tracker["text_tokens"] += len(item["text"].split())
-                elif item["type"] == "image" or item["type"] == "image_url":
+                elif item["type"] == "image_url":
                     self.usage_tracker["image_pixels"] += 1000000  # Estimate based on typical image size
                     
             return result.embeddings[0]
