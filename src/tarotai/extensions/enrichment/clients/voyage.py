@@ -26,10 +26,88 @@ class VoyageClient(BaseAIClient):
             }
         )
         self.usage_tracker = {
+            "text_tokens": 0,
+            "image_pixels": 0,
             "total_tokens": 0,
-            "requests": 0,
-            "total_characters": 0
+            "requests": 0
         }
+
+    def get_usage_stats(self) -> Dict[str, Any]:
+        """Get detailed usage statistics"""
+        return {
+            **self.usage_tracker,
+            "estimated_cost": self._calculate_cost()
+        }
+
+    def _calculate_cost(self) -> float:
+        """Calculate estimated API costs"""
+        # Pricing based on VoyageAI's current rates
+        text_cost = self.usage_tracker["text_tokens"] / 1000 * 0.0001
+        image_cost = self.usage_tracker["image_pixels"] / 1000000 * 0.01
+        return text_cost + image_cost
+
+    async def generate_multimodal_embedding(
+        self,
+        content: List[Dict[str, Any]],
+        input_type: Optional[str] = None
+    ) -> List[float]:
+        """Generate embeddings for mixed text/image content"""
+        try:
+            response = await self.session.post(
+                f"{self.base_url}/multimodalembeddings",
+                json={
+                    "inputs": [{"content": content}],
+                    "model": "voyage-multimodal-3",
+                    "input_type": input_type
+                }
+            )
+            response.raise_for_status()
+            
+            # Update usage tracking
+            self.usage_tracker["requests"] += 1
+            for item in content:
+                if item["type"] == "text":
+                    self.usage_tracker["text_tokens"] += len(item["text"].split())
+                elif item["type"] == "image_url":
+                    self.usage_tracker["image_pixels"] += 1000000  # Estimate based on typical image size
+                    
+            return response.json()["data"][0]["embedding"]
+        except Exception as e:
+            raise EnrichmentError(f"Multimodal embedding failed: {str(e)}")
+
+    async def rerank_documents(
+        self,
+        query: str,
+        documents: List[str],
+        model: str = "rerank-2",
+        top_k: Optional[int] = None,
+        return_documents: bool = False
+    ) -> List[Dict[str, Any]]:
+        """Rerank documents based on relevance to query"""
+        try:
+            params = {
+                "query": query,
+                "documents": documents,
+                "model": model,
+                "return_documents": return_documents
+            }
+            if top_k:
+                params["top_k"] = top_k
+                
+            response = await self.session.post(
+                f"{self.base_url}/rerank",
+                json=params
+            )
+            response.raise_for_status()
+            
+            # Update usage tracking
+            self.usage_tracker["requests"] += 1
+            self.usage_tracker["text_tokens"] += len(query.split())
+            self.usage_tracker["text_tokens"] += sum(len(doc.split()) for doc in documents)
+            
+            return response.json()["data"]
+        except Exception as e:
+            raise EnrichmentError(f"Reranking failed: {str(e)}")
 
     @retry(
         wait=wait_exponential(multiplier=1, min=4, max=10),

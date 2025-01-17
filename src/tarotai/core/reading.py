@@ -1,20 +1,26 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Optional
 from pathlib import Path
-from .types import CardMeaning
-from .deck import TarotDeck
-
-from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
 from .types import CardMeaning
 from .deck import TarotDeck
 
 @dataclass
+class CardEmbeddings:
+    """Enhanced card embedding storage"""
+    text_embedding: List[float]
+    image_embedding: Optional[List[float]] = None
+    multimodal_embedding: Optional[List[float]] = None
+    quantized_embedding: Optional[List[int]] = None
+    reduced_dimension_embedding: Optional[List[float]] = None
+    version: str = "2.0"
+
+@dataclass
 class ReadingEmbeddings:
     """Container for hierarchical embeddings of a reading"""
-    card_embeddings: List[List[float]]
+    card_embeddings: List[CardEmbeddings]
     position_embeddings: List[List[float]] 
     context_embedding: List[float]
-    version: int = 1
+    version: int = 2
 
 class ReadingInput:
     """Base class for reading input methods"""
@@ -23,7 +29,41 @@ class ReadingInput:
         
     async def generate_embeddings(self, voyage_client) -> Optional[ReadingEmbeddings]:
         """Generate hierarchical embeddings for the reading"""
-        return None
+        cards = self.get_cards()
+        
+        # Generate text embeddings for cards
+        text_embeddings = await voyage_client.generate_batch_embeddings(
+            [card[0].upright_meaning for card in cards]
+        )
+        
+        # Generate multimodal embeddings if images are available
+        card_embeddings = []
+        for card, text_embedding in zip(cards, text_embeddings):
+            embeddings = CardEmbeddings(text_embedding=text_embedding)
+            
+            if card[0].image_url:
+                content = [
+                    {"type": "text", "text": card[0].upright_meaning},
+                    {"type": "image_url", "image_url": card[0].image_url}
+                ]
+                embeddings.multimodal_embedding = await voyage_client.generate_multimodal_embedding(content)
+                
+            card_embeddings.append(embeddings)
+        
+        # Generate position embeddings
+        position_embeddings = await voyage_client.generate_batch_embeddings(
+            [f"Position {i}" for i in range(len(cards))]
+        )
+        
+        # Generate context embedding
+        context = " ".join(card[0].upright_meaning for card in cards)
+        context_embedding = await voyage_client.generate_embedding(context)
+        
+        return ReadingEmbeddings(
+            card_embeddings=card_embeddings,
+            position_embeddings=position_embeddings,
+            context_embedding=context_embedding
+        )
 
 class RandomDrawInput(ReadingInput):
     """Input method using random card draw"""
