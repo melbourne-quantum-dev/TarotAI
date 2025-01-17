@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# TarotAI Setup Script for macOS/Linux
+# TarotAI Setup Script for macOS/Linux/Windows (WSL)
 
 # Configuration
 VENV_DIR=".venv"
 REQUIREMENTS="requirements.txt"
 PYTHON_MIN_VERSION="3.10"
 SETUP_DIR="scripts/setup"
+ENV_FILE=".env"
+ENV_EXAMPLE=".env.example"
 
 # Colors
 RED='\033[0;31m'
@@ -55,7 +57,27 @@ function create_venv() {
 
 function activate_venv() {
     log_info "Activating virtual environment..."
-    source "${VENV_DIR}/bin/activate" || log_error "Failed to activate virtual environment"
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        # Windows
+        source "${VENV_DIR}/Scripts/activate" || log_error "Failed to activate virtual environment"
+    else
+        # macOS/Linux
+        source "${VENV_DIR}/bin/activate" || log_error "Failed to activate virtual environment"
+    fi
+}
+
+function setup_environment() {
+    log_info "Setting up environment variables..."
+    if [ ! -f "${ENV_FILE}" ]; then
+        if [ -f "${ENV_EXAMPLE}" ]; then
+            cp "${ENV_EXAMPLE}" "${ENV_FILE}"
+            log_info "Created .env file from example"
+        else
+            log_warn "No .env.example file found - you'll need to create your own .env file"
+        fi
+    else
+        log_info ".env file already exists"
+    fi
 }
 
 function install_dependencies() {
@@ -88,17 +110,30 @@ function verify_installation() {
     python3 -c "import tarotai; print('TarotAI setup successful!')" || log_error "Setup verification failed"
 }
 
+function post_setup_instructions() {
+    log_info ""
+    log_info "Setup complete! To activate the virtual environment, run:"
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        log_info "  .\\.venv\\Scripts\\activate"
+    else
+        log_info "  source ${VENV_DIR}/bin/activate"
+    fi
+    log_info ""
+    log_info "To run tests:"
+    log_info "  pytest tests/"
+    log_info ""
+    log_info "To start the CLI interface:"
+    log_info "  tarotai"
+    log_info ""
+    log_info "Remember to configure your API keys in the .env file!"
+}
+
 # Main execution
 check_python_version
 install_uv
 create_venv
 activate_venv
+setup_environment
 install_dependencies
 verify_installation
-
-log_info ""
-log_info "Setup complete! To activate the virtual environment, run:"
-log_info "  source ${VENV_DIR}/bin/activate"
-log_info ""
-log_info "To run tests:"
-log_info "  pytest tests/"
+post_setup_instructions
