@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     tarot: TarotSettings = Field(default_factory=TarotSettings)
     log_level: str = Field(default="INFO")
     debug: bool = Field(default=False)
+    dev_mode: bool = Field(default=False, description="Enable developer features")
+    api_mode: bool = Field(default=False, description="Enable API interface")
     
     class Config:
         env_file = ".env"

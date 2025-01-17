@@ -61,16 +61,25 @@ class TarotASCII:
 class TarotDisplay:
     """Handles all display-related functionality"""
     
-    def __init__(self, console: Optional[Console] = None):
+    def __init__(self, console: Optional[Console] = None, config: Optional[Settings] = None):
         self.console = console or Console()
+        self.config = config or get_config()
         self.ascii = TarotASCII()
         self.color_scheme = {
             'system': 'cyan',
             'energy': 'magenta',
             'status': 'green',
             'border': 'white',
-            'error': 'red'
+            'error': 'red',
+            'debug': 'yellow'
         }
+        
+        if self.config.dev_mode:
+            self.color_scheme.update({
+                'debug': 'yellow',
+                'warning': 'orange3',
+                'info': 'blue'
+            })
 
     def welcome_banner(self) -> str:
         """Generate welcome banner with cyberpunk styling"""
@@ -109,10 +118,23 @@ class TarotDisplay:
             title="[bold cyan]≺ SYSTEM READY ≻[/]"
         ))
 
-    def display_error(self, message: str, details: Optional[str] = None) -> None:
-        """Display an error message with optional details"""
+    def display_error(self, message: str, details: Optional[str] = None, 
+                    exception: Optional[Exception] = None) -> None:
+        """Display an error message with optional details and stack trace"""
+        error_content = f"⛔ {message}"
+        
+        if details:
+            error_content += f"\n\n{details}"
+            
+        if exception and self.config.dev_mode:
+            import traceback
+            error_content += "\n\n[bold]Stack Trace:[/]\n"
+            error_content += "".join(traceback.format_exception(
+                type(exception), exception, exception.__traceback__
+            ))
+            
         error_panel = Panel(
-            Text(f"⛔ {message}\n\n{details or ''}", style=self.color_scheme['error']),
+            Text(error_content, style=self.color_scheme['error']),
             title="[bold]ERROR[/]",
             border_style=self.color_scheme['error'],
             title_align="left"
@@ -121,6 +143,8 @@ class TarotDisplay:
 
     def display_loading(self, message: str) -> Status:
         """Display a loading spinner with message"""
+        if self.config.dev_mode:
+            message = f"[debug]DEV MODE: {message}[/]"
         return self.console.status(
             f"[{self.color_scheme['energy']}]{message}[/]",
             spinner="dots",
@@ -161,6 +185,15 @@ class TarotDisplay:
 
     def show_reading(self, reading: Reading) -> None:
         """Display the reading results"""
+        if self.config.dev_mode:
+            self.console.print(Panel(
+                f"[debug]Reading ID: {reading.id}\n"
+                f"Timestamp: {reading.timestamp}\n"
+                f"Model: {reading.model}[/]",
+                title="[bold yellow]DEV INFO[/]",
+                border_style="yellow"
+            ))
+            
         # Convert reading cards to format needed for ASCII display
         cards_for_display = [
             {
