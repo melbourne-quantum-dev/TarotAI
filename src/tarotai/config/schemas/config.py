@@ -29,7 +29,7 @@ class AISettings(BaseSettings):
         interpretation_limits: Limits for different interpretation types
     """
     enabled: bool = Field(default=True, description="Whether the provider is enabled")
-    api_key: str = Field(default="", env="AI_API_KEY", description="API key for the provider")
+    api_key: str = Field(default="", env=["AI_API_KEY", "DEEPSEEK_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "VOYAGE_API_KEY"], description="API key for the provider")
     model: str = Field(default="deepseek-chat", description="Model name to use")
     temperature: float = Field(default=0.7, ge=0.0, le=1.0, description="Sampling temperature (0.0-1.0)")
     max_tokens: int = Field(default=4000, gt=0, description="Maximum tokens per API call")

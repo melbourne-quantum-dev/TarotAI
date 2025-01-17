@@ -60,21 +60,21 @@ setup:
 
 test:
 	@echo "Running tests..."
-	@uv run pytest tests/ \
+	@pytest tests/ \
 		--cov=tarotai \
 		--cov-report=term-missing
 	$(QUANTUM_SUCCESS)
 
 lint:
 	@echo "Running linting..."
-	@uv run flake8 src/ tests/ \
+	@flake8 src/ tests/ \
 		--max-line-length=79
-	@uv run mypy src/ tests/
+	@mypy src/ tests/
 	$(QUANTUM_PROGRESS)
 
 format:
 	@echo "Formatting code..."
-	@uv run black src/ tests/
+	@black src/ tests/
 	$(QUANTUM_SUCCESS)
 
 clean:
