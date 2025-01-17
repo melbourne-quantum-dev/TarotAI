@@ -3,7 +3,7 @@ import anthropic
 from typing import Dict, Any, List, Optional, AsyncGenerator
 from dotenv import load_dotenv
 from ..exceptions import EnrichmentError
-from .base import BaseAIClient
+from ..core import BaseAIClient
 
 load_dotenv()
 
