@@ -65,7 +65,9 @@ def get_golden_dawn_config() -> GoldenDawnConfig:
     except Exception as e:
         logger.error(f"Failed to load Golden Dawn configuration: {str(e)}")
         raise
-from src.tarotai.ai.embeddings.voyage import VoyageClient  # Assuming this is the correct import path
+from src.tarotai.ai.embeddings.voyage import VoyageClient
+from src.tarotai.ai.clients.deepseek_v3 import DeepSeekClient
+from src.tarotai.ai.clients.claude import ClaudeClient
 from src.tarotai.core.logging import setup_logging
 
 # Configure logging
