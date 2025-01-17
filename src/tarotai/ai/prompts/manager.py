@@ -43,17 +43,20 @@ class PromptTemplates:
     """Centralized prompt templates for the system"""
     
     @staticmethod
-    def card_meaning(card: CardMeaning, is_reversed: bool = False) -> str:
-        """Generate prompt for card meaning interpretation"""
+    def card_meaning(card: CardMeaning, golden_dawn_content: Dict[str, str], is_reversed: bool = False) -> str:
+        """Generate prompt for card meaning interpretation with Golden Dawn context"""
         orientation = "reversed" if is_reversed else "upright"
+        gd_description = golden_dawn_content.get(card.name, "No Golden Dawn description available.")
+        
         return f"""
         Analyze the {orientation} meaning of the {card.name} tarot card.
         Consider:
-        - Traditional symbolism
-        - Elemental associations
-        - Astrological correspondences
+        - Traditional symbolism: {gd_description}
+        - Elemental associations: {card.element}
+        - Astrological correspondences: {card.astrological}
+        - Kabbalistic path: {card.kabbalistic}
         - Practical applications
-        Provide a concise, modern interpretation.
+        Provide a concise, modern interpretation that aligns with the Golden Dawn tradition.
         """
         
     @staticmethod

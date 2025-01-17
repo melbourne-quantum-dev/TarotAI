@@ -97,17 +97,27 @@ class TarotEnricher:
 
     async def _base_enrichment(self, card: CardMeaning, context: str = "") -> CardMeaning:
         try:
+            # Get Golden Dawn context
+            card_embedding = await self.voyage.generate_embedding(card.name)
+            relevant_sections = self.golden_dawn.find_relevant_sections(card_embedding)
+            gd_context = "\n\n".join(
+                f"Page {s['metadata']['page']}:\n{s['content']}" 
+                for s in relevant_sections
+            )
+            
             prompt = MultiStagePrompt([
                 PromptStage(
                     name="initial_analysis",
-                    system_message="Analyze the core symbolism of this tarot card",
+                    system_message="Analyze the core symbolism of this tarot card using Golden Dawn context",
                     user_message=f"""
                     Card: {card.name}
                     Current Keywords: {card.keywords}
+                    Golden Dawn Context: {gd_context}
                     Provide:
                     1. 3-5 additional keywords
                     2. Core archetypal meaning
                     3. Psychological significance
+                    Ensure interpretations align with Golden Dawn tradition.
                     """
                 ),
                 PromptStage(
@@ -155,14 +165,22 @@ class TarotEnricher:
             # Retrieve relevant context if RAG is enabled
             context = ""
             if use_rag:
+                # Generate embedding using card name and keywords
                 card_embedding = await self.voyage.generate_embedding(
                     f"{card.name} {' '.join(card.keywords)}"
                 )
+                
+                # Find relevant Golden Dawn sections
                 relevant_sections = self.golden_dawn.find_relevant_sections(card_embedding)
+                
+                # Build context string with page numbers and content
                 context = "\n\n".join(
                     f"Page {s['metadata']['page']}:\n{s['content']}" 
                     for s in relevant_sections
                 )
+                
+                # Add Golden Dawn context to card metadata
+                card.golden_dawn_context = context
             
             # Base enrichment with context
             enriched = await self._base_enrichment(card, context)
