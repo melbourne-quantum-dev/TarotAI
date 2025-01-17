@@ -22,7 +22,23 @@ class DeepSeekClient(BaseAIClient):
         self.mtp_enabled = True  # Enable Multi-Token Prediction by default
         self.precision = "fp8"  # Default to FP8 precision
         self.load_balancing = "auxiliary-free"  # New load balancing strategy
-        self.conversation_history = []  # Track conversation context
+        
+        # Conversation history and caching
+        self.conversation_history = []
+        self.usage_stats = {
+            'cache_hit_tokens': 0,
+            'cache_miss_tokens': 0,
+            'total_requests': 0
+        }
+        
+        # System prompt for consistent caching
+        self.system_prompt = """
+        You are a tarot interpretation assistant. Always provide:
+        - Upright meaning
+        - Reversed meaning
+        - Keywords
+        - Elemental association
+        """
         
         self.session = httpx.AsyncClient(
             headers={
@@ -36,6 +52,13 @@ class DeepSeekClient(BaseAIClient):
     async def generate_response(self, prompt: str, **kwargs) -> Dict[str, Any]:
         """Generate a response from DeepSeek with MTP support and conversation history."""
         try:
+            # Add system prompt if not already in history
+            if not any(msg["role"] == "system" for msg in self.conversation_history):
+                self.conversation_history.insert(0, {
+                    "role": "system",
+                    "content": self.system_prompt
+                })
+            
             # Add user message to conversation history
             self.conversation_history.append({"role": "user", "content": prompt})
             
@@ -52,6 +75,12 @@ class DeepSeekClient(BaseAIClient):
                 )
                 response.raise_for_status()
                 response = response.json()
+            
+            # Update cache statistics
+            usage = response.get("usage", {})
+            self.usage_stats['cache_hit_tokens'] += usage.get('prompt_cache_hit_tokens', 0)
+            self.usage_stats['cache_miss_tokens'] += usage.get('prompt_cache_miss_tokens', 0)
+            self.usage_stats['total_requests'] += 1
             
             # Add assistant response to history
             if response.get("choices"):
@@ -124,14 +153,18 @@ class DeepSeekClient(BaseAIClient):
     async def json_prompt(self, prompt: str) -> Dict[str, Any]:
         """Generate a JSON response from DeepSeek with structured output."""
         try:
-            system_prompt = """
-            You are a tarot interpretation assistant. Always output in JSON format.
+            # Add JSON-specific system prompt
+            json_system_prompt = self.system_prompt + """
+            Always output in JSON format.
             Example output: {"meaning": "...", "keywords": ["...", "..."]}
             """
             
             # Add system prompt if not already in history
             if not any(msg["role"] == "system" for msg in self.conversation_history):
-                self.conversation_history.insert(0, {"role": "system", "content": system_prompt})
+                self.conversation_history.insert(0, {
+                    "role": "system",
+                    "content": json_system_prompt
+                })
             
             response = await self.generate_response(
                 prompt,
@@ -144,10 +177,14 @@ class DeepSeekClient(BaseAIClient):
     async def conversational_prompt(
         self,
         messages: List[Dict[str, str]],
-        system_prompt: str = "You are a helpful assistant."
+        system_prompt: str = None
     ) -> str:
         """Generate a conversational response with load balancing and context management."""
         try:
+            # Use default system prompt if not provided
+            if system_prompt is None:
+                system_prompt = self.system_prompt
+            
             # Configure load balancing
             if self.load_balancing == "auxiliary-free":
                 load_balancing_config = {
@@ -162,7 +199,10 @@ class DeepSeekClient(BaseAIClient):
             
             # Add system prompt if not already in history
             if not any(msg["role"] == "system" for msg in self.conversation_history):
-                self.conversation_history.insert(0, {"role": "system", "content": system_prompt})
+                self.conversation_history.insert(0, {
+                    "role": "system",
+                    "content": system_prompt
+                })
             
             # Add new messages to conversation history
             self.conversation_history.extend(messages)
@@ -177,6 +217,12 @@ class DeepSeekClient(BaseAIClient):
             )
             response.raise_for_status()
             response_data = response.json()
+            
+            # Update cache statistics
+            usage = response_data.get("usage", {})
+            self.usage_stats['cache_hit_tokens'] += usage.get('prompt_cache_hit_tokens', 0)
+            self.usage_stats['cache_miss_tokens'] += usage.get('prompt_cache_miss_tokens', 0)
+            self.usage_stats['total_requests'] += 1
             
             # Add assistant response to history
             if response_data.get("choices"):
