@@ -2,6 +2,7 @@ import os
 from typing import Dict, Any, List, Optional
 import httpx
 from dotenv import load_dotenv
+from tenacity import retry, wait_exponential, stop_after_attempt
 from ..exceptions import EnrichmentError
 from .base import BaseAIClient
 
@@ -24,6 +25,16 @@ class VoyageClient(BaseAIClient):
                 "Content-Type": "application/json"
             }
         )
+        self.usage_tracker = {
+            "total_tokens": 0,
+            "requests": 0,
+            "total_characters": 0
+        }
+
+    @retry(
+        wait=wait_exponential(multiplier=1, min=4, max=10),
+        stop=stop_after_attempt(5)
+    )
 
     async def generate_response(self, prompt: str, **kwargs) -> Dict[str, Any]:
         """Generate a response from Voyage AI."""
@@ -41,18 +52,53 @@ class VoyageClient(BaseAIClient):
         except Exception as e:
             raise EnrichmentError(f"Voyage API request failed: {str(e)}")
 
-    async def generate_embedding(self, text: str) -> List[float]:
-        """Generate embeddings for the given text."""
+    async def generate_embedding(self, text: str, dimensions: Optional[int] = None) -> List[float]:
+        """Generate embedding with optional dimension reduction"""
+        try:
+            params = {
+                "model": self.model,
+                "input": text
+            }
+            if dimensions:
+                params["dimensions"] = dimensions
+                
+            response = await self.session.post(
+                f"{self.base_url}/embeddings",
+                json=params
+            )
+            response.raise_for_status()
+            return response.json()["data"][0]["embedding"]
+        except Exception as e:
+            raise EnrichmentError(f"Voyage embedding request failed: {str(e)}")
+
+    async def generate_batch_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """Generate embeddings for multiple texts in a single request"""
         try:
             response = await self.session.post(
                 f"{self.base_url}/embeddings",
                 json={
                     "model": self.model,
-                    "input": text
+                    "input": texts
                 }
             )
             response.raise_for_status()
-            return response.json()["data"][0]["embedding"]
+            return [item["embedding"] for item in response.json()["data"]]
+        except Exception as e:
+            raise EnrichmentError(f"Voyage batch embedding request failed: {str(e)}")
+
+    async def generate_embedding_with_metadata(self, text: str) -> Dict[str, Any]:
+        """Generate embedding with metadata"""
+        try:
+            response = await self.session.post(
+                f"{self.base_url}/embeddings",
+                json={
+                    "model": self.model,
+                    "input": text,
+                    "include_metadata": True
+                }
+            )
+            response.raise_for_status()
+            return response.json()["data"][0]
         except Exception as e:
             raise EnrichmentError(f"Voyage embedding request failed: {str(e)}")
 
@@ -85,6 +131,16 @@ class VoyageClient(BaseAIClient):
                 }
             )
             response.raise_for_status()
+            
+            # Update usage tracking
+            total_tokens = sum(len(msg["content"].split()) for msg in messages)
+            self.usage_tracker["total_tokens"] += total_tokens
+            self.usage_tracker["requests"] += 1
+            
             return response.json()["choices"][0]["message"]["content"]
         except Exception as e:
             raise EnrichmentError(f"Voyage conversational request failed: {str(e)}")
+
+    def get_usage_stats(self) -> Dict[str, int]:
+        """Get current usage statistics"""
+        return self.usage_tracker
