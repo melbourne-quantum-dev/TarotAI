@@ -21,7 +21,7 @@ from typing import Dict, Any, List, Optional
 import json
 from dataclasses import dataclass
 import numpy as np
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, ValidationError
 from src.tarotai.ai.clients.base import BaseAIClient
 from src.tarotai.extensions.enrichment.knowledge.golden_dawn import extract_pdf_content
 
