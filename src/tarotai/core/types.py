@@ -35,11 +35,36 @@ class ReadingType(str, Enum):
     CELTIC_CROSS = "celtic_cross"
     CUSTOM = "custom"
 
+class UserProfile(BaseModel):
+    """User profile information for personalized readings"""
+    name: Optional[str] = Field(None, description="User's preferred name")
+    birth_date: Optional[date] = Field(None, description="User's birth date for astrological context")
+    reading_style: Literal["practical", "spiritual", "psychological"] = Field(
+        "practical", 
+        description="Preferred interpretation style"
+    )
+    detail_level: Literal["brief", "moderate", "detailed"] = Field(
+        "moderate",
+        description="Preferred level of detail in readings"
+    )
+
 class QuestionContext(BaseModel):
     """Represents the context of a tarot reading question"""
     focus: str = Field(..., description="Main focus or theme of the reading")
     raw_question: str = Field(..., description="Original question asked by the querent")
     additional_context: Optional[Dict[str, str]] = Field(default=None)
+    user_profile: Optional[UserProfile] = Field(
+        None,
+        description="User profile information for personalized readings"
+    )
+    reading_history: Optional[List["Reading"]] = Field(
+        None,
+        description="User's previous readings for pattern analysis"
+    )
+    temporal_context: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Temporal context like moon phase and astrological transits"
+    )
 
 class CardMeaning(BaseModel):
     """Represents the meaning of a tarot card"""

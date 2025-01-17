@@ -49,6 +49,37 @@ class TarotInterpreter:
                 'include_reversed': True
             }
         
+    def _build_context_summary(self, context: Optional[QuestionContext]) -> str:
+        """Build a summary of the reading context"""
+        if not context:
+            return "No additional context provided"
+            
+        summary = []
+        
+        # User profile
+        if context.user_profile:
+            profile = context.user_profile
+            summary.append(
+                f"Reading for {profile.name or 'querent'} "
+                f"who prefers {profile.reading_style} interpretations "
+                f"with {profile.detail_level} detail level"
+            )
+            
+        # Temporal context
+        if context.temporal_context:
+            summary.append(
+                f"Current temporal context: {context.temporal_context}"
+            )
+            
+        # Reading history
+        if context.reading_history:
+            recent_readings = len(context.reading_history)
+            summary.append(
+                f"Querent has {recent_readings} recent readings in history"
+            )
+            
+        return "\n".join(summary)
+
     def _load_prompt_templates(self) -> Dict[str, str]:
         """Load prompt templates from XML files"""
         # TODO: Implement template loading
@@ -64,8 +95,18 @@ class TarotInterpreter:
         self, 
         spread_type: str,
         cards: List[Tuple[CardMeaning, bool]],
-        question: Optional[str]
+        question: Optional[str],
+        context: Optional[QuestionContext] = None
     ) -> MultiStagePrompt:
+        """Create context-aware interpretation prompt"""
+        # Build context summary
+        context_summary = self._build_context_summary(context)
+        
+        # Format cards with positions
+        formatted_cards = "\n".join(
+            f"{i+1}. {card.name} ({'Reversed' if reversed else 'Upright'})"
+            for i, (card, reversed) in enumerate(cards)
+        )
         return MultiStagePrompt([
             PromptStage(
                 name="context_analysis",
@@ -73,8 +114,16 @@ class TarotInterpreter:
                 user_message=f"""
                 Spread Type: {spread_type}
                 Question: {question}
-                Cards: {[c.name for c in cards]}
-                Identify 3-5 key themes in this reading.
+                Cards: {formatted_cards}
+                
+                Context Summary:
+                {context_summary}
+                
+                Identify 3-5 key themes in this reading considering:
+                1. The specific question and context
+                2. Patterns from previous readings
+                3. Card combinations and positions
+                4. User's stated focus area
                 """
             ),
             PromptStage(
