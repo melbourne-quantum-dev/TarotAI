@@ -37,31 +37,38 @@ Provide output as plain text with:
 """
 
 UPRIGHT_PROMPT = """
-{ROLE_CONTEXT}
-{INSTRUCTIONS}
-{FORMAT}
+You are an expert tarot interpreter with deep knowledge of Golden Dawn traditions.
 
-Generate an upright meaning for:
-- Card: {card_name}
+Generate an upright meaning for the {card_name} tarot card considering:
+
 - Element: {element}
-- Keywords: {keywords}
 - Astrological: {astrological}
 - Kabbalistic: {kabbalistic}
+- Golden Dawn Title: {golden_dawn_title}
+- Traditional Symbolism: {symbolism}
+
+Provide:
+1. A concise modern interpretation
+2. Practical applications
+3. Psychological insights
+4. Traditional symbolism references
+5. Elemental influences
+
+Format as plain text with clear sections.
 """
 
 REVERSED_PROMPT = """
-{ROLE_CONTEXT}
-{INSTRUCTIONS}
-{FORMAT}
+Generate a reversed meaning for {card_name} considering:
 
-Generate a reversed meaning for:
-- Card: {card_name}
 - Upright Meaning: {upright_meaning}
+- Golden Dawn Reversed Interpretation: {reversed_notes}
+- Shadow Aspects: {shadow_aspects}
 
-Consider:
-1. How the energy is blocked or distorted
-2. Potential shadow aspects
-3. Opportunities for growth
+Provide:
+1. Blocked or distorted energy analysis
+2. Shadow aspects
+3. Growth opportunities
+4. Practical advice for integration
 """
 
 ERROR_HANDLING = """
@@ -71,7 +78,21 @@ If unsure about interpretation:
 3. Suggest further research areas
 """
 
-async def generate_meanings(card: Dict[str, Any], ai_client: DeepSeekClient) -> Dict[str, Any]:
+async def generate_keywords(card: Dict, ai_client, gd_info: Dict) -> List[str]:
+    """Generate keywords for a card using AI and Golden Dawn knowledge"""
+    prompt = f"""
+    Generate 3-5 keywords for {card['name']} considering:
+    - Element: {card['element']}
+    - Astrological: {card['astrological']}
+    - Kabbalistic: {card['kabbalistic']}
+    - Golden Dawn Symbolism: {gd_info.get('symbolism', [])}
+    - Traditional Meanings: {gd_info.get('traditional_meanings', [])}
+    
+    Return as JSON list.
+    """
+    return await ai_client.json_prompt(prompt)
+
+async def generate_meanings(card: Dict[str, Any], ai_client: DeepSeekClient, golden_dawn: GoldenDawnKnowledgeBase) -> Dict[str, Any]:
     """Generate upright and reversed meanings for a card."""
     # Prepare context variables
     context = {
@@ -142,20 +163,49 @@ def save_cards(cards: List[Dict[str, Any]], file_path: str) -> None:
     with open(file_path, "w") as f:
         json.dump({"cards": cards}, f, indent=2)
 
-async def main():
-    # Load existing cards
+async def process_all_cards():
+    # Initialize components
+    ai_client = DeepSeekClient()
+    golden_dawn = GoldenDawnKnowledgeBase("data/golden_dawn.pdf")
+    
+    # Load cards
     with open("data/cards_ordered.json") as f:
         cards = json.load(f)["cards"]
     
-    # Initialize AI clients
-    ai_client = DeepSeekClient()
-    voyage_client = VoyageClient()
-    
-    # Process cards
-    processed_cards = await process_cards(cards, ai_client, voyage_client)
-    
-    # Save updated cards
-    save_cards(processed_cards, "data/cards_ordered.json")
+    # Process in batches
+    for i in range(0, len(cards), 5):
+        batch = cards[i:i+5]
+        for card in batch:
+            try:
+                # Get Golden Dawn knowledge
+                gd_info = golden_dawn.get_card_info(card["name"])
+                
+                # Generate keywords if missing
+                if not card["keywords"]:
+                    card["keywords"] = await generate_keywords(card, ai_client, gd_info)
+                
+                # Generate meanings if missing
+                if not card["upright_meaning"]:
+                    meanings = await generate_meanings(card, ai_client, golden_dawn)
+                    card.update(meanings)
+                
+                # Add Golden Dawn references
+                card["golden_dawn"] = {
+                    "title": gd_info.get("title"),
+                    "symbolism": gd_info.get("symbolism"),
+                    "reading_methods": golden_dawn.get_reading_methods(card["name"])
+                }
+            
+            except Exception as e:
+                print(f"Error processing {card['name']}: {str(e)}")
+                continue
+        
+        # Save progress
+        with open("data/cards_ordered.json", "w") as f:
+            json.dump({"cards": cards}, f, indent=2)
+
+async def main():
+    await process_all_cards()
 
 if __name__ == "__main__":
     asyncio.run(main())

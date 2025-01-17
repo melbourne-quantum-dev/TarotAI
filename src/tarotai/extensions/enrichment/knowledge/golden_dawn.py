@@ -130,6 +130,31 @@ class GoldenDawnKnowledgeBase:
             save_knowledge(self.knowledge, cache_path)
                 
         self.embeddings = self._generate_embeddings()
+        self.card_index = self._create_card_index()
+    
+    def _create_card_index(self) -> Dict[str, Dict]:
+        """Create a quick lookup index for card information"""
+        index = {}
+        for method in self.knowledge.reading_methods.values():
+            for card_ref in method.card_references:
+                index[card_ref.card_name] = card_ref.details
+        return index
+    
+    def get_card_info(self, card_name: str) -> Dict:
+        """Get Golden Dawn knowledge for a specific card"""
+        return self.card_index.get(card_name, {
+            "title": "",
+            "symbolism": [],
+            "reversed_notes": "",
+            "shadow_aspects": []
+        })
+    
+    def get_reading_methods(self, card_name: str) -> List[Dict]:
+        """Get reading methods that reference this card"""
+        return [
+            method for method in self.knowledge.reading_methods.values()
+            if any(ref.card_name == card_name for ref in method.card_references)
+        ]
 
 def save_knowledge(knowledge: GoldenDawnKnowledge, output_path: Path) -> None:
     """Save Golden Dawn knowledge to a JSON file."""
