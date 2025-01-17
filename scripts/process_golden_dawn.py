@@ -15,8 +15,11 @@ import asyncio
 from pathlib import Path
 from datetime import datetime
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import json
+from dataclasses import dataclass
+import numpy as np
+from pydantic import BaseModel, validator
 
 from src.tarotai.ai.prompts.templates import UPRIGHT_PROMPT, REVERSED_PROMPT
 from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (
@@ -29,6 +32,106 @@ from src.tarotai.core.logging import setup_logging
 # Configure logging
 setup_logging()
 logger = logging.getLogger(__name__)
+
+@dataclass
+class CardEmbeddings:
+    """Manages card meaning embeddings"""
+    dimension: int = 1024
+    embeddings: Dict[str, List[float]] = None
+    _validate_cache: Dict[str, bool] = None
+
+    def __post_init__(self):
+        self.embeddings = {}
+        self._validate_cache = {}
+
+    async def generate_card_embeddings(self, card: Dict[str, Any], voyage_client) -> Dict[str, List[float]]:
+        """Generate comprehensive embeddings for a card"""
+        base_text = self._prepare_embedding_text(card)
+        
+        embeddings = {
+            "base": await voyage_client.generate_embedding(base_text),
+            "upright": await voyage_client.generate_embedding(card["upright_meaning"]),
+            "reversed": await voyage_client.generate_embedding(card["reversed_meaning"]),
+            "combined": await self._generate_combined_embedding(card, voyage_client)
+        }
+        
+        self._validate_embeddings(embeddings)
+        return embeddings
+
+    def _prepare_embedding_text(self, card: Dict[str, Any]) -> str:
+        """Prepare text for embedding generation"""
+        return f"{card['name']} {card['traditional_title']} {' '.join(card['keywords'])}"
+
+    def _validate_embeddings(self, embeddings: Dict[str, List[float]]) -> None:
+        """Validate embedding structure and dimensions"""
+        for name, embedding in embeddings.items():
+            assert len(embedding) == self.dimension, f"Invalid dimension for {name}"
+            self._validate_cache[name] = True
+
+class KnowledgeProcessor:
+    """Processes and validates card knowledge"""
+    
+    def __init__(self, embedding_manager: CardEmbeddings):
+        self.embedding_manager = embedding_manager
+        self.validation_rules = self._load_validation_rules()
+
+    async def process_card(self, card: Dict[str, Any], voyage_client) -> Dict[str, Any]:
+        """Process complete card knowledge"""
+        try:
+            self._validate_card_structure(card)
+            
+            card["embeddings"] = await self.embedding_manager.generate_card_embeddings(
+                card, voyage_client
+            )
+            
+            card["metadata"].update({
+                "processed_at": datetime.now().isoformat(),
+                "embedding_version": "2.0.0"
+            })
+            
+            return card
+            
+        except Exception as e:
+            logger.error(f"Error processing card {card.get('name')}: {str(e)}")
+            raise
+
+    def _validate_card_structure(self, card: Dict[str, Any]) -> None:
+        """Validate card data structure"""
+        required_fields = [
+            "name", "number", "keywords", 
+            "upright_meaning", "reversed_meaning"
+        ]
+        
+        for field in required_fields:
+            assert field in card, f"Missing required field: {field}"
+
+class KnowledgeValidator:
+    """Validation framework for processed knowledge"""
+    
+    def validate_card(self, card: Dict[str, Any]) -> bool:
+        """Comprehensive card validation"""
+        try:
+            self._validate_structure(card)
+            self._validate_content_quality(card)
+            self._validate_embeddings(card.get("embeddings", {}))
+            return True
+        except Exception as e:
+            logger.error(f"Validation failed: {str(e)}")
+            return False
+            
+    def _validate_content_quality(self, card: Dict[str, Any]) -> None:
+        """Validate content meets quality standards"""
+        assert len(card["upright_meaning"]) >= 50, "Upright meaning too short"
+        assert len(card["reversed_meaning"]) >= 50, "Reversed meaning too short"
+        assert 3 <= len(card["keywords"]) <= 7, "Invalid keyword count"
+        
+    def _validate_embeddings(self, embeddings: Dict[str, Any]) -> None:
+        """Validate embedding structure and quality"""
+        required_embeddings = ["base", "upright", "reversed", "combined"]
+        for emb in required_embeddings:
+            assert emb in embeddings, f"Missing required embedding: {emb}"
+            assert isinstance(embeddings[emb], list), f"Invalid embedding format for {emb}"
+            assert len(embeddings[emb]) == 1024, f"Invalid embedding dimension for {emb}"
 
 async def generate_keywords(card: Dict, ai_client, gd_info: Dict) -> List[str]:
     """Generate keywords for a card using AI and Golden Dawn knowledge"""
@@ -108,24 +211,39 @@ async def process_golden_dawn(pdf_path: Path) -> Dict[str, Any]:
     try:
         logger.info(f"Starting Golden Dawn PDF processing: {pdf_path}")
         
-        # Initialize knowledge base
+        # Initialize knowledge base and embedding manager
         golden_dawn = GoldenDawnKnowledgeBase(pdf_path)
+        embedding_manager = CardEmbeddings()
+        knowledge_processor = KnowledgeProcessor(embedding_manager)
         
         # Get processed knowledge
         knowledge = golden_dawn.knowledge.dict()
         
-        # Generate embeddings
-        embeddings = golden_dawn.embeddings
+        # Process each card with enhanced pipeline
+        processed_cards = []
+        for card in knowledge.get("cards", []):
+            processed_card = await knowledge_processor.process_card(
+                card, 
+                voyage_client
+            )
+            processed_cards.append(processed_card)
         
         # Prepare output data
         output = {
             "metadata": {
                 "processed_at": datetime.now().isoformat(),
                 "source_file": str(pdf_path),
-                "version": "2.0.0"
+                "version": "2.0.0",
+                "embedding_dimension": embedding_manager.dimension
             },
-            "knowledge": knowledge,
-            "embeddings": embeddings
+            "knowledge": {
+                "cards": processed_cards,
+                "correspondences": knowledge.get("correspondences", {})
+            },
+            "embeddings": {
+                "card_count": len(processed_cards),
+                "embedding_version": "2.0.0"
+            }
         }
         
         return output
