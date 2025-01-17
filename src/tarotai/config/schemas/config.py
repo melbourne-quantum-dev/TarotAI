@@ -1,9 +1,12 @@
-from pydantic import Field, validator, root_validator
+from pydantic import Field, validator, root_validator, ValidationError
 from pydantic_settings import BaseSettings
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from .errors import ConfigError
 import yaml
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .limits import InterpretationLimits
 
