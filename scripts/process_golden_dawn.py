@@ -60,6 +60,32 @@ class CardEmbeddings:
         self._validate_embeddings(embeddings)
         return embeddings
 
+    async def generate_batch_embeddings(self, cards: List[Dict[str, Any]], voyage_client) -> Dict[str, Dict[str, List[float]]]:
+        """Generate embeddings for multiple cards in batch"""
+        # Prepare batch texts
+        base_texts = [self._prepare_embedding_text(card) for card in cards]
+        upright_texts = [card["upright_meaning"] for card in cards]
+        reversed_texts = [card["reversed_meaning"] for card in cards]
+        
+        # Generate embeddings in parallel
+        base_embeddings = await voyage_client.generate_batch_embedding(base_texts)
+        upright_embeddings = await voyage_client.generate_batch_embedding(upright_texts)
+        reversed_embeddings = await voyage_client.generate_batch_embedding(reversed_texts)
+        
+        # Combine results
+        results = {}
+        for i, card in enumerate(cards):
+            embeddings = {
+                "base": base_embeddings[i],
+                "upright": upright_embeddings[i],
+                "reversed": reversed_embeddings[i],
+                "combined": await self._generate_combined_embedding(card, voyage_client)
+            }
+            self._validate_embeddings(embeddings)
+            results[card["name"]] = embeddings
+            
+        return results
+
     def _prepare_embedding_text(self, card: Dict[str, Any]) -> str:
         """Prepare text for embedding generation"""
         return f"{card['name']} {card['traditional_title']} {' '.join(card['keywords'])}"
@@ -95,6 +121,35 @@ class KnowledgeProcessor:
             
         except Exception as e:
             logger.error(f"Error processing card {card.get('name')}: {str(e)}")
+            raise
+
+    async def process_batch(self, cards: List[Dict[str, Any]], voyage_client) -> List[Dict[str, Any]]:
+        """Process multiple cards in batch"""
+        try:
+            # Validate all cards first
+            for card in cards:
+                self._validate_card_structure(card)
+            
+            # Generate embeddings in batch
+            batch_embeddings = await self.embedding_manager.generate_batch_embeddings(
+                cards, voyage_client
+            )
+            
+            # Update cards with embeddings and metadata
+            processed_cards = []
+            for card in cards:
+                card["embeddings"] = batch_embeddings[card["name"]]
+                card["metadata"].update({
+                    "processed_at": datetime.now().isoformat(),
+                    "embedding_version": "2.0.0",
+                    "batch_processed": True
+                })
+                processed_cards.append(card)
+            
+            return processed_cards
+            
+        except Exception as e:
+            logger.error(f"Error processing batch: {str(e)}")
             raise
 
     def _validate_card_structure(self, card: Dict[str, Any]) -> None:
@@ -221,14 +276,21 @@ async def process_golden_dawn(pdf_path: Path, voyage_client) -> Dict[str, Any]:
         # Get processed knowledge
         knowledge = golden_dawn.knowledge.dict()
         
-        # Process each card with enhanced pipeline
+        # Process cards in batches for better performance
+        batch_size = 10  # Adjust based on VoyageClient's batch limits
+        cards = knowledge.get("cards", [])
         processed_cards = []
-        for card in knowledge.get("cards", []):
-            processed_card = await knowledge_processor.process_card(
-                card, 
+        
+        # Split cards into batches
+        for i in range(0, len(cards), batch_size):
+            batch = cards[i:i + batch_size]
+            logger.info(f"Processing batch {i//batch_size + 1} of {len(cards)//batch_size + 1}")
+            
+            processed_batch = await knowledge_processor.process_batch(
+                batch,
                 voyage_client
             )
-            processed_cards.append(processed_card)
+            processed_cards.extend(processed_batch)
         
         # Prepare output data
         output = {
