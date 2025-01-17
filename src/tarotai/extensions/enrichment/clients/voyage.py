@@ -1,6 +1,6 @@
 import os
 from typing import Dict, Any, List, Optional, Union
-import httpx
+from voyageai import AsyncClient
 from dotenv import load_dotenv
 from tenacity import retry, wait_exponential, stop_after_attempt
 from ..exceptions import EnrichmentError
@@ -16,15 +16,9 @@ class VoyageClient(BaseAIClient):
         if not self.api_key:
             raise EnrichmentError("Voyage API key not found in environment variables.")
         
-        self.base_url = "https://api.voyageai.com/v1"
+        self.client = AsyncClient(api_key=self.api_key, max_retries=5)
         self.model = "voyage-large-2"
         self.embedding_dim = 1024
-        self.session = httpx.AsyncClient(
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
-            }
-        )
         self.usage_tracker = {
             "text_tokens": 0,
             "image_pixels": 0,
@@ -53,15 +47,11 @@ class VoyageClient(BaseAIClient):
     ) -> List[float]:
         """Generate embeddings for mixed text/image content"""
         try:
-            response = await self.session.post(
-                f"{self.base_url}/multimodalembeddings",
-                json={
-                    "inputs": [{"content": content}],
-                    "model": "voyage-multimodal-3",
-                    "input_type": input_type
-                }
+            result = await self.client.embed_multimodal(
+                content,
+                model="voyage-multimodal-3",
+                input_type=input_type
             )
-            response.raise_for_status()
             
             # Update usage tracking
             self.usage_tracker["requests"] += 1
@@ -71,7 +61,7 @@ class VoyageClient(BaseAIClient):
                 elif item["type"] == "image_url":
                     self.usage_tracker["image_pixels"] += 1000000  # Estimate based on typical image size
                     
-            return response.json()["data"][0]["embedding"]
+            return result.embeddings[0]
         except Exception as e:
             raise EnrichmentError(f"Multimodal embedding failed: {str(e)}")
 
@@ -140,30 +130,21 @@ class VoyageClient(BaseAIClient):
     ) -> List[float]:
         """Generate embedding with advanced options"""
         try:
-            params = {
-                "model": self.model,
-                "input": text,
-                "truncation": truncate,
-                "output_dtype": dtype
-            }
-            
-            if input_type:
-                params["input_type"] = input_type
-            if dimensions:
-                params["output_dimension"] = dimensions
-                
-            response = await self.session.post(
-                f"{self.base_url}/embeddings",
-                json=params
+            result = await self.client.embed(
+                [text],
+                model=self.model,
+                input_type=input_type,
+                truncate=truncate,
+                output_dimension=dimensions,
+                output_dtype=dtype
             )
-            response.raise_for_status()
             
             # Update usage tracking
             self.usage_tracker["total_tokens"] += len(text.split())
             self.usage_tracker["requests"] += 1
             self.usage_tracker["total_characters"] += len(text)
             
-            return response.json()["data"][0]["embedding"]
+            return result.embeddings[0]
         except Exception as e:
             raise EnrichmentError(f"Voyage embedding request failed: {str(e)}")
 
@@ -178,24 +159,14 @@ class VoyageClient(BaseAIClient):
     ) -> Union[List[List[float]], List[Dict[str, Any]]]:
         """Generate batch embeddings with advanced options"""
         try:
-            params = {
-                "model": self.model,
-                "input": texts,
-                "include_metadata": include_metadata,
-                "truncation": truncate,
-                "output_dtype": dtype
-            }
-            
-            if input_type:
-                params["input_type"] = input_type
-            if dimensions:
-                params["output_dimension"] = dimensions
-                
-            response = await self.session.post(
-                f"{self.base_url}/embeddings",
-                json=params
+            result = await self.client.embed(
+                texts,
+                model=self.model,
+                input_type=input_type,
+                truncate=truncate,
+                output_dimension=dimensions,
+                output_dtype=dtype
             )
-            response.raise_for_status()
             
             # Update usage tracking
             total_tokens = sum(len(text.split()) for text in texts)
@@ -204,8 +175,8 @@ class VoyageClient(BaseAIClient):
             self.usage_tracker["total_characters"] += sum(len(text) for text in texts)
             
             if include_metadata:
-                return response.json()["data"]
-            return [item["embedding"] for item in response.json()["data"]]
+                return [{"embedding": emb, "metadata": {}} for emb in result.embeddings]
+            return result.embeddings
         except Exception as e:
             raise EnrichmentError(f"Voyage batch embedding request failed: {str(e)}")
 
