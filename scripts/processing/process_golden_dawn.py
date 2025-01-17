@@ -407,6 +407,20 @@ async def enhanced_process_golden_dawn(
 async def main():
     """Main execution function"""
     try:
+        # Check required API keys
+        required_keys = {
+            "VOYAGE_API_KEY": "Voyage embeddings",
+            "DEEPSEEK_API_KEY": "DeepSeek meaning generation", 
+            "ANTHROPIC_API_KEY": "Claude knowledge extraction"
+        }
+        missing_keys = [key for key in required_keys if not os.getenv(key)]
+        if missing_keys:
+            raise ValueError(
+                f"Missing required API keys: {', '.join(missing_keys)}\n"
+                f"Please set these environment variables:\n"
+                + "\n".join(f"- {key}: {required_keys[key]}" for key in missing_keys)
+            )
+            
         # Get Golden Dawn specific configuration
         config = get_golden_dawn_config()
         
