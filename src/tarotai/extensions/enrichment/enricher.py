@@ -181,6 +181,15 @@ class TarotEnricher:
                 
                 # Add Golden Dawn context to card metadata
                 card.golden_dawn_context = context
+                
+                # Add historical context if available
+                historical_insights = []
+                for approach in self.golden_dawn.knowledge.historical_approaches.values():
+                    if card.name in approach.key_insights:
+                        historical_insights.append(f"{approach.reader} ({approach.era}): {approach.approach}")
+                
+                if historical_insights:
+                    card.historical_context = "\n".join(historical_insights)
             
             # Base enrichment with context
             enriched = await self._base_enrichment(card, context)

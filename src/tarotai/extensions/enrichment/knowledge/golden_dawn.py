@@ -10,50 +10,79 @@ from ..exceptions import EnrichmentError
 
 load_dotenv()
 
-def extract_pdf_content(pdf_path: str) -> List[Dict[str, str]]:
-    """Extract structured content from PDF with card-specific sections"""
+def extract_pdf_content(pdf_path: str) -> GoldenDawnKnowledge:
+    """Extract structured content from the Golden Dawn PDF."""
     if not Path(pdf_path).exists():
         raise FileNotFoundError(f"PDF file not found at {pdf_path}")
     
     try:
         reader = PdfReader(pdf_path)
-        sections = []
-        current_section = None
-        
+        knowledge = GoldenDawnKnowledge(
+            reading_methods={},
+            historical_approaches={},
+            lore={},
+            optimal_practices=[],
+            miscellaneous={}
+        )
+
         print(f"Processing {pdf_path}...")
-        for i, page in tqdm(enumerate(reader.pages), total=len(reader.pages)):
+        for page in tqdm(reader.pages, total=len(reader.pages)):
             text = page.extract_text()
             if not text:
                 continue
-                
-            # Split text into lines and process
-            lines = text.split('\n')
-            for line in lines:
-                line = line.strip()
-                if not line:
-                    continue
-                    
-                # Check if line starts a new card section
-                if any(keyword in line.lower() for keyword in ["the fool", "the magician", "ace of", "king of", "queen of"]):
-                    if current_section:
-                        sections.append(current_section)
-                    current_section = {
-                        "page": i + 1,
-                        "content": line,
-                        "metadata": {
-                            "source": "Golden Dawn Book",
-                            "chapter": "Unknown",
-                            "card_name": line.split(' - ')[0].strip() if ' - ' in line else line
-                        }
-                    }
-                elif current_section:
-                    current_section["content"] += "\n" + line
-                    
-        if current_section:
-            sections.append(current_section)
-            
-        print(f"Processed {len(sections)} card sections from {len(reader.pages)} pages")
-        return sections
+
+            # Extract reading methods
+            if "Reading Method:" in text:
+                method_name = text.split("Reading Method:")[1].split("\n")[0].strip()
+                method_description = text.split("Description:")[1].split("\n")[0].strip()
+                steps = [step.strip() for step in text.split("Steps:")[1].split("\n") if step.strip()]
+                positions = [pos.strip() for pos in text.split("Positions:")[1].split("\n") if pos.strip()]
+                knowledge.reading_methods[method_name] = GoldenDawnReadingMethod(
+                    name=method_name,
+                    description=method_description,
+                    steps=steps,
+                    positions=positions
+                )
+
+            # Extract historical approaches
+            if "Historical Approach:" in text:
+                reader_name = text.split("Reader:")[1].split("\n")[0].strip()
+                era = text.split("Era:")[1].split("\n")[0].strip()
+                approach = text.split("Approach:")[1].split("\n")[0].strip()
+                key_insights = [insight.strip() for insight in text.split("Key Insights:")[1].split("\n") if insight.strip()]
+                knowledge.historical_approaches[reader_name] = HistoricalApproach(
+                    reader=reader_name,
+                    era=era,
+                    approach=approach,
+                    key_insights=key_insights
+                )
+
+            # Extract lore
+            if "Lore:" in text:
+                topic = text.split("Topic:")[1].split("\n")[0].strip()
+                description = text.split("Description:")[1].split("\n")[0].strip()
+                symbolism = [symbol.strip() for symbol in text.split("Symbolism:")[1].split("\n") if symbol.strip()]
+                references = [ref.strip() for ref in text.split("References:")[1].split("\n") if ref.strip()]
+                knowledge.lore[topic] = GoldenDawnLore(
+                    topic=topic,
+                    description=description,
+                    symbolism=symbolism,
+                    references=references
+                )
+
+            # Extract optimal practices
+            if "Optimal Practice:" in text:
+                practices = [p.strip() for p in text.split("Optimal Practice:")[1].split("\n") if p.strip()]
+                knowledge.optimal_practices.extend(practices)
+
+            # Extract miscellaneous content
+            if "Miscellaneous:" in text:
+                key = text.split("Miscellaneous:")[1].split("\n")[0].strip()
+                value = "\n".join([line.strip() for line in text.split("\n")[1:] if line.strip()])
+                knowledge.miscellaneous[key] = value
+
+        print(f"Processed Golden Dawn knowledge from {len(reader.pages)} pages")
+        return knowledge
     except Exception as e:
         raise ValueError(f"Failed to extract PDF content: {str(e)}")
 
@@ -61,19 +90,28 @@ class GoldenDawnKnowledgeBase:
     """Knowledge base for Golden Dawn tarot interpretations."""
     
     def __init__(self, pdf_path: str):
-        cache_path = Path(pdf_path).with_suffix('.pkl')
+        cache_path = Path(pdf_path).with_suffix('.json')
         
         if cache_path.exists():
             print(f"Loading cached knowledge base from {cache_path}")
-            with open(cache_path, 'rb') as f:
-                self.sections = pickle.load(f)
+            self.knowledge = load_knowledge(cache_path)
         else:
-            self.sections = extract_pdf_content(pdf_path)
+            self.knowledge = extract_pdf_content(pdf_path)
             print(f"Saving knowledge base cache to {cache_path}")
-            with open(cache_path, 'wb') as f:
-                pickle.dump(self.sections, f)
+            save_knowledge(self.knowledge, cache_path)
                 
         self.embeddings = self._generate_embeddings()
+
+def save_knowledge(knowledge: GoldenDawnKnowledge, output_path: Path) -> None:
+    """Save Golden Dawn knowledge to a JSON file."""
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(knowledge.dict(), f, indent=2, ensure_ascii=False)
+
+def load_knowledge(input_path: Path) -> GoldenDawnKnowledge:
+    """Load Golden Dawn knowledge from a JSON file."""
+    with open(input_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return GoldenDawnKnowledge(**data)
         
     def _generate_embeddings(self) -> List[Dict]:
         """Generate embeddings for all sections"""

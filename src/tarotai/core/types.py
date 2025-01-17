@@ -104,6 +104,35 @@ class Reading(BaseModel):
     timestamp: str = Field(..., description="ISO format timestamp of the reading")
     interpretation: Optional[str] = None
 
+# Golden Dawn Knowledge Types
+class GoldenDawnReadingMethod(BaseModel):
+    name: str
+    description: str
+    steps: List[str]
+    positions: List[str]
+    notes: Optional[str] = None
+
+class HistoricalApproach(BaseModel):
+    reader: str
+    era: str
+    approach: str
+    key_insights: List[str]
+    notes: Optional[str] = None
+
+class GoldenDawnLore(BaseModel):
+    topic: str
+    description: str
+    symbolism: List[str]
+    references: List[str]
+    notes: Optional[str] = None
+
+class GoldenDawnKnowledge(BaseModel):
+    reading_methods: Dict[str, GoldenDawnReadingMethod]
+    historical_approaches: Dict[str, HistoricalApproach]
+    lore: Dict[str, GoldenDawnLore]
+    optimal_practices: List[str]
+    miscellaneous: Dict[str, str]
+
 # Type Aliases
 CardTuple = Tuple[CardMeaning, bool]
 CardEmbedding = List[float]
