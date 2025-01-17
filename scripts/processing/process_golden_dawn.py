@@ -17,7 +17,7 @@ import os
 from datetime import datetime
 from typing import Dict, Any, List
 from src.tarotai.core.card_processor import CardProcessor
-from src.tarotai.core.ai_clients import initialize_ai_clients
+from src.tarotai.ai.clients import initialize_ai_clients
 from src.tarotai.config.schemas.config import get_config
 from src.tarotai.core.logging import setup_logging
 from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (
