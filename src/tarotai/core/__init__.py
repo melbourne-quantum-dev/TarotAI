@@ -12,7 +12,7 @@ from .types import (
     ReadingType, UserProfile, QuestionContext
 )
 from .config import get_config, UnifiedSettings
-from .voice import TarotVoice
+from tarotai.core.voice import TarotVoice
 from .interpreter import TarotInterpreter
 
 __all__ = [
