@@ -13,8 +13,9 @@ from tarotai.config.schemas.config import get_config
 from tarotai.ai.embeddings.manager import EmbeddingManager
 from tarotai.ai.embeddings.storage import EmbeddingStorage
 from tarotai.ai.clients.base import BaseAIClient
-from .generator import RAGSystem
-from .vector_store import VectorStore
+from tarotai.core.models.types import Reading
+from tarotai.ai.rag.generator import RAGSystem
+from tarotai.ai.rag.vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
 

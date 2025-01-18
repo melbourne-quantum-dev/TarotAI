@@ -1,9 +1,9 @@
 """
 Retrieval-Augmented Generation (RAG) Module
 """
-from .manager import RAGManager
-from .generator import RAGSystem
-from .vector_store import VectorStore
+from tarotai.ai.rag.manager import RAGManager
+from tarotai.ai.rag.generator import RAGSystem
+from tarotai.ai.rag.vector_store import VectorStore
 
 __all__ = [
     'RAGManager',
