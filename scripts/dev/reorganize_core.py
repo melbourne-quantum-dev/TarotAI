@@ -6,8 +6,6 @@ import os
 import re
 import shutil
 from pathlib import Path
-
-# Files to move from core/ to core/services/
 FILES_TO_MOVE = [
     'card_processor.py',
     'interpreter.py',

@@ -20,7 +20,7 @@ from tarotai.core.logging import setup_logging
 # Enrichment imports
 from tarotai.extensions.enrichment.knowledge.golden_dawn import (
     extract_pdf_content,
-    save_knowledge,
+    save_knowledge
 )
 from tarotai.extensions.enrichment.knowledge.image_processor import (
     GoldenDawnImageProcessor,
