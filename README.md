@@ -265,35 +265,7 @@ For community standards, see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Development
 
-### Setup
-
-```bash
-pip install -r requirements.txt && \
-pip install -e ".[dev]" && \
-pip install types-pydantic types-httpx types-python-dotenv types-requests
-```
-
-### Running Tests
-
-```bash
-pytest tests/
-```
-
-### Code Formatting
-
-```bash
-black src/ tests/
-```
-
-### Type Checking
-
-```bash
-mypy src/ tests/
-```
-
-## Contributing
-
-We welcome contributions! Please see our [Contribution Guidelines](CONTRIBUTING.md) for details.
+For detailed development workflow and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
