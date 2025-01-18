@@ -34,11 +34,19 @@ check_data_structure() {
 check_python_dependencies() {
     log "Checking Python dependencies..."
     required_packages=("PyPDF2" "numpy" "pydantic" "voyageai")
+    missing_packages=()
+    
     for pkg in "${required_packages[@]}"; do
         if ! python3 -c "import $pkg" &> /dev/null; then
-            error "Missing required Python package: $pkg"
+            missing_packages+=("$pkg")
         fi
     done
+    
+    if [ ${#missing_packages[@]} -ne 0 ]; then
+        log "Missing packages detected. Attempting to install..."
+        uv pip install --strict "${missing_packages[@]}" || error "Failed to install missing packages"
+    fi
+    
     success "All required Python packages installed"
 }
 

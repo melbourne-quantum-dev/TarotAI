@@ -103,8 +103,8 @@ pypi = { url = "https://pypi.org/simple" }
 cache = { strategy = "http", path = ".uv_cache" }
 
 [tool.uv.resolver]
-prefer-binary = true
-allow-prereleases = false
+no-binary = ":all:"
+prerelease = false
 strict = true
 resolution = "highest"
 
