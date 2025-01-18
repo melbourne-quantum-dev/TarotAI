@@ -41,7 +41,12 @@ def update_embeddings_file(file_path: Path, embedding_manager: EmbeddingManager)
 def main():
     """Main function for updating embeddings"""
     file_path = Path("data/cards_ordered.json")
-    embedding_manager = EmbeddingManager()
+    data_dir = Path("data/embeddings")  # Add this line
+    
+    # Create embeddings directory if it doesn't exist
+    data_dir.mkdir(parents=True, exist_ok=True)
+    
+    embedding_manager = EmbeddingManager(data_dir)  # Pass data_dir here
     
     print(f"Updating embeddings in {file_path}...")
     update_embeddings_file(file_path, embedding_manager)
