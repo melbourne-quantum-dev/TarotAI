@@ -446,6 +446,41 @@ We're constantly enhancing the system with:
 
 This advanced system provides a unique blend of traditional wisdom and cutting-edge technology, offering insights that go far beyond standard AI chatbots.
 
+## Development Tools
+
+### Aider Usage
+
+1. **Starting a Session**:
+   ```bash
+   aider
+   ```
+
+2. **Adding Files**:
+   ```bash
+   /add src/tarotai/core/models/card.py
+   /add tests/core/test_card.py
+   ```
+
+3. **Common Commands**:
+   - Generate documentation:
+     ```bash
+     /doc Generate detailed documentation for the CardMeaning class
+     ```
+   - Refactor code:
+     ```bash
+     Refactor the TarotInterpreter class to use dependency injection
+     ```
+   - Write tests:
+     ```bash
+     Write unit tests for the CardManager class
+     ```
+
+4. **Best Practices**:
+   - Add relevant files before making changes
+   - Use clear, specific prompts
+   - Review generated code carefully
+   - Commit changes frequently
+
 ## 10. Golden Dawn Integration
 - PDF processing pipeline
 - Knowledge extraction

@@ -4,6 +4,49 @@ Version 2.1.0
 
 ## Development Workflow
 
+### Using Aider
+
+1. **Setup**:
+   ```bash
+   pip install aider-chat
+   ```
+
+2. **Starting a Session**:
+   ```bash
+   aider
+   ```
+
+3. **Common Tasks**:
+   - Add files to session:
+     ```bash
+     /add src/tarotai/core/models/card.py
+     /add tests/core/test_card.py
+     ```
+   - Generate code:
+     ```bash
+     Implement a new method in CardManager to find cards by element
+     ```
+   - Write tests:
+     ```bash
+     Write unit tests for the new find_cards_by_element method
+     ```
+   - Refactor code:
+     ```bash
+     Refactor the Card class to use Pydantic v2 features
+     ```
+
+4. **Best Practices**:
+   - Keep sessions focused on specific tasks
+   - Add relevant files before making changes
+   - Use clear, specific prompts
+   - Review generated code carefully
+   - Commit changes frequently
+
+5. **Troubleshooting**:
+   - If aider gets stuck, use `/reset` to clear context
+   - Use `/help` to see available commands
+   - For complex changes, break them into smaller steps
+
 ### Setup
 ```bash
 # Install dependencies using uv (modern Python package manager)
