@@ -59,7 +59,7 @@ check_python_dependencies() {
 setup_environment() {
     # Ensure Python is available
     if ! command -v python3 &> /dev/null; then
-        error "Python 3 is not installed. Please install Python 3.12+ first."
+        error "Python 3 is not installed. Please install Python 3.11+ first."
     fi
 
     # Check Python version
@@ -79,18 +79,13 @@ setup_environment() {
     # Activate environment
     source .venv/bin/activate || error "Failed to activate environment"
     
-    # Verify Python in virtual environment
-    if ! command -v python &> /dev/null; then
-        log "Installing Python in virtual environment..."
-        uv pip install python || error "Failed to install Python in virtual environment"
-    fi
+    # Install pip using uv
+    log "Installing pip..."
+    uv pip install --upgrade pip || error "Failed to install pip"
     
-    # Ensure pip is up-to-date
-    python -m pip install --upgrade pip || error "Failed to update pip"
-    
-    # Verify Python availability
-    if ! command -v python &> /dev/null; then
-        error "Python is not available in the virtual environment"
+    # Verify pip installation
+    if ! python -m pip --version &> /dev/null; then
+        error "pip installation verification failed"
     fi
 }
 
@@ -98,6 +93,7 @@ setup_environment() {
 export UV_INDEX_URL="https://pypi.org/simple"
 export UV_CACHE_DIR=".uv_cache"
 export UV_PIP_VERSION=">=23.3.2"
+export UV_PYTHON=">=3.11"
 
 verify_dependencies() {
     log "Verifying dependency integrity..."
