@@ -39,7 +39,7 @@ class MultiStagePrompt(BaseModel):
             
         return context
 
-class PromptTemplates:
+class PromptManager(BaseModel):  # Changed from PromptTemplates to PromptManager
     """Centralized prompt templates for the system"""
     
     @staticmethod
