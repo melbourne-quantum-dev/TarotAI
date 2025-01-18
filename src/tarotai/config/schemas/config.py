@@ -1,4 +1,4 @@
-from pydantic import Field, ValidationError
+from pydantic import Field, ValidationError, validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 from typing import Dict, Any, Optional, List
