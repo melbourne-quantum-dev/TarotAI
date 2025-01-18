@@ -55,6 +55,7 @@ setup(
     entry_points={
         "console_scripts": [
             "tarotai=tarotai.cli:app",
+            "tarotai-cleanup=scripts.dev.cleanup:main",
         ],
     },
     classifiers=[

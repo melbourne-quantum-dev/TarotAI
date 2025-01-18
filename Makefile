@@ -59,7 +59,9 @@ format:
 
 # Clean build artifacts
 clean:
-	@echo "Cleaning up..."
+	@echo "Running project cleanup..."
+	@python scripts/dev/cleanup.py
+	@echo "Removing build artifacts..."
 	@rm -rf .venv/ __pycache__/ .pytest_cache/ .mypy_cache/ .uv_cache/
 	@find . -name '*.pyc' -delete
 	@find . -name '*.pyo' -delete
