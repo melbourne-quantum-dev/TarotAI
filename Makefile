@@ -8,7 +8,7 @@ QUANTUM_SUCCESS := @echo "✨ Success!"
 QUANTUM_SIGNATURE := @echo "🎴 TarotAI"
 
 .PHONY: all install clean test coverage lint format check validate docs serve-docs \
-        validate-cards generate-cards update-embeddings process-golden-dawn process-data help
+		validate-cards generate-cards update-embeddings process-golden-dawn process-data help
 
 # Default target
 all: check
@@ -25,56 +25,59 @@ install:
 	 export UV_PIP_VERSION=">=23.3.2" && \
 	 export UV_PYTHON=">=3.12" && \
 	 uv pip install -r <(grep -v realtimestt requirements.txt) && \
+	 uv pip install pytest pytest-cov pytest-asyncio && \
 	 uv pip install -e .
 
 # Run test suite
 test:
 	@echo "Running test suite..."
-	@pytest tests/ -v
+	@source $(VENV)/bin/activate && pytest tests/ -v
 	$(QUANTUM_SUCCESS)
 
 # Run card manager tests
 test-card-manager:
 	@echo "Running card manager tests..."
-	@pytest tests/core/test_card_manager.py -v
+	@source $(VENV)/bin/activate && pytest tests/core/test_card_manager.py -v
 	$(QUANTUM_SUCCESS)
 
 # Run reading input tests
 test-reading-input:
 	@echo "Running reading input tests..."
-	@pytest tests/core/test_reading_input.py -v
+	@source $(VENV)/bin/activate && pytest tests/core/test_reading_input.py -v
 	$(QUANTUM_SUCCESS)
 
 # Run integration tests
 test-integration:
 	@echo "Running integration tests..."
-	@pytest tests/integration/ -v
+	@source $(VENV)/bin/activate && pytest tests/integration/ -v
 	$(QUANTUM_SUCCESS)
 
 # Run golden dawn specific tests
 test-golden-dawn:
 	@echo "Running Golden Dawn tests..."
-	@pytest tests/test_golden_dawn.py -v
-	@pytest tests/test_process_golden_dawn.py -v
+	@source $(VENV)/bin/activate && \
+	pytest tests/test_golden_dawn.py -v && \
+	pytest tests/test_process_golden_dawn.py -v
 	$(QUANTUM_SUCCESS)
 
 # Generate test coverage report
 coverage:
 	@echo "Generating test coverage report..."
-	@pytest tests/ --cov=src/ --cov-report=html
+	@source $(VENV)/bin/activate && pytest tests/ --cov=src/ --cov-report=html
 	$(QUANTUM_SUCCESS)
 
 # Run code quality checks
 lint:
 	@echo "Running code quality checks..."
-	@flake8 src/ tests/
-	@mypy src/ tests/
+	@source $(VENV)/bin/activate && \
+	flake8 src/ tests/ && \
+	mypy src/ tests/
 	$(QUANTUM_SUCCESS)
 
 # Format code
 format:
 	@echo "Formatting code..."
-	@black src/ tests/
+	@source $(VENV)/bin/activate && black src/ tests/
 	$(QUANTUM_SUCCESS)
 
 # Clean build artifacts
@@ -98,13 +101,13 @@ check: lint test
 # Validate project structure and card data
 validate:
 	@echo "Validating project structure and card data..."
-	@$(PYTHON) scripts/processing/validate_card_schema.py
+	@source $(VENV)/bin/activate && $(PYTHON) scripts/processing/validate_card_schema.py
 	$(QUANTUM_SUCCESS)
 
 # Generate documentation
 docs:
 	@echo "Generating documentation..."
-	@cd docs && make html
+	@source $(VENV)/bin/activate && cd docs && make html
 	$(QUANTUM_SUCCESS)
 
 # Serve documentation locally
@@ -115,7 +118,7 @@ serve-docs:
 # Validate card data
 validate-cards:
 	@echo "Validating card data..."
-	@$(PYTHON) scripts/processing/validate_card_schema.py
+	@source $(VENV)/bin/activate && $(PYTHON) scripts/processing/validate_card_schema.py
 	$(QUANTUM_SUCCESS)
 
 # Generate card data
@@ -125,19 +128,20 @@ generate-cards:
 		echo "❌ Error: generate_card_data.py not found!"; \
 		exit 1; \
 	fi
-	@$(PYTHON) scripts/processing/generate_card_data.py
+	@source $(VENV)/bin/activate && $(PYTHON) scripts/processing/generate_card_data.py
 	$(QUANTUM_SUCCESS)
 
 # Update card embeddings
 update-embeddings:
 	@echo "Updating card embeddings..."
-	@$(PYTHON) scripts/processing/update_embeddings.py
+	@source $(VENV)/bin/activate && $(PYTHON) scripts/processing/update_embeddings.py
 	$(QUANTUM_SUCCESS)
 
 # Process Golden Dawn PDF
 process-golden-dawn:
 	@echo "Processing Golden Dawn PDF..."
-	@if ! $(PYTHON) scripts/processing/process_golden_dawn.py; then \
+	@source $(VENV)/bin/activate && \
+	if ! $(PYTHON) scripts/processing/process_golden_dawn.py; then \
 		echo "❌ Golden Dawn processing failed!"; \
 		exit 1; \
 	fi
