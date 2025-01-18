@@ -36,8 +36,14 @@ check_python_dependencies() {
     required_packages=("PyPDF2" "numpy" "pydantic" "voyageai")
     missing_packages=()
     
+    # Use python from virtual environment if available
+    PYTHON_CMD="python3"
+    if command -v python &> /dev/null; then
+        PYTHON_CMD="python"
+    fi
+    
     for pkg in "${required_packages[@]}"; do
-        if ! python3 -c "import $pkg" &> /dev/null; then
+        if ! $PYTHON_CMD -c "import $pkg" &> /dev/null; then
             missing_packages+=("$pkg")
         fi
     done
@@ -51,6 +57,17 @@ check_python_dependencies() {
 }
 
 setup_environment() {
+    # Ensure Python is available
+    if ! command -v python3 &> /dev/null; then
+        error "Python 3 is not installed. Please install Python 3.12+ first."
+    fi
+
+    # Check Python version
+    PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    if [[ "$PYTHON_VERSION" < "3.12" ]]; then
+        error "Python 3.12 or higher is required. Found $PYTHON_VERSION"
+    fi
+
     if [ -d ".venv" ]; then
         log "Removing existing virtual environment..."
         rm -rf .venv
@@ -58,10 +75,23 @@ setup_environment() {
     
     log "Creating fresh virtual environment..."
     uv venv .venv || error "Failed to create virtual environment"
+    
+    # Activate environment
     source .venv/bin/activate || error "Failed to activate environment"
+    
+    # Verify Python in virtual environment
+    if ! command -v python &> /dev/null; then
+        log "Installing Python in virtual environment..."
+        uv pip install python || error "Failed to install Python in virtual environment"
+    fi
     
     # Ensure pip is up-to-date
     python -m pip install --upgrade pip || error "Failed to update pip"
+    
+    # Verify Python availability
+    if ! command -v python &> /dev/null; then
+        error "Python is not available in the virtual environment"
+    fi
 }
 
 # Configure uv environment
