@@ -2,8 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 from fastapi import HTTPException
-
-from ..models.types import ErrorSeverity
+from . import ErrorSeverity  # Import ErrorSeverity from the package
 
 
 class TarotError(Exception):
@@ -69,3 +68,11 @@ def handle_error(error: Exception) -> TarotError:
         code="UNKNOWN_ERROR",
         detail={"original_error": error.__class__.__name__}
     )
+
+class AIClientError(TarotError):
+    """Errors during AI client operations"""
+    pass
+
+class ValidationError(TarotError):
+    """Errors during data validation"""
+    pass
