@@ -171,21 +171,32 @@ class GoldenDawnKnowledgeBase:
             "max_reading_methods": 5
         }
 
-    def _generate_embeddings(self) -> List[Dict]:
+    async def _generate_embeddings(self) -> List[Dict]:
         """Generate embeddings for all sections"""
         embeddings = []
-        voyage_key = os.getenv("VOYAGE_API_KEY")
-        if not voyage_key:
-            raise EnrichmentError("Voyage API key not found in environment variables.")
+        
+        if not self.voyage_client:
+            raise EnrichmentError("Voyage client not initialized")
             
+        # Generate text embeddings
+        text_embeddings = await self._generate_text_embeddings()
+        embeddings.extend(text_embeddings)
+        
+        # Generate image embeddings if available
+        if hasattr(self, 'image_embeddings'):
+            image_embeddings = await self._generate_image_embeddings()
+            embeddings.extend(image_embeddings)
+            
+        return embeddings
+        
+    async def _generate_text_embeddings(self) -> List[Dict]:
+        """Generate embeddings for text content"""
+        embeddings = []
+        
         # Generate embeddings for reading methods
         for method_name, method in self.knowledge.reading_methods.items():
             content = f"{method_name}: {method.description}"
-            embedding = get_embedding(
-                content,
-                model="voyage-2", 
-                api_key=voyage_key
-            )
+            embedding = await self.voyage_client.generate_embedding(content)
             embeddings.append({
                 "content": content,
                 "embedding": embedding,
@@ -198,11 +209,7 @@ class GoldenDawnKnowledgeBase:
         # Generate embeddings for historical approaches
         for approach_name, approach in self.knowledge.historical_approaches.items():
             content = f"{approach_name}: {approach.approach}"
-            embedding = get_embedding(
-                content,
-                model="voyage-2",
-                api_key=voyage_key
-            )
+            embedding = await self.voyage_client.generate_embedding(content)
             embeddings.append({
                 "content": content,
                 "embedding": embedding,
@@ -215,17 +222,32 @@ class GoldenDawnKnowledgeBase:
         # Generate embeddings for lore
         for lore_name, lore in self.knowledge.lore.items():
             content = f"{lore_name}: {lore.description}"
-            embedding = get_embedding(
-                content,
-                model="voyage-2",
-                api_key=voyage_key
-            )
+            embedding = await self.voyage_client.generate_embedding(content)
             embeddings.append({
                 "content": content,
                 "embedding": embedding,
                 "metadata": {
                     "type": "lore",
                     "name": lore_name
+                }
+            })
+            
+        return embeddings
+        
+    async def _generate_image_embeddings(self) -> List[Dict]:
+        """Generate embeddings for image content"""
+        embeddings = []
+        
+        for image_data in self.image_embeddings:
+            embedding = await self.voyage_client.generate_multimodal_embedding(
+                [{"type": "image_url", "url": image_data["url"]}]
+            )
+            embeddings.append({
+                "content": image_data["description"],
+                "embedding": embedding,
+                "metadata": {
+                    "type": "image",
+                    "name": image_data["name"]
                 }
             })
             

@@ -31,11 +31,33 @@ class EmbeddingManager:
             "allowed_versions": [1, 2]
         }
         
-    def generate_embedding(self, text: str) -> List[float]:
-        """Generate a basic embedding for text"""
-        # TODO: Replace with actual embedding generation logic
-        # For now, return a dummy embedding
-        return [0.0] * 768  # Standard embedding size
+    async def update_golden_dawn_embeddings(
+        self,
+        knowledge_base: GoldenDawnKnowledgeBase
+    ) -> Dict[str, Dict]:
+        """Update embeddings from Golden Dawn knowledge base"""
+        golden_dawn_embeddings = {}
+        
+        # Get text embeddings
+        text_embeddings = await knowledge_base._generate_text_embeddings()
+        for embedding in text_embeddings:
+            key = f"golden_dawn_{embedding['metadata']['type']}_{embedding['metadata']['name']}"
+            golden_dawn_embeddings[key] = {
+                "embedding": embedding["embedding"],
+                "metadata": embedding["metadata"]
+            }
+            
+        # Get image embeddings if available
+        if hasattr(knowledge_base, 'image_embeddings'):
+            image_embeddings = await knowledge_base._generate_image_embeddings()
+            for embedding in image_embeddings:
+                key = f"golden_dawn_image_{embedding['metadata']['name']}"
+                golden_dawn_embeddings[key] = {
+                    "embedding": embedding["embedding"],
+                    "metadata": embedding["metadata"]
+                }
+                
+        return golden_dawn_embeddings
         
     def load_embeddings(self) -> None:
         """Load saved embeddings from disk"""
