@@ -1,7 +1,7 @@
 """Update embeddings for cards when schema changes"""
 import json
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from tarotai.ai.embeddings.manager import EmbeddingManager
 
