@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 
 from dotenv import load_dotenv
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -28,6 +28,25 @@ class VoyageClient(BaseAIClient):
             "image_pixels": 0,
             "errors": 0
         }
+
+    async def stream_response(self, prompt: str, **kwargs) -> AsyncGenerator[str, None]:
+        """Stream response from Voyage AI"""
+        try:
+            async with self.client.stream(
+                "POST",
+                f"{self.base_url}/chat/completions",
+                json={
+                    "model": self.model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "stream": True,
+                    **kwargs
+                }
+            ) as response:
+                async for chunk in response.aiter_lines():
+                    if chunk:
+                        yield chunk
+        except Exception as e:
+            raise EnrichmentError(f"Voyage streaming failed: {str(e)}")
 
     def get_usage_stats(self) -> Dict[str, Any]:
         """Get detailed usage statistics"""
