@@ -2,6 +2,12 @@
 
 set -euo pipefail
 
+# Configure uv environment
+export UV_INDEX_URL="https://pypi.org/simple"
+export UV_CACHE_DIR=".uv_cache"
+export UV_PIP_VERSION=">=23.3.2"
+export UV_PYTHON=">=3.11"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -108,13 +114,9 @@ install_dependencies() {
     log "Installing project dependencies with uv..."
     echo
     
-    # Purge old cache
-    log "Clearing old cache..."
-    uv pip cache purge
-    
-    # Install core dependencies manually first
-    log "Installing core dependencies..."
-    uv pip install --strict \
+    # Clean installation without cache
+    log "Installing with clean state..."
+    uv pip install --no-cache-dir \
         PyPDF2>=3.0.0 \
         numpy>=1.26.0 \
         pydantic>=2.10.5 \
@@ -137,11 +139,12 @@ install_dependencies() {
     # Install core dependencies
     echo "Installing core dependencies with strict resolution..."
     if [ -f "requirements.txt" ]; then
-        uv pip sync \
+        uv pip install \
             --resolution=highest \
+            --no-cache-dir \
             --strict \
-            requirements.txt || {
-            error "Failed to sync core dependencies"
+            -r requirements.txt || {
+            error "Failed to install core dependencies"
             echo "Tip: Check requirements.txt for version conflicts"
         }
         echo "✓ Core dependencies installed"
@@ -152,11 +155,12 @@ install_dependencies() {
     # Install dev dependencies
     echo "Installing development dependencies..."
     if [ -f "dev-requirements.txt" ]; then
-        uv pip sync \
+        uv pip install \
             --resolution=highest \
+            --no-cache-dir \
             --strict \
-            dev-requirements.txt || {
-            error "Failed to sync dev dependencies"
+            -r dev-requirements.txt || {
+            error "Failed to install dev dependencies"
             echo "Tip: Check dev-requirements.txt for version conflicts"
         }
         echo "✓ Development dependencies installed"

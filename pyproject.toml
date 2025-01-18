@@ -92,7 +92,7 @@ tarotai = [
 ]
 
 [tool.uv]
-python = ">=3.11"
+python-version = ">=3.11"
 resolution = "highest"
 cache-dir = ".uv_cache"
 allow-prereleases = false
