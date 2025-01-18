@@ -32,6 +32,24 @@ test:
 	@pytest tests/ -v
 	$(QUANTUM_SUCCESS)
 
+# Run card manager tests
+test-card-manager:
+	@echo "Running card manager tests..."
+	@pytest tests/core/test_card_manager.py -v
+	$(QUANTUM_SUCCESS)
+
+# Run reading input tests
+test-reading-input:
+	@echo "Running reading input tests..."
+	@pytest tests/core/test_reading_input.py -v
+	$(QUANTUM_SUCCESS)
+
+# Run integration tests
+test-integration:
+	@echo "Running integration tests..."
+	@pytest tests/integration/ -v
+	$(QUANTUM_SUCCESS)
+
 # Run golden dawn specific tests
 test-golden-dawn:
 	@echo "Running Golden Dawn tests..."
