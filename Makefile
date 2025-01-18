@@ -89,7 +89,7 @@ serve-docs:
 # Validate card data
 validate-cards:
 	@echo "Validating card data..."
-	@$(PYTHON) scripts/processing/validate_cards.py
+	@$(PYTHON) scripts/processing/validate_card_schema.py
 	$(QUANTUM_SUCCESS)
 
 # Generate card data
