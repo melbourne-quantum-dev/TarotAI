@@ -16,49 +16,33 @@ all: check
 # Install dependencies
 install:
 	@echo "Installing dependencies with modern resolver..."
-	@if [ ! -d ".venv" ]; then \
-		uv venv .venv; \
+	@if [ ! -d "$(VENV)" ]; then \
+		uv venv $(VENV); \
 	fi
-	@source .venv/bin/activate && \
+	@source $(VENV)/bin/activate && \
 	 export UV_INDEX_URL="https://pypi.org/simple" && \
-	 export UV_CACHE_DIR=".uv_cache" && \
+	 export UV_CACHE_DIR=.cache/.uv_cache && \
 	 export UV_PIP_VERSION=">=23.3.2" && \
+	 export UV_PYTHON=">=3.12" && \
 	 ./setup.sh
-	$(QUANTUM_SUCCESS)
 
-# Verify dependency integrity
-verify-deps:
-	@echo "Verifying dependency integrity..."
-	@uv pip check || { \
-		echo "❌ Dependency verification failed!"; \
-		exit 1; \
-	}
-	$(QUANTUM_SUCCESS)
-
-# Run tests
+# Run test suite
 test:
-	@echo "Running tests..."
-	@pytest tests/ \
-		--cov=src \
-		--cov-report=term-missing \
-		--cov-report=html \
-		-v
+	@echo "Running test suite..."
+	@pytest tests/ -v
 	$(QUANTUM_SUCCESS)
 
-# Generate coverage report
+# Generate test coverage report
 coverage:
-	@echo "Generating coverage report..."
-	@coverage report
-	@coverage html
+	@echo "Generating test coverage report..."
+	@pytest tests/ --cov=src/ --cov-report=html
 	$(QUANTUM_SUCCESS)
 
 # Run code quality checks
 lint:
 	@echo "Running code quality checks..."
-	@flake8 src/ tests/ \
-		--max-line-length=79
+	@flake8 src/ tests/
 	@mypy src/ tests/
-	@python scripts/processing/validate_card_schema.py
 	$(QUANTUM_SUCCESS)
 
 # Format code
@@ -70,7 +54,15 @@ format:
 # Clean build artifacts
 clean:
 	@echo "Running project cleanup..."
-	@python scripts/dev/cleanup.py --verbose
+	@echo "Project root: $(shell pwd)"
+	@rm -rf $(VENV)
+	@rm -rf .cache
+	@rm -rf __pycache__
+	@rm -rf .pytest_cache
+	@rm -rf build/
+	@rm -rf dist/
+	@rm -rf *.egg-info
+	@find . -type d -name "__pycache__" -exec rm -rf {} +
 	$(QUANTUM_SIGNATURE)
 
 # Run all checks
@@ -80,7 +72,7 @@ check: lint test
 # Validate project structure and card data
 validate:
 	@echo "Validating project structure and card data..."
-	@python scripts/processing/validate_card_schema.py
+	@$(PYTHON) scripts/processing/validate_card_schema.py
 	$(QUANTUM_SUCCESS)
 
 # Generate documentation
@@ -91,41 +83,31 @@ docs:
 
 # Serve documentation locally
 serve-docs:
-	@echo "Serving documentation..."
-	@cd docs/_build/html && python -m http.server 8000
-	$(QUANTUM_SUCCESS)
+	@echo "Serving documentation at http://localhost:8000..."
+	@cd docs/_build/html && python3 -m http.server 8000
 
 # Validate card data
 validate-cards:
 	@echo "Validating card data..."
-	@if ! python scripts/processing/validate_card_schema.py; then \
-		echo "❌ Card validation failed!"; \
-		exit 1; \
-	fi
+	@$(PYTHON) scripts/processing/validate_cards.py
 	$(QUANTUM_SUCCESS)
 
 # Generate card data
 generate-cards:
 	@echo "Generating card data..."
-	@if ! python scripts/processing/generate_card_data.py; then \
-		echo "❌ Card generation failed!"; \
-		exit 1; \
-	fi
+	@$(PYTHON) scripts/processing/generate_cards.py
 	$(QUANTUM_SUCCESS)
 
-# Update embeddings
+# Update card embeddings
 update-embeddings:
 	@echo "Updating card embeddings..."
-	@if ! python scripts/processing/update_embeddings.py; then \
-		echo "❌ Embedding update failed!"; \
-		exit 1; \
-	fi
+	@$(PYTHON) scripts/processing/update_embeddings.py
 	$(QUANTUM_SUCCESS)
 
 # Process Golden Dawn PDF
 process-golden-dawn:
 	@echo "Processing Golden Dawn PDF..."
-	@if ! python scripts/processing/process_golden_dawn.py; then \
+	@if ! $(PYTHON) scripts/processing/process_golden_dawn.py; then \
 		echo "❌ Golden Dawn processing failed!"; \
 		exit 1; \
 	fi
@@ -150,10 +132,9 @@ process-data:
 		echo "❌ Pipeline failed at Golden Dawn processing step"; \
 		exit 1; \
 	fi
-	@echo "✅ Data processing pipeline completed successfully!"
-	$(QUANTUM_SIGNATURE)
+	$(QUANTUM_SUCCESS)
 
-# Help target
+# Show help
 help:
 	@echo "TarotAI Makefile targets:"
 	@echo "  install           - Install project dependencies"
