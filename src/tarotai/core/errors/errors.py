@@ -10,7 +10,7 @@ class TarotError(Exception):
     def __init__(
         self,
         message: str,
-        severity: ErrorSeverity = ErrorSeverity.ERROR,
+        severity: ErrorSeverity = ErrorSeverity.HIGH,  # Changed from ERROR to HIGH
         code: Optional[str] = None,
         detail: Optional[Dict[str, Any]] = None
     ):
@@ -64,7 +64,7 @@ def handle_error(error: Exception) -> TarotError:
     
     return TarotError(
         message=str(error),
-        severity=ErrorSeverity.ERROR,
+        severity=ErrorSeverity.HIGH,
         code="UNKNOWN_ERROR",
         detail={"original_error": error.__class__.__name__}
     )
