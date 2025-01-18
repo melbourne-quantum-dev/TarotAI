@@ -1,8 +1,7 @@
 """
 AI client implementations and initialization for various providers
 """
-from ...config.schemas.config import get_config  # Use relative import
-from .base import BaseAIClient  # Changed from ..core
+from .base import BaseAIClient, initialize_ai_clients  # Changed from ..core
 from .providers.claude import ClaudeClient  # Updated path
 from .providers.deepseek_v3 import DeepSeekClient  # Updated path
 from .providers.voyage import VoyageClient
@@ -19,6 +18,7 @@ __all__ = [
 
 def initialize_ai_clients():
     """Initialize and configure all AI clients"""
+    from tarotai.config.schemas.config import get_config  # Import here to avoid circular dependency
     config = get_config()
     
     clients = {
