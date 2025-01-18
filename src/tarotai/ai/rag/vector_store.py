@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple
 from annoy import AnnoyIndex
-from ...core.types import Reading
+from ....core.models.types import Reading
 
 class VectorStore:
     """Advanced vector storage and retrieval for readings"""
