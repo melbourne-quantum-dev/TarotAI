@@ -5,7 +5,7 @@ Handles document storage, retrieval, and generation of responses using
 both local knowledge and AI models.
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import logging
 from dataclasses import dataclass
 from tarotai.config.schemas.config import get_config
