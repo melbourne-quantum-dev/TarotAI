@@ -13,7 +13,7 @@ success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 
 check_python_version() {
     local python_version=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-    (( $(echo "$python_version < 3.12" | bc -l) )) && error "Python 3.12+ required. Current: $python_version"
+    (( $(echo "$python_version < 3.12" | bc -l) )) && error "Python 3.12.x required. Current: $python_version"
     log "Python version $python_version detected"
 }
 
