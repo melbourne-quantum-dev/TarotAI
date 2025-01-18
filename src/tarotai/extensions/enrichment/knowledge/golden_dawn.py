@@ -7,7 +7,7 @@ from tqdm import tqdm
 from voyageai import get_embedding
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from ..clients.voyage import VoyageClient
+from tarotai.ai.clients.providers.voyage import VoyageClient
 from .image_processor import GoldenDawnImageProcessor
 from ..exceptions import EnrichmentError
 
