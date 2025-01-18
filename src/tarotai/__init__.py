@@ -32,7 +32,7 @@ from .core.models.types import (
     ReadingEmbeddings
 )
 from .ui.display import TarotDisplay
-from .core.reading import ReadingInput
+from .core.services.reading import ReadingInput
 from .core.card_processor import CardProcessor
 from .cli import app
 
