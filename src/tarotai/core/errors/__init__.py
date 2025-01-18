@@ -4,7 +4,15 @@ from typing import Optional, Dict, Any
 from pydantic import BaseModel
 from fastapi import HTTPException
 from datetime import datetime
-from ..models.types import ErrorSeverity
+from enum import Enum
+
+class ErrorSeverity(str, Enum):
+    """Severity levels for error reporting"""
+    DEBUG = "debug"
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
+    CRITICAL = "critical"
 
 class TarotError(Exception):
     """Base exception class for TarotAI system"""
