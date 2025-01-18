@@ -4,10 +4,8 @@ from pathlib import Path
 import logging
 from typing import Any, Dict, List, Tuple, Optional
 
-from tarotai.ai.clients.providers.voyage import VoyageClient
 from tarotai.ai.clients.unified import UnifiedAIClient
-from tarotai.ai.prompts.templates import PromptTemplateManager
-from tarotai.ai.rag.manager import RAGManager as RAGSystem
+from .agents import AgentManager, InterpretationError
 from tarotai.config.schemas.config import AISettings, get_config
 from tarotai.core.models.types import CardMeaning, QuestionContext
 
@@ -43,12 +41,7 @@ class TarotInterpreter:
         self.logger = self._setup_logging()
         self.config = config
         self.stage_limits = config.interpretation_limits
-        self.prompt_templates = PromptTemplateManager()
-        self.model_router = ModelRouter(config)
-        self.rag = RAGSystem(
-            voyage_client=VoyageClient(config.voyage_model),
-            ai_client=UnifiedAIClient(config)
-        )
+        self.agent_manager = AgentManager(config)
 
     def _setup_logging(self) -> logging.Logger:
         """Configure logging system using module name"""
@@ -118,47 +111,27 @@ class TarotInterpreter:
         question: Optional[str] = None,
         context: Optional[QuestionContext] = None
     ) -> str:
-        """Generate interpretation using PromptTemplateManager"""
+        """Generate interpretation using agent system"""
         try:
-            # Get the interpretation template
-            template = self.prompt_templates.get_template("tarot_interpretation")
-            
-            # Format cards for template
-            formatted_cards = "\n".join(
-                f"{i+1}. {card.name} ({'Reversed' if reversed else 'Upright'})"
-                for i, (card, reversed) in enumerate(cards)
+            result = await self.agent_manager.interpret_reading(
+                cards=[{
+                    "name": card.name,
+                    "reversed": reversed,
+                    "golden_dawn": card.golden_dawn
+                } for card, reversed in cards],
+                context={
+                    "question": question or "General reading",
+                    "user_context": self._build_context_summary(context)
+                }
             )
             
-            # Build context summary
-            context_summary = self._build_context_summary(context)
-            
-            # Get Golden Dawn context
-            gd_context = "\n".join(
-                f"{card[0].name} Golden Dawn Symbolism: {card[0].golden_dawn.get('symbolism', [])}"
-                for card in cards
-            )
-            
-            # Fill template with variables
-            filled_template = template.fill(
-                cards=formatted_cards,
-                question=question or "General reading",
-                context=context_summary,
-                golden_dawn_context=gd_context
-            )
-            
-            # Get RAG context
-            card_names = [card[0].name for card in cards]
-            rag_context = await self.rag.retrieve_context(
-                f"Interpret this tarot reading using Golden Dawn methods: {', '.join(card_names)}"
-            )
-            
-            # Generate interpretation
-            response = await self.model_router.route_request(
-                "interpretation",
-                prompt=f"{filled_template}\n\nAdditional Context:\n{rag_context}"
-            )
-            
-            return response if isinstance(response, str) else str(response)
+            if not result["validation"]["valid"]:
+                raise InterpretationError(
+                    "Invalid interpretation",
+                    errors=result["validation"]["errors"]
+                )
+                
+            return result["interpretation"]["cards"]
             
         except Exception as e:
             self.logger.error(f"Interpretation failed: {str(e)}")
