@@ -7,20 +7,20 @@ ai_providers:
     api_key: ${DEEPSEEK_API_KEY}
     model: deepseek-chat
     temperature: 0.7
-    max_tokens: 4000
-    timeout: 60  # Increased for processing
+    max_tokens: 32768  # Increased to 32k
+    timeout: 120  # Increased for larger context
     interpretation_limits:
-      card_analysis: 2000
-      spread_analysis: 3000
-      context_synthesis: 2000
-      final_interpretation: 4000
+      card_analysis: 8000  # Increased
+      spread_analysis: 12000  # Increased
+      context_synthesis: 8000  # Increased
+      final_interpretation: 16000  # Increased
   voyage:
     enabled: true
     api_key: ${VOYAGE_API_KEY}
     model: voyage-large-2
-    temperature: 0.5  # Lower for consistency
-    max_tokens: 8000  # Increased for PDF processing
-    timeout: 120  # Increased for PDF processing
+    temperature: 0.5
+    max_tokens: 16384  # Increased to 16k
+    timeout: 180  # Increased for larger context
   anthropic:
     enabled: false
   openai:
@@ -28,8 +28,8 @@ ai_providers:
 
 pdf_processing:
   max_pages: 500
-  chunk_size: 1000
-  overlap: 200
+  chunk_size: 12000  # Increased to match Voyage context
+  overlap: 2000  # Increased for better context continuity
   max_retries: 5
   timeout: 300
 
@@ -37,9 +37,19 @@ tarot:
   default_spread: three_card
   shuffle_on_start: false  # Disabled for processing
   card_order: book_t
-  max_cache_size: 1000  # Increased for processing
+  max_cache_size: 100000  # Increased for processing
   data_dir: data
   allowed_spreads: []
+
+memory:
+  max_context_size: 32768  # Matches Deepseek
+  cache_size: 100000  # Increased for processing
+  chunk_overlap: 2000  # Matches PDF processing
+
+embeddings:
+  max_input_size: 32768  # Matches Deepseek
+  chunk_size: 12000  # Matches Voyage
+  overlap: 2000  # Consistent with other settings
 
 log_level: INFO
 debug: false
