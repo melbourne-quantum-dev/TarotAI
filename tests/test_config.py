@@ -2,7 +2,7 @@ from tarotai.config.schemas.config import get_config, UnifiedSettings, AISetting
 def test_config_loading():
     """Test that config loads without errors"""
     config = get_config()
-    assert isinstance(config, Settings)
+    assert isinstance(config, UnifiedSettings)
     assert isinstance(config.ai, AISettings)
     assert isinstance(config.tarot, TarotSettings)
 
