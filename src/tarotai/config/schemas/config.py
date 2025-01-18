@@ -1,15 +1,5 @@
-try:
-    from pydantic.v1 import Field, validator, root_validator, ValidationError
-    from pydantic_settings import BaseSettings
-except ImportError:
-    try:
-        from pydantic import Field, validator, root_validator, ValidationError
-        from pydantic_settings import BaseSettings
-    except ImportError as e:
-        raise ImportError(
-            "Required packages not found. Please install with: "
-            "pip install pydantic>=2.10.5 pydantic-settings>=2.2.1"
-        ) from e
+from pydantic import Field, ValidationError
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from tarotai.core.errors import ConfigError
@@ -95,43 +85,30 @@ class UnifiedSettings(BaseSettings):
     dev_mode: bool = Field(default=False)
     api_mode: bool = Field(default=False)
     
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_nested_delimiter = "__"
-        yaml_file = "config.yml"
-        env_prefix = "TAROTAI_"
-        
-        @classmethod
-        def customise_sources(
-            cls,
-            init_settings,
-            env_settings,
-            file_secret_settings,
-        ):
-            # Load YAML first, then env vars, then init
-            return (
-                init_settings,
-                cls.yaml_config_source(cls.yaml_file),
-                env_settings,
-                file_secret_settings,
+    # Add this config model
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_nested_delimiter="__",
+        extra="ignore"
+    )
+    
+    @classmethod
+    def from_yaml(cls, file_path: str) -> "UnifiedSettings":
+        """Load settings from YAML file"""
+        if not Path(file_path).exists():
+            return cls()
+            
+        try:
+            with open(file_path) as f:
+                yaml_data = yaml.safe_load(f)
+                return cls(**yaml_data)
+        except Exception as e:
+            raise ConfigError(
+                code="YAML_LOAD_ERROR",
+                message="Failed to load YAML config",
+                detail={"error": str(e)}
             )
-        
-        @classmethod
-        def yaml_config_source(cls, file_path: str):
-            """Load YAML configuration"""
-            if not Path(file_path).exists():
-                return {}
-                
-            try:
-                with open(file_path) as f:
-                    return yaml.safe_load(f)
-            except Exception as e:
-                raise ConfigError(
-                    code="YAML_LOAD_ERROR",
-                    message="Failed to load YAML config",
-                    detail={"error": str(e)}
-                )
 
 def get_config() -> UnifiedSettings:
     """Get unified application configuration
