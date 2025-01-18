@@ -37,19 +37,24 @@ else
     uv pip install -e .
 fi
 
+# Create config files if missing
+if [ ! -f "assistant_config.yml" ]; then
+    echo "Creating assistant_config.yml from template..."
+    cp config/assistant_config.example.yml assistant_config.yml
+fi
+
+if [ ! -f ".env" ]; then
+    echo "Creating .env file from template..."
+    cp .env.example .env
+    echo "Please configure your API keys in the .env file"
+fi
+
 # Add post-install verification
 echo "Verifying installation..."
 python3 -c "import tarotai; print('Installation successful!')" || {
     echo "Installation verification failed"
     exit 1
 }
-
-# Add environment setup
-if [ ! -f ".env" ]; then
-    echo "Creating .env file from template..."
-    cp .env.example .env
-    echo "Please configure your API keys in the .env file"
-fi
 
 echo "Setup complete! To activate the environment:"
 echo "  source .venv/bin/activate"

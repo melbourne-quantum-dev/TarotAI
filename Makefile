@@ -1,4 +1,4 @@
-.PHONY: setup test lint format clean signature
+.PHONY: setup test lint format clean signature config docs typecheck check
 
 define QUANTUM_SIGNATURE
 @echo "╔══════════════════════════════════════════════════════════════╗"
@@ -84,3 +84,22 @@ clean:
 	@find . -name '*.pyo' -delete
 	@find . -name '__pycache__' -delete
 	$(QUANTUM_SHUTDOWN)
+
+config:
+	@echo "Validating configuration..."
+	@python -c "from tarotai.config.schemas.config import get_config; get_config()"
+	$(QUANTUM_SUCCESS)
+
+docs:
+	@echo "Generating documentation..."
+	@pdoc --html --output-dir docs src/tarotai
+	$(QUANTUM_SUCCESS)
+
+typecheck:
+	@echo "Running type checking..."
+	@mypy src/ tests/
+	$(QUANTUM_SUCCESS)
+
+check: lint typecheck test
+	@echo "All checks passed!"
+	$(QUANTUM_SUCCESS)
