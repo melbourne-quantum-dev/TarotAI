@@ -63,3 +63,42 @@ def test_manual_reading_invalid_card():
             deck,
             cards=[("Invalid Card", False)]
         ).get_cards()
+
+def test_reading_with_multiple_cards():
+    """Test reading with multiple cards"""
+    deck = TarotDeck(Path("data/test_cards.json"))
+    cards = deck.draw(2)
+    reading = Reading(
+        id="multi-card-reading",
+        cards=cards,
+        interpretation="Test multi-card reading",
+        model="test-model"
+    )
+    assert len(reading.cards) == 2
+
+def test_reading_with_reversed_cards():
+    """Test reading with reversed cards"""
+    deck = TarotDeck(Path("data/test_cards.json"))
+    cards = deck.draw(2)
+    reading = Reading(
+        id="reversed-reading",
+        cards=cards,
+        interpretation="Test reversed reading",
+        model="test-model",
+        is_reversed=[True, False]
+    )
+    assert reading.is_reversed == [True, False]
+
+def test_reading_to_dict():
+    """Test converting reading to dictionary"""
+    deck = TarotDeck(Path("data/test_cards.json"))
+    cards = deck.draw(1)
+    reading = Reading(
+        id="dict-reading",
+        cards=cards,
+        interpretation="Test dict reading",
+        model="test-model"
+    )
+    reading_dict = reading.to_dict()
+    assert isinstance(reading_dict, dict)
+    assert reading_dict["id"] == "dict-reading"

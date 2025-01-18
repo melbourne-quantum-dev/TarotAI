@@ -88,3 +88,29 @@ def test_card_meaning_reversed():
     )
     assert card.get_meaning(False) == "Upright"
     assert card.get_meaning(True) == "Reversed"
+
+def test_card_manager_initialization():
+    """Test CardManager initialization"""
+    manager = CardManager(Path("data/test_cards.json"))
+    assert len(manager.cards) == 2
+
+def test_card_manager_get_card_by_name():
+    """Test retrieving a card by name"""
+    manager = CardManager(Path("data/test_cards.json"))
+    card = manager.get_card_by_name("Test Card 1")
+    assert card is not None
+    assert card.name == "Test Card 1"
+
+def test_card_manager_get_cards_by_suit():
+    """Test retrieving cards by suit"""
+    manager = CardManager(Path("data/test_cards.json"))
+    wands_cards = manager.get_cards_by_suit(CardSuit.WANDS)
+    assert len(wands_cards) == 1
+    assert wands_cards[0].suit == CardSuit.WANDS
+
+def test_card_manager_save_cards(tmp_path):
+    """Test saving cards to a file"""
+    manager = CardManager(Path("data/test_cards.json"))
+    output_file = tmp_path / "test_output.json"
+    manager.save_cards(output_file)
+    assert output_file.exists()

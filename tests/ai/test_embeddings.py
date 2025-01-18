@@ -102,3 +102,26 @@ def test_card_embeddings_serialization(test_deck):
     )
     assert len(embeddings.text_embedding) == 768
     assert embeddings.version == "2.0"
+
+def test_embedding_manager_generate_embedding(tmp_path):
+    """Test generating embeddings"""
+    manager = EmbeddingManager(tmp_path)
+    embedding = manager.generate_embedding("Test text")
+    assert len(embedding) == 768
+
+def test_embedding_manager_save_embeddings(tmp_path):
+    """Test saving embeddings"""
+    manager = EmbeddingManager(tmp_path)
+    manager.generate_embedding("Test text")
+    manager.save_embeddings()
+    assert (tmp_path / "embeddings.json").exists()
+
+def test_vector_store_add_reading(vector_store):
+    """Test adding a reading to the vector store"""
+    assert len(vector_store.mapping) == 10
+    assert vector_store.index.get_n_items() == 10
+
+def test_vector_store_find_similar(vector_store, mock_embedding):
+    """Test finding similar readings"""
+    results = vector_store.find_similar(mock_embedding)
+    assert len(results) >= 1
