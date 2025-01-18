@@ -61,3 +61,71 @@ install:
 	@chmod +x $(SETUP_SCRIPT)
 	@$(SETUP_SCRIPT)
 	$(UV) pip install -e ".[dev,docs]"
+
+# Data processing targets
+.PHONY: process-data
+process-data:
+	@echo "🎴 Processing Tarot data..."
+	$(PYTHON) scripts/process_golden_dawn.py
+	$(PYTHON) scripts/generate_embeddings.py
+
+# Testing targets
+.PHONY: test
+test:
+	$(PYTEST) $(TESTS_DIR) -v
+
+.PHONY: test-card-manager
+test-card-manager:
+	$(PYTEST) $(TESTS_DIR)/core/test_card_manager.py -v
+
+# Code quality targets
+.PHONY: lint
+lint:
+	$(BLACK) $(SRC_DIR) $(TESTS_DIR) --check
+	$(RUFF) check $(SRC_DIR) $(TESTS_DIR)
+	$(MYPY) $(SRC_DIR)
+
+.PHONY: format
+format:
+	$(BLACK) $(SRC_DIR) $(TESTS_DIR)
+	$(RUFF) check $(SRC_DIR) $(TESTS_DIR) --fix
+
+# Documentation targets
+.PHONY: docs
+docs:
+	$(MAKE) -C $(DOCS_DIR) html
+
+.PHONY: clean-docs
+clean-docs:
+	$(MAKE) -C $(DOCS_DIR) clean
+
+# Utility targets
+.PHONY: clean
+clean:
+	rm -rf $(VENV)
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
+
+.PHONY: help
+help:
+	@echo "🎴 TarotAI Development Commands"
+	@echo ""
+	@echo "Setup:"
+	@echo "  make bootstrap    - Initialize development environment"
+	@echo "  make install      - Install project dependencies"
+	@echo "  make clean        - Remove virtual environment and cache files"
+	@echo ""
+	@echo "Development:"
+	@echo "  make lint         - Run code quality checks"
+	@echo "  make format       - Format code using black and ruff"
+	@echo "  make test         - Run all tests"
+	@echo "  make test-card-manager - Run card manager tests only"
+	@echo ""
+	@echo "Data Processing:"
+	@echo "  make process-data - Process Golden Dawn text and generate embeddings"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  make docs         - Build documentation"
+	@echo "  make clean-docs   - Clean documentation build"
+
+.DEFAULT_GOAL := help
