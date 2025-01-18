@@ -22,19 +22,19 @@ UV := $(VENV_BIN)/uv
 PYTEST := $(VENV_BIN)/pytest
 BLACK := $(VENV_BIN)/black
 MYPY := $(VENV_BIN)/mypy
-RUFF := $(VENV_BIN)/ruff                                                                                                                            
-                                                                                                                                           
- # Default target                                                                                                                          
- .PHONY: all                                                                                                                               
- all: install test lint format                                                                                                             
-                                                                                                                                           
- # First-time setup                                                                                                                        
- .PHONY: bootstrap                                                                                                                         
- bootstrap:                                                                                                                                
- \t@echo "🎴 Bootstrapping $(PROJECT_NAME)..."                                                                                           
- \t@chmod +x $(SETUP_SCRIPT)                                                                                                             
- \t@$(SETUP_SCRIPT)                                                                                                                      
- \t@echo "✨ Bootstrap complete! Run 'make install' for development dependencies."                                                       
+RUFF := $(VENV_BIN)/ruff
+
+# Default target
+.PHONY: all
+all: install test lint format
+
+# First-time setup
+.PHONY: bootstrap
+bootstrap:
+	@echo "🎴 Bootstrapping $(PROJECT_NAME)..."
+	@chmod +x $(SETUP_SCRIPT)
+	@$(SETUP_SCRIPT)
+	@echo "✨ Bootstrap complete! Run 'make install' for development dependencies."
                                                                                                                                            
  # Environment management                                                                                                                  
  .PHONY: clean                                                                                                                             

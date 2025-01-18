@@ -76,17 +76,17 @@
      uv pip install -e ".[dev,docs]"                                                                                                       
  }                                                                                                                                         
                                                                                                                                            
- setup_direnv() {                                                                                                                          
-     log_info "Setting up direnv..."                                                                                                       
-     if [ ! -f ".envrc" ]; then                                                                                                            
-         cat > .envrc << EOF                                                                                                               
- layout python3                                                                                                                            
- export PYTHONPATH=\$PWD/src:\$PYTHONPATH                                                                                                  
- export TAROTAI_ENV=development                                                                                                            
- EOF                                                                                                                                       
-         direnv allow                                                                                                                      
-     fi                                                                                                                                    
- }                                                                                                                                         
+setup_direnv() {
+    log_info "Setting up direnv..."
+    if [ ! -f ".envrc" ]; then
+        cat > .envrc <<'EOF'
+layout python3
+export PYTHONPATH=$PWD/src:$PYTHONPATH
+export TAROTAI_ENV=development
+EOF
+        direnv allow
+    fi
+}
                                                                                                                                            
  main() {                                                                                                                                  
      log_info "🎴 Setting up TarotAI development environment..."                                                                           
