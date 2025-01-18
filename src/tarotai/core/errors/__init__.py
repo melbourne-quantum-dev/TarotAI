@@ -21,7 +21,8 @@ from .errors import (
     EmbeddingError,
     ReadingError,
     AIClientError,
-    ValidationError
+    ValidationError,
+    ProcessingError
 )
 
 __all__ = [
@@ -34,5 +35,6 @@ __all__ = [
     'EmbeddingError',
     'ReadingError',
     'AIClientError',
-    'ValidationError'
+    'ValidationError',
+    'ProcessingError'
 ]

@@ -76,3 +76,7 @@ class AIClientError(TarotError):
 class ValidationError(TarotError):
     """Errors during data validation"""
     pass
+
+class ProcessingError(TarotError):
+    """Errors during card processing operations"""
+    pass
