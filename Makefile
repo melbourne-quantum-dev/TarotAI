@@ -24,7 +24,8 @@ install:
 	 export UV_CACHE_DIR=.cache/.uv_cache && \
 	 export UV_PIP_VERSION=">=23.3.2" && \
 	 export UV_PYTHON=">=3.12" && \
-	 ./setup.sh
+	 uv pip install -r requirements.txt --exclude realtimestt && \
+	 uv pip install -e .
 
 # Run test suite
 test:
