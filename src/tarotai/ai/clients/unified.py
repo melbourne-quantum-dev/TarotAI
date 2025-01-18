@@ -1,9 +1,11 @@
-from typing import Dict, Any, List
-from tarotai.config.schemas.config import AISettings
+from typing import Any, Dict, List
+
 from tarotai.ai.clients.base import BaseAIClient
-from tarotai.ai.clients.providers.voyage import VoyageClient
-from tarotai.ai.clients.providers.deepseek_v3 import DeepSeekClient
 from tarotai.ai.clients.providers.claude import ClaudeClient
+from tarotai.ai.clients.providers.deepseek_v3 import DeepSeekClient
+from tarotai.ai.clients.providers.voyage import VoyageClient
+from tarotai.config.schemas.config import AISettings
+
 
 class UnifiedAIClient:
     """Unified interface for multiple AI providers"""

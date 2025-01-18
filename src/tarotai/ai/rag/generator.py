@@ -1,7 +1,9 @@
-from typing import List, Dict
 from dataclasses import dataclass, field
-from tarotai.ai.clients.providers.voyage import VoyageClient
+from typing import Dict, List
+
 from tarotai.ai.clients.base import BaseAIClient
+from tarotai.ai.clients.providers.voyage import VoyageClient
+
 
 @dataclass
 class KnowledgeBase:

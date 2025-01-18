@@ -7,24 +7,26 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
-
-# Core imports
-from tarotai.core.logging import setup_logging
-from tarotai.core.errors import ProcessingError
-from tarotai.config import get_config
+from typing import Any, Dict, Optional
 
 # AI client imports
 from tarotai.ai.clients import initialize_ai_clients
+from tarotai.config import get_config
+from tarotai.core.errors import ProcessingError
+
+# Core imports
+from tarotai.core.logging import setup_logging
 
 # Enrichment imports
 from tarotai.extensions.enrichment.knowledge.golden_dawn import (
+    GoldenDawnKnowledge,
+    GoldenDawnKnowledgeBase,
     extract_pdf_content,
     save_knowledge,
-    GoldenDawnKnowledge,
-    GoldenDawnKnowledgeBase
 )
-from tarotai.extensions.enrichment.knowledge.image_processor import GoldenDawnImageProcessor
+from tarotai.extensions.enrichment.knowledge.image_processor import (
+    GoldenDawnImageProcessor,
+)
 
 # Setup logging
 logger = setup_logging()

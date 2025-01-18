@@ -4,8 +4,8 @@ Script to reorganize core module structure and fix imports
 """
 import os
 import re
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 # Files to move from core/ to core/services/
 FILES_TO_MOVE = [

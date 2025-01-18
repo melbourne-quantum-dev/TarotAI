@@ -4,9 +4,10 @@ Configuration Schema Module
 Core configuration with version-aware Pydantic imports.
 """
 
-from typing import Dict, Any, List, Optional, ClassVar
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Any, ClassVar, Dict, List, Optional
+
 import yaml
 
 # Pydantic imports
@@ -15,11 +16,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Local imports
 from tarotai.core.errors import ConfigError
+
 from .limits import InterpretationLimits
 
 logger = logging.getLogger(__name__)
 
 from .limits import InterpretationLimits
+
 
 class AISettings(BaseSettings):
     """

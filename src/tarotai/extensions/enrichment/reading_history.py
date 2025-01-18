@@ -1,9 +1,11 @@
 # reading_history.py
+import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional, cast
-import json
+from typing import Any, Dict, List, Optional, cast
+
 from tarotai.core.types import Reading, SpreadPosition
+
 
 class ReadingHistoryManager:
     def __init__(self, history_file: Path = Path("data/readings.json")):
