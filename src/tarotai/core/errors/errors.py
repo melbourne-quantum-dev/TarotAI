@@ -1,7 +1,10 @@
-from typing import Optional, Dict, Any
-from fastapi import HTTPException
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+from fastapi import HTTPException
+
 from ..models.types import ErrorSeverity
+
 
 class TarotError(Exception):
     """Base exception class for TarotAI system"""

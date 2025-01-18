@@ -3,7 +3,8 @@ Core error types for TarotAI system.
 Provides a structured hierarchy of exceptions for different components.
 """
 from enum import Enum
-from typing import Optional, Any, Dict
+from typing import Any, Dict, Optional
+
 
 class ErrorSeverity(Enum):
     """Severity levels for TarotAI errors"""
@@ -117,7 +118,14 @@ __all__ = [
     'ConfigurationError',
     'ValidationError'
 ]
-from .errors import ConfigError, TarotError, DeckError, EnrichmentError, EmbeddingError, ReadingError
+from .errors import (
+    ConfigError,
+    DeckError,
+    EmbeddingError,
+    EnrichmentError,
+    ReadingError,
+    TarotError,
+)
 
 __all__ = [
     'ConfigError',
