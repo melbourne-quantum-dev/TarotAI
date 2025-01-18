@@ -11,7 +11,7 @@ from voyageai import get_embedding
 
 from tarotai.ai.clients.providers.voyage import VoyageClient
 
-from ..exceptions import EnrichmentError
+from tarotai.extensions.enrichment.exceptions import EnrichmentError
 from .image_processor import GoldenDawnImageProcessor
 
 

@@ -7,7 +7,7 @@ import fitz  # PyMuPDF
 from PIL import Image
 
 from tarotai.ai.clients.providers.voyage import VoyageClient
-from tarotai.core.errors import EnrichmentError
+from tarotai.extensions.enrichment.exceptions import EnrichmentError
 
 
 class GoldenDawnImageProcessor:
