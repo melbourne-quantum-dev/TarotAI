@@ -11,6 +11,10 @@ def validate_card_data(card_data: Dict) -> List[str]:
     errors = []
     
     try:
+        # Normalize suit to lowercase if present
+        if 'suit' in card_data and isinstance(card_data['suit'], str):
+            card_data['suit'] = card_data['suit'].lower()
+            
         # Try to create a CardMeaning instance
         CardMeaning(**card_data)
     except ValidationError as e:
