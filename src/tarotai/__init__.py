@@ -14,9 +14,9 @@ except Exception:
 from tarotai.core.models import (
     TarotCard,
     TarotDeck,
-    ReadingInput,
     SpreadType
 )
+from tarotai.core.services.reading import ReadingInput
 from tarotai.core.errors import (
     ErrorSeverity,
     TarotAIError,
