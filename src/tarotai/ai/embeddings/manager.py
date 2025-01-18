@@ -2,7 +2,8 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass
 from pathlib import Path
 import json
-from ..models.types import CardMeaning
+from tarotai.core.models.types import CardMeaning, CardEmbeddings, ReadingEmbeddings
+from tarotai.ai.embeddings.storage import EmbeddingStorage
 
 @dataclass
 class CardEmbeddings:
