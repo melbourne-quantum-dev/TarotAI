@@ -85,8 +85,12 @@ serve-docs:
 	$(QUANTUM_SUCCESS)
 
 # Validate card schema
-validate-cards:
+validate-schema: validate-cards
 	@echo "Validating card schema..."
+	$(QUANTUM_SUCCESS)
+
+validate-cards:
+	@echo "Validating card data..."
 	@python scripts/processing/validate_card_schema.py
 	$(QUANTUM_SUCCESS)
 
