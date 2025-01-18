@@ -84,10 +84,6 @@ serve-docs:
 	@cd docs/_build/html && python -m http.server 8000
 	$(QUANTUM_SUCCESS)
 
-# Validate card schema
-validate-schema: validate-cards
-	@echo "Validating card schema..."
-	$(QUANTUM_SUCCESS)
 
 validate-cards:
 	@echo "Validating card data..."
@@ -130,7 +126,7 @@ help:
 	@echo "  validate          - Validate project structure"
 	@echo "  docs              - Generate documentation"
 	@echo "  serve-docs        - Serve documentation locally"
-	@echo "  validate-cards    - Validate card schema"
+	@echo "  validate-cards    - Validate card data"
 	@echo "  generate-cards    - Generate card data"
 	@echo "  update-embeddings - Update card embeddings"
 	@echo "  process-golden-dawn - Process Golden Dawn PDF"
