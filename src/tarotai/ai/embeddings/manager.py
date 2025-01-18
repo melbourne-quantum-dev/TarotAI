@@ -15,12 +15,21 @@ class CardEmbeddings:
     version: int = 1
 
 class EmbeddingManager:
-    """Manages card and reading embeddings"""
+    """Manages card and reading embeddings with version control and validation"""
     
     def __init__(self, data_dir: Path):
         self.data_dir = data_dir
         self.version = 1
         self.card_embeddings: Dict[str, CardEmbeddings] = {}
+        self._setup_validation_rules()
+        
+    def _setup_validation_rules(self):
+        """Setup validation rules for embeddings"""
+        self.validation_rules = {
+            "embedding_size": 768,
+            "required_fields": ["meaning_embedding", "symbolism_embedding"],
+            "allowed_versions": [1, 2]
+        }
         
     def generate_embedding(self, text: str) -> List[float]:
         """Generate a basic embedding for text"""

@@ -23,15 +23,31 @@ def update_card_embeddings(card_data: Dict, embedding_manager: EmbeddingManager)
         
     return card_data
 
-def update_embeddings_file(file_path: Path, embedding_manager: EmbeddingManager) -> None:
-    """Update embeddings for all cards in a file"""
+def update_embeddings_file(file_path: Path, embedding_manager: EmbeddingManager) -> Dict[str, Any]:
+    """Update embeddings for all cards in a file with progress tracking"""
     with open(file_path, 'r') as f:
         data = json.load(f)
         
     updated_cards = []
+    stats = {
+        'total_cards': 0,
+        'cards_updated': 0,
+        'cards_skipped': 0,
+        'errors': 0
+    }
+    
     for card in data.get('cards', []):
-        updated_card = update_card_embeddings(card, embedding_manager)
-        updated_cards.append(updated_card)
+        stats['total_cards'] += 1
+        try:
+            updated_card = update_card_embeddings(card, embedding_manager)
+            if any(updated_card['embeddings'].values()):
+                stats['cards_updated'] += 1
+            else:
+                stats['cards_skipped'] += 1
+            updated_cards.append(updated_card)
+        except Exception as e:
+            stats['errors'] += 1
+            print(f"Error updating embeddings for {card.get('name')}: {str(e)}")
         
     # Update the file with new embeddings
     data['cards'] = updated_cards

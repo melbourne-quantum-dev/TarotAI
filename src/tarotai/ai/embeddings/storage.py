@@ -21,7 +21,12 @@ class EmbeddingStorage:
         self.documents: Dict[str, Document] = {}
         
     def store_document(self, content: str, metadata: Dict[str, Any], embedding: np.ndarray) -> str:
-        """Store a document with its embedding"""
+        """Store a document with its embedding after validation"""
+        if not isinstance(embedding, np.ndarray):
+            raise ValueError("Embedding must be a numpy array")
+        if embedding.size != 768:
+            raise ValueError(f"Embedding must be size 768, got {embedding.size}")
+            
         document_id = str(len(self.documents))
         document = Document(
             content=content,
