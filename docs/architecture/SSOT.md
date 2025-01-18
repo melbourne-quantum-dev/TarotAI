@@ -1128,39 +1128,52 @@ uv run black src/ tests/
 
 ## 11. Data Structures
 
-### 10.1 Card Definitions
-
-The `cards_ordered.json` file contains the canonical card definitions following the Book T sequence. This file serves as the single source of truth for card meanings and attributes.
-
-#### 10.1.1 Schema
+### 10.1 Card Definitions Schema
 
 ```json
 {
-  "version": "2.0.0",
-  "last_updated": "2025-01-14",
+  "version": "string",  // Schema version
+  "last_updated": "string",  // ISO 8601 timestamp
+  "schema_version": "string",
   "cards": [
     {
-      "name": "Ace of Wands",
-      "number": 1,
-      "suit": "WANDS",
-      "element": "FIRE",
-      "astrological": "Root of the Powers of Fire",
-      "kabbalistic": "Kether in Atziluth",
-      "decan": null,
-      "keywords": [
-        "creation",
-        "inspiration",
-        "power",
-        "potential"
-      ],
-      "upright_meaning": "Raw power and potential. The initial spark of inspiration...",
-      "reversed_meaning": "Blocked creativity. Delays in projects...",
-      "book_t_description": "Root of the Powers of Fire",
-      "golden_dawn_title": "The Root of the Powers of Fire"
+      "number": "int|null",
+      "suit": "string",
+      "name": "string",
+      "element": "string",
+      "astrological": "string",
+      "kabbalistic": "string",
+      "decan": "string|null",
+      "keywords": ["string"],
+      "upright_meaning": "string",
+      "reversed_meaning": "string",
+      "golden_dawn": {
+        "title": "string",
+        "symbolism": ["string"],
+        "reading_methods": ["string"],
+        "reversed_notes": "string",
+        "shadow_aspects": ["string"]
+      },
+      "embeddings": {
+        "upright": ["float"],
+        "reversed": ["float"]
+      },
+      "metadata": {
+        "last_updated": "string",
+        "source": "string",
+        "confidence": "float"
+      }
     }
   ]
 }
 ```
+
+### Validation Rules
+- All 78 cards must be present
+- Required fields: name, number, suit, element, keywords, upright_meaning, reversed_meaning
+- Golden Dawn section must be present for all cards
+- Embeddings must match expected dimensionality
+- Metadata must include source and confidence
 
 #### 10.1.2 Card Ordering
 

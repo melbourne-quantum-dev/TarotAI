@@ -11,15 +11,24 @@
       "astrological": "Root of the Powers of Fire",
       "kabbalistic": "Kether in Atziluth",
       "decan": null,
-      "keywords": [],
-      "upright_meaning": "",
-      "reversed_meaning": "",
+      "keywords": ["creation", "inspiration", "potential"],
+      "upright_meaning": "Raw power and potential. The initial spark of inspiration...",
+      "reversed_meaning": "Blocked creativity. Delays in projects...",
       "golden_dawn": {
         "title": "Root of the Powers of Fire",
         "symbolism": ["Wand", "Flame", "Energy"],
         "reading_methods": ["Celtic Cross", "Horseshoe"],
         "reversed_notes": "",
         "shadow_aspects": []
+      },
+      "embeddings": {
+        "upright": [0.123, 0.456, 0.789],
+        "reversed": [0.321, 0.654, 0.987]
+      },
+      "metadata": {
+        "last_updated": "2025-01-17",
+        "source": "generated",
+        "confidence": 0.95
       }
     },
     {

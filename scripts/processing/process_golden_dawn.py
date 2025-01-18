@@ -36,14 +36,6 @@ async def enhanced_process_golden_dawn(
 ) -> Dict[str, Any]:
     """
     Enhanced processing pipeline for Golden Dawn knowledge extraction.
-    
-    Args:
-        pdf_path: Path to the Golden Dawn PDF
-        ai_clients: Dictionary of initialized AI clients
-        output_dir: Optional output directory (defaults to pdf_path.parent/processed)
-    
-    Returns:
-        Dict containing structured knowledge and processing metadata
     """
     try:
         logger.info(f"Starting enhanced Golden Dawn processing: {pdf_path}")
@@ -55,6 +47,30 @@ async def enhanced_process_golden_dawn(
         # Extract textual knowledge
         logger.info("Extracting textual knowledge...")
         knowledge = extract_pdf_content(pdf_path)
+        
+        # Process each card with complete schema
+        for card in knowledge.cards:
+            if not card.get("golden_dawn"):
+                card["golden_dawn"] = {
+                    "title": "",
+                    "symbolism": [],
+                    "reading_methods": [],
+                    "reversed_notes": "",
+                    "shadow_aspects": []
+                }
+            
+            if not card.get("embeddings"):
+                card["embeddings"] = {
+                    "upright": [],
+                    "reversed": []
+                }
+                
+            if not card.get("metadata"):
+                card["metadata"] = {
+                    "last_updated": datetime.now().isoformat(),
+                    "source": "generated",
+                    "confidence": 0.0
+                }
         
         # Save knowledge base
         knowledge_path = output_dir / "golden_dawn_knowledge.json"

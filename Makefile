@@ -100,6 +100,11 @@ typecheck:
 	@mypy src/ tests/
 	$(QUANTUM_SUCCESS)
 
-check: lint typecheck test
+validate-cards:
+	@echo "Validating card data structure..."
+	@python -c "from tarotai.core.models.card import CardManager; CardManager()._load_cards()"
+	$(QUANTUM_SUCCESS)
+
+check: lint typecheck test validate-cards
 	@echo "All checks passed!"
 	$(QUANTUM_SUCCESS)
