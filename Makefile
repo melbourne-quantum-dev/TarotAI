@@ -102,7 +102,7 @@ typecheck:
 
 validate-cards:
 	@echo "Validating card data structure..."
-	@python -c "from tarotai.core.models.card import CardManager; CardManager()._load_cards()"
+	@python scripts/validate_cards.py
 	$(QUANTUM_SUCCESS)
 
 check: lint typecheck test validate-cards
