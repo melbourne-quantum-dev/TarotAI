@@ -57,12 +57,16 @@ install_dependencies() {
     log "Installing project dependencies..."
     echo
     echo "Installing core dependencies..."
-    uv pip install --quiet -e . || error "Failed to install core dependencies"
+    # Use sync for better UI and handling of hangs
+    uv pip sync requirements.txt || error "Failed to sync core dependencies"
     echo "✓ Core dependencies installed"
     
     echo "Installing development dependencies..."
-    uv pip install --quiet -e ".[dev]" || error "Failed to install dev dependencies"
+    uv pip sync dev-requirements.txt || error "Failed to sync dev dependencies"
     echo "✓ Development dependencies installed"
+    
+    echo "Installing package in editable mode..."
+    uv pip install --quiet -e . || error "Failed to install package"
     
     echo "Verifying installation..."
     if ! python3 -c "import tarotai" &> /dev/null; then
