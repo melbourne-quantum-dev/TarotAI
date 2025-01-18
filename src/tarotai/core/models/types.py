@@ -44,13 +44,31 @@ class QuestionContext(BaseModel):
 
 class CardMeaning(BaseModel):
     name: str
-    number: int = Field(ge=0, le=21)  # 0-21 for Major, 1-14 for Minor
+    number: Optional[int] = Field(default=None, ge=0, le=21)  # 0-21 for Major, 1-14 for Minor
     suit: Optional[CardSuit] = None
-    keywords: List[str]
-    upright_meaning: str
-    reversed_meaning: str
+    keywords: List[str] = Field(default_factory=list)
+    upright_meaning: str = ""
+    reversed_meaning: str = ""
     element: Optional[str] = None
-    planet: Optional[str] = None
+    astrological: Optional[str] = None
+    kabbalistic: Optional[str] = None
+    decan: Optional[str] = None
+    golden_dawn: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Golden Dawn specific card data"
+    )
+    embeddings: Optional[Dict[str, List[float]]] = Field(
+        default=None,
+        description="Embeddings for card meanings and images"
+    )
+    metadata: Dict[str, Any] = Field(
+        default_factory=lambda: {
+            "last_updated": datetime.now().isoformat(),
+            "source": "generated",
+            "confidence": 1.0
+        },
+        description="Metadata about the card data"
+    )
 
 class Reading(BaseModel):
     """Represents a tarot reading"""
