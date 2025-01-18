@@ -1,7 +1,7 @@
 """UI components for TarotAI"""
 
 from .display import TarotDisplay
-from .interpreter import TarotInterpreter
+from tarotai.core.services.interpreter import TarotInterpreter
 
 __all__ = [
     'TarotDisplay',
