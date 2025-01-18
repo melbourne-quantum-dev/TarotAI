@@ -1126,9 +1126,204 @@ uv run black src/ tests/
 3. Build distribution package
 4. Deploy to target environment
 
-## 11. Data Structures
+## 12. User Workflow Documentation
 
-### 10.1 Card Definitions Schema
+### 12.1 Initial Setup
+
+1. **Install dependencies**:
+   ```bash
+   uv venv .venv
+   source .venv/bin/activate
+   uv pip install -r requirements.txt
+   uv pip install -e .
+   ```
+
+2. **Configure environment variables**:
+   Create a `.env` file with your API keys:
+   ```bash
+   DEEPSEEK_API_KEY=your_key
+   VOYAGEAI_API_KEY=your_key
+   ANTHROPIC_API_KEY=your_key
+   ```
+
+3. **Validate card data**:
+   ```bash
+   python scripts/data/validate_data.py
+   ```
+
+### 12.2 Processing Golden Dawn Knowledge
+
+1. **Place the Golden Dawn PDF**:
+   - Copy your Golden Dawn PDF to `data/sources/golden_dawn.pdf`
+
+2. **Run the processing script**:
+   ```bash
+   python scripts/processing/process_golden_dawn.py
+   ```
+
+3. **Verify output**:
+   - Check `data/processed/golden_dawn/` for:
+     - `golden_dawn_knowledge.json`
+     - `golden_dawn_results.json`
+     - Extracted images (if VoyageAI is configured)
+
+### 12.3 Generating Card Meanings
+
+1. **Generate initial meanings**:
+   ```bash
+   python scripts/processing/generate_meanings.py
+   ```
+
+2. **Review and refine**:
+   - Check `data/cards_ordered.json` for generated meanings
+   - Manually edit as needed
+
+### 12.4 Running the CLI Interface
+
+1. **Start interactive mode**:
+   ```bash
+   tarotai interactive
+   ```
+
+2. **Perform a reading**:
+   - Choose spread type
+   - Enter focus area
+   - Ask your question
+   - View interpretation
+
+3. **Voice interface** (if configured):
+   ```bash
+   tarotai voice
+   ```
+
+### 12.5 Common Development Tasks
+
+1. **Run tests**:
+   ```bash
+   pytest tests/
+   ```
+
+2. **Format code**:
+   ```bash
+   black src/ tests/
+   ```
+
+3. **Check types**:
+   ```bash
+   mypy src/ tests/
+   ```
+
+4. **Lint code**:
+   ```bash
+   flake8 src/ tests/
+   ```
+
+### 12.6 Working with Aider
+
+1. **Start aider session**:
+   ```bash
+   aider
+   ```
+
+2. **Common commands**:
+   - Add files to session:
+     ```bash
+     /add src/tarotai/core/models/types.py
+     ```
+   - Generate documentation:
+     ```bash
+     /doc Generate detailed documentation for the CardMeaning class
+     ```
+   - Refactor code:
+     ```bash
+     Refactor the TarotInterpreter class to use dependency injection
+     ```
+
+### 12.7 Maintenance Tasks
+
+1. **Clean up project**:
+   ```bash
+   make clean
+   # or
+   tarotai-cleanup
+   ```
+
+2. **Update dependencies**:
+   ```bash
+   uv pip compile --upgrade
+   uv pip sync
+   ```
+
+3. **Validate configuration**:
+   ```bash
+   python -c "from tarotai.config.schemas.config import get_config; get_config()"
+   ```
+
+### 12.8 Troubleshooting
+
+1. **Common issues**:
+   - Missing API keys: Verify `.env` file
+   - Invalid card data: Run validation script
+   - Large files: Check `data/` directory for unnecessary files
+   - Performance issues: Check API rate limits
+
+2. **Debugging tips**:
+   - Increase log level:
+     ```bash
+     export LOG_LEVEL=DEBUG
+     ```
+   - Check logs in `logs/` directory
+   - Use verbose mode for scripts:
+     ```bash
+     python scripts/processing/process_golden_dawn.py --verbose
+     ```
+
+### 12.9 Recommended Workflow
+
+1. Start with a clean environment
+2. Process Golden Dawn knowledge
+3. Generate initial card meanings
+4. Validate data and configuration
+5. Run interactive CLI for testing
+6. Use aider for development tasks
+7. Regularly clean and validate the project
+8. Update documentation as changes are made
+
+### 12.10 Example Session
+
+```bash
+# Setup environment
+uv venv .venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+uv pip install -e .
+
+# Process Golden Dawn knowledge
+python scripts/processing/process_golden_dawn.py
+
+# Generate card meanings
+python scripts/processing/generate_meanings.py
+
+# Validate data
+python scripts/data/validate_data.py
+
+# Start interactive session
+tarotai interactive
+
+# Perform a reading
+> Choose spread type: Three Card
+> Focus area: Career
+> Question: What should I focus on in my career?
+
+# Start aider session
+aider
+/add src/tarotai/core/models/types.py
+/help
+```
+
+## 13. Data Structures
+
+### 13.1 Card Definitions Schema
 
 ```json
 {
