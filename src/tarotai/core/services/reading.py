@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 
 from tarotai.core.models.deck import TarotDeck
 from tarotai.core.models.types import CardEmbeddings, CardMeaning, ReadingEmbeddings
