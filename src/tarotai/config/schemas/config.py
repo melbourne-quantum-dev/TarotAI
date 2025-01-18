@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 import yaml
 
 # Pydantic imports
-from pydantic import Field, ValidationError
+from pydantic import Field, ValidationError, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Local imports
