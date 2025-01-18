@@ -2,7 +2,7 @@
 from pathlib import Path
 
 import logging
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 
 from tarotai.ai.clients.providers.voyage import VoyageClient
 from tarotai.ai.clients.unified import UnifiedAIClient
