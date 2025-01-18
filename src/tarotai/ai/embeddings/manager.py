@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass
 from pathlib import Path
 import json
-from .types import CardMeaning
+from ..models.types import CardMeaning
 
 @dataclass
 class CardEmbeddings:
