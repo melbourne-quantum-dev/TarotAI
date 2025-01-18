@@ -11,8 +11,9 @@ except Exception:
 
 # Core imports
 from tarotai.core.models import SpreadType, TarotCard, TarotDeck
-from tarotai.core.services import TarotInterpreter, setup_logging
+from tarotai.core.services import TarotInterpreter
 from tarotai.core.services.reading import ReadingInput
+from tarotai.core.logging import setup_logging
 
 # AI imports
 from .ai import UnifiedAIClient
