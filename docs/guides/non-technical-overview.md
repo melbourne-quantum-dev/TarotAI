@@ -5,7 +5,7 @@
 ║ ┌─────────────────────────────────────────────────────────┐ ║
 ║ │  ▀█▀ ▄▀█ █▀█ █▀█ ▀█▀    ▄▀█ █    ▓▒░                  │ ║
 ║ │   █  █▀█ █▀▄ █▄█  █     █▀█ █    ░▒▓                  │ ║
-║ │                                      v2.0               │ ║
+║ │                                      v2.1               │ ║
 ║ └─────────────────────────────────────────────────────────┘ ║
 ║           ◈  Neural  Divination  Interface  ◈               ║
 ║     ╭───────────────────  ⚡  ───────────────────╮         ║
@@ -13,6 +13,34 @@
 ║     ╰────────────────────────────────────────────╯         ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
+
+## Key Architectural Updates in Version 2.1
+
+### Enhanced AI Integration
+- **DeepSeek V3**: Now with Multi-Token Prediction (MTP) and FP8 precision
+- **VoyageAI**: Advanced multimodal embeddings and document reranking
+- **Claude**: Structured responses and tool calling capabilities
+
+### New Data Structures
+- **Card Embeddings**: Multi-vector representations combining text and image data
+- **Reading Embeddings**: Hierarchical embeddings capturing card relationships
+- **Golden Dawn Knowledge**: Structured extraction from historical sources
+
+### Improved Processing Pipeline
+1. **Initialization**: Load and validate card data
+2. **Meaning Generation**: AI-assisted interpretation with validation
+3. **Embedding Creation**: Multimodal semantic embeddings
+4. **Refinement**: AI-assisted refinement and pattern recognition
+5. **Persistence**: Versioned storage with metadata tracking
+
+## CLI and Display Updates
+
+The command-line interface and display system have been enhanced with:
+
+- **Rich Visual Feedback**: Cyberpunk-inspired ASCII art and panels
+- **Interactive Mode**: Guided readings with voice support
+- **Error Handling**: Graceful degradation with detailed error reporting
+- **Configuration**: Environment-based settings for AI providers
 
 ## The Foundation: A Legacy of Magical Knowledge
 
