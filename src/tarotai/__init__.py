@@ -10,37 +10,28 @@ try:
 except Exception:
     __version__ = "2.0.0"
 
-# Core imports
-from tarotai.core.models import (
-    TarotCard,
-    TarotDeck,
-    SpreadType
-)
-from tarotai.core.services.reading import ReadingInput
 from tarotai.core.errors import (
-    ErrorSeverity,
-    TarotAIError,
-    ProcessingError,
+    EmbeddingError,
     EnrichmentError,
-    EmbeddingError
+    ErrorSeverity,
+    ProcessingError,
+    TarotAIError,
 )
-from tarotai.core.services import setup_logging
 
-from tarotai.core.services import TarotInterpreter
+# Core imports
+from tarotai.core.models import SpreadType, TarotCard, TarotDeck
+from tarotai.core.services import TarotInterpreter, setup_logging
+from tarotai.core.services.reading import ReadingInput
 
 # AI imports
-from .ai import (
-    UnifiedAIClient
-)
-
-# UI imports
-from .ui import (
-    TarotDisplay,
-)
+from .ai import UnifiedAIClient
 
 # CLI and Config
 from .cli import app
 from .config import get_config
+
+# UI imports
+from .ui import TarotDisplay
 
 __all__ = [
     # Core Models
