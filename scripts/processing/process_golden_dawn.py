@@ -96,15 +96,21 @@ async def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str,
 
 
 async def main():
-    """Main function for processing Golden Dawn PDF.
-    
-    This must be run before generate_meanings.py to create the required
-    knowledge base files.
-    """
+    """Main function for processing Golden Dawn PDF."""
     # Paths
     pdf_path = Path("data/golden_dawn.pdf")
     output_dir = Path("data/processed/golden_dawn")
-
+    
+    # Verify PDF exists
+    if not pdf_path.exists():
+        raise FileNotFoundError(
+            f"Golden Dawn PDF not found at {pdf_path}. "
+            "Please ensure the PDF is in the data directory."
+        )
+        
+    # Create output directory
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     print(f"Processing Golden Dawn PDF at {pdf_path}...")
     print("This process may take several minutes depending on the PDF size.")
     
