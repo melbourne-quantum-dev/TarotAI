@@ -8,14 +8,14 @@ from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from tqdm import tqdm
 
-from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (
+from tarotai.extensions.enrichment.knowledge.golden_dawn import (
     GoldenDawnKnowledge,
     GoldenDawnKnowledgeBase,
     GoldenDawnReadingMethod,
     HistoricalApproach,
     GoldenDawnLore,
 )
-from src.tarotai.ai.clients.providers.voyage import VoyageClient
+from tarotai.ai.clients.providers.voyage import VoyageClient
 
 load_dotenv()
 
