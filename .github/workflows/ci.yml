@@ -27,6 +27,9 @@ jobs:
     - name: Run tests
       run: |
         pytest tests/ --cov=tarotai --cov-report=xml
+    - name: Validate card schema
+      run: |
+        python scripts/validate_cards.py
     - name: Upload coverage
       uses: codecov/codecov-action@v3
     - name: Lint with flake8

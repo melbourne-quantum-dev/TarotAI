@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+"""
+Card Schema Validation Script
+Ensures all cards in cards_ordered.json follow the required schema.
+"""
+import json
+from pathlib import Path
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, ValidationError, Field
+from rich import print
+from rich.console import Console
+
+console = Console()
+
+class GoldenDawnSection(BaseModel):
+    title: str
+    symbolism: List[str]
+    reading_methods: List[str]
+    reversed_notes: str
+    shadow_aspects: List[str]
+
+class Embeddings(BaseModel):
+    upright: List[float]
+    reversed: List[float]
+
+class Metadata(BaseModel):
+    last_updated: str
+    source: str
+    confidence: float
+
+class TarotCard(BaseModel):
+    number: Optional[int]
+    suit: Optional[str]
+    name: str
+    element: str
+    astrological: str
+    kabbalistic: str
+    decan: Optional[str]
+    keywords: List[str]
+    upright_meaning: str
+    reversed_meaning: str
+    golden_dawn: GoldenDawnSection
+    embeddings: Embeddings
+    metadata: Metadata
+
+def validate_card_schema(card_data: Dict) -> List[str]:
+    """Validate a single card against the schema"""
+    errors = []
+    try:
+        TarotCard(**card_data)
+    except ValidationError as e:
+        for error in e.errors():
+            field = ".".join(str(loc) for loc in error['loc'])
+            errors.append(f"{field}: {error['msg']}")
+    return errors
+
+def validate_all_cards(cards_path: Path) -> Dict[str, List[str]]:
+    """Validate all cards in the JSON file"""
+    with open(cards_path) as f:
+        data = json.load(f)
+    
+    validation_results = {}
+    for card in data['cards']:
+        errors = validate_card_schema(card)
+        if errors:
+            validation_results[card.get('name', 'Unknown Card')] = errors
+    
+    return validation_results
+
+def main():
+    cards_path = Path("data/cards_ordered.json")
+    console.print(f"[bold]Validating card schema in {cards_path}...[/]")
+    
+    results = validate_all_cards(cards_path)
+    
+    if not results:
+        console.print("[bold green]✓ All cards validate successfully![/]")
+        return
+    
+    console.print("[bold red]Validation errors found:[/]")
+    for card_name, errors in results.items():
+        console.print(f"[bold]{card_name}:[/]")
+        for error in errors:
+            console.print(f"  - {error}")
+    
+    raise SystemExit(1)
+
+if __name__ == "__main__":
+    main()
