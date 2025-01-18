@@ -4,7 +4,7 @@ from typing import Dict, Any, List, Optional, Union
 import httpx
 from dotenv import load_dotenv
 from ..exceptions import EnrichmentError
-from ..core import BaseAIClient
+from ...ai.clients.base import BaseAIClient
 
 load_dotenv()
 
