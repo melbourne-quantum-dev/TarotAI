@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 import httpx
 from dotenv import load_dotenv
 
-from tarotai.ai.clients.base import BaseAIClient
+from tarotai.ai.clients.base import BaseChatClient
 from tarotai.core.errors.base import EnrichmentError  # not from .errors
 
 load_dotenv()

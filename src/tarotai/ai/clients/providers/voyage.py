@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from tenacity import retry, stop_after_attempt, wait_exponential
 from voyageai import AsyncClient
 
-from tarotai.ai.clients.base import BaseAIClient
+from tarotai.ai.clients.base import BaseEmbeddingClient
 from tarotai.core.errors.base import EnrichmentError
 
 load_dotenv()
