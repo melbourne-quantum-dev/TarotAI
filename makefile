@@ -31,99 +31,99 @@ RUFF := $(VENV_BIN)/ruff
  # First-time setup                                                                                                                        
  .PHONY: bootstrap                                                                                                                         
  bootstrap:                                                                                                                                
-     @echo "🎴 Bootstrapping $(PROJECT_NAME)..."                                                                                           
-     @chmod +x $(SETUP_SCRIPT)                                                                                                             
-     @$(SETUP_SCRIPT)                                                                                                                      
-     @echo "✨ Bootstrap complete! Run 'make install' for development dependencies."                                                       
+ \t@echo "🎴 Bootstrapping $(PROJECT_NAME)..."                                                                                           
+ \t@chmod +x $(SETUP_SCRIPT)                                                                                                             
+ \t@$(SETUP_SCRIPT)                                                                                                                      
+ \t@echo "✨ Bootstrap complete! Run 'make install' for development dependencies."                                                       
                                                                                                                                            
  # Environment management                                                                                                                  
  .PHONY: clean                                                                                                                             
  clean:                                                                                                                                    
-     @echo "Running project cleanup..."                                                                                                    
-     @echo "Project root: $(shell pwd)"                                                                                                    
-     @echo "🎴 $(PROJECT_NAME)"                                                                                                            
-     rm -rf $(VENV)                                                                                                                        
-     rm -rf .pytest_cache                                                                                                                  
-     rm -rf .mypy_cache                                                                                                                    
-     rm -rf .ruff_cache                                                                                                                    
-     rm -rf htmlcov                                                                                                                        
-     rm -rf .coverage                                                                                                                      
-     rm -rf coverage.xml                                                                                                                   
-     find . -type d -name "__pycache__" -exec rm -rf {} +                                                                                  
-     find . -type f -name "*.pyc" -delete                                                                                                  
+ \t@echo "Running project cleanup..."                                                                                                    
+ \t@echo "Project root: $(shell pwd)"                                                                                                    
+ \t@echo "🎴 $(PROJECT_NAME)"                                                                                                            
+ \trm -rf $(VENV)                                                                                                                        
+ \trm -rf .pytest_cache                                                                                                                  
+ \trm -rf .mypy_cache                                                                                                                    
+ \trm -rf .ruff_cache                                                                                                                    
+ \trm -rf htmlcov                                                                                                                        
+ \trm -rf .coverage                                                                                                                      
+ \trm -rf coverage.xml                                                                                                                   
+ \tfind . -type d -name "__pycache__" -exec rm -rf {} +                                                                                  
+ \tfind . -type f -name "*.pyc" -delete                                                                                                  
                                                                                                                                            
  .PHONY: install                                                                                                                           
  install:                                                                                                                                  
-     @if [ ! -f "$(SETUP_SCRIPT)" ]; then \                                                                                                
-         echo "Error: setup.sh not found"; \                                                                                               
-         exit 1; \                                                                                                                         
-     fi                                                                                                                                    
-     @chmod +x $(SETUP_SCRIPT)                                                                                                             
-     @$(SETUP_SCRIPT)                                                                                                                      
-     $(UV) pip install -e ".[dev,docs]"                                                                                                    
+ \t@if [ ! -f "$(SETUP_SCRIPT)" ]; then \                                                                                                
+ \t\techo "Error: setup.sh not found"; \                                                                                               
+ \t\texit 1; \                                                                                                                         
+ \tfi                                                                                                                                    
+ \t@chmod +x $(SETUP_SCRIPT)                                                                                                             
+ \t@$(SETUP_SCRIPT)                                                                                                                      
+ \t$(UV) pip install -e ".[dev,docs]"                                                                                                    
                                                                                                                                            
  # Testing                                                                                                                                 
  .PHONY: test                                                                                                                              
  test:                                                                                                                                     
-     $(PYTEST) $(TESTS_DIR) -v --cov=$(SRC_DIR) --cov-report=html --cov-report=xml                                                         
+ \t$(PYTEST) $(TESTS_DIR) -v --cov=$(SRC_DIR) --cov-report=html --cov-report=xml                                                         
                                                                                                                                            
  .PHONY: test-card-manager                                                                                                                 
  test-card-manager:                                                                                                                        
-     $(PYTEST) $(TESTS_DIR)/core/test_card_manager.py -vv                                                                                  
+ \t$(PYTEST) $(TESTS_DIR)/core/test_card_manager.py -vv                                                                                  
                                                                                                                                            
  .PHONY: test-reading-input                                                                                                                
  test-reading-input:                                                                                                                       
-     $(PYTEST) $(TESTS_DIR)/core/test_reading_input.py -vv                                                                                 
+ \t$(PYTEST) $(TESTS_DIR)/core/test_reading_input.py -vv                                                                                 
                                                                                                                                            
  .PHONY: test-golden-dawn                                                                                                                  
  test-golden-dawn:                                                                                                                         
-     $(PYTEST) $(TESTS_DIR)/extensions/test_golden_dawn.py -vv                                                                             
+ \t$(PYTEST) $(TESTS_DIR)/extensions/test_golden_dawn.py -vv                                                                             
                                                                                                                                            
  # Code quality                                                                                                                            
  .PHONY: format                                                                                                                            
  format:                                                                                                                                   
-     $(BLACK) $(SRC_DIR) $(TESTS_DIR)                                                                                                      
+ \t$(BLACK) $(SRC_DIR) $(TESTS_DIR)                                                                                                      
                                                                                                                                            
  .PHONY: lint                                                                                                                              
  lint:                                                                                                                                     
-     $(MYPY) $(SRC_DIR) $(TESTS_DIR)                                                                                                       
-     $(RUFF) check $(SRC_DIR) $(TESTS_DIR)                                                                                                 
+ \t$(MYPY) $(SRC_DIR) $(TESTS_DIR)                                                                                                       
+ \t$(RUFF) check $(SRC_DIR) $(TESTS_DIR)                                                                                                 
                                                                                                                                            
  # Data processing                                                                                                                         
  .PHONY: process-data                                                                                                                      
  process-data:                                                                                                                             
-     $(PYTHON) scripts/processing/process_golden_dawn.py                                                                                   
-     $(PYTHON) scripts/processing/generate_card_data.py                                                                                    
+ \t$(PYTHON) scripts/processing/process_golden_dawn.py                                                                                   
+ \t$(PYTHON) scripts/processing/generate_card_data.py                                                                                    
                                                                                                                                            
  # Documentation                                                                                                                           
  .PHONY: docs                                                                                                                              
  docs:                                                                                                                                     
-     mkdocs build                                                                                                                          
+ \tmkdocs build                                                                                                                          
                                                                                                                                            
  .PHONY: serve-docs                                                                                                                        
  serve-docs:                                                                                                                               
-     mkdocs serve                                                                                                                          
+ \tmkdocs serve                                                                                                                          
                                                                                                                                            
  # Development helpers                                                                                                                     
  .PHONY: update-deps                                                                                                                       
  update-deps:                                                                                                                              
-     $(UV) pip compile --upgrade                                                                                                           
-     $(UV) pip sync                                                                                                                        
+ \t$(UV) pip compile --upgrade                                                                                                           
+ \t$(UV) pip sync                                                                                                                        
                                                                                                                                            
  .PHONY: validate                                                                                                                          
  validate:                                                                                                                                 
-     $(PYTHON) scripts/processing/validate_card_schema.py                                                                                  
+ \t$(PYTHON) scripts/processing/validate_card_schema.py                                                                                  
                                                                                                                                            
  # Help                                                                                                                                    
  .PHONY: help                                                                                                                              
  help:                                                                                                                                     
-     @echo "🎴 $(PROJECT_NAME) Makefile commands:"                                                                                         
-     @echo "make bootstrap    - First-time project setup"                                                                                  
-     @echo "make clean       - Clean project files and caches"                                                                             
-     @echo "make install     - Install project dependencies"                                                                               
-     @echo "make test        - Run all tests with coverage"                                                                                
-     @echo "make format      - Format code with black"                                                                                     
-     @echo "make lint        - Run type checking and linting"                                                                              
-     @echo "make process-data- Process Golden Dawn and card data"                                                                          
-     @echo "make docs        - Build documentation"                                                                                        
-     @echo "make update-deps - Update dependencies using uv" 
+ \t@echo "🎴 $(PROJECT_NAME) Makefile commands:"                                                                                         
+ \t@echo "make bootstrap    - First-time project setup"                                                                                  
+ \t@echo "make clean       - Clean project files and caches"                                                                             
+ \t@echo "make install     - Install project dependencies"                                                                               
+ \t@echo "make test        - Run all tests with coverage"                                                                                
+ \t@echo "make format      - Format code with black"                                                                                     
+ \t@echo "make lint        - Run type checking and linting"                                                                              
+ \t@echo "make process-data- Process Golden Dawn and card data"                                                                          
+ \t@echo "make docs        - Build documentation"                                                                                        
+ \t@echo "make update-deps - Update dependencies using uv" 
