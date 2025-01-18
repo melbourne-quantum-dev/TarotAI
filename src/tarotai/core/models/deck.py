@@ -9,8 +9,8 @@ from typing import List, Tuple, Optional, Dict
 import json
 import traceback
 
-from ..models.types import CardMeaning, CardSuit, ErrorSeverity  # Local import since we're in models
-from ..errors import DeckError  # This stays as is - correct relative import
+from tarotai.core.models.types import CardMeaning, CardSuit, ErrorSeverity
+from tarotai.core.errors import DeckError
 
 class TarotDeck:
     """

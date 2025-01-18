@@ -1,13 +1,13 @@
 from typing import List, Tuple, Dict, Optional, Generator, Any, cast
 from abc import ABC, abstractmethod
-from ..models.types import CardMeaning, SpreadType, Reading, QuestionContext
-from ...ai.prompts.manager import MultiStagePrompt, PromptStage
-from ...ai.prompts.templates import PromptTemplateManager
-from .reading import ReadingInput
-from ...config.schemas.config import get_config, AISettings
-from ...ai.clients.unified import UnifiedAIClient
-from ...ai.rag.manager import RAGManager as RAGSystem
-from ...ai.clients.providers.voyage import VoyageClient
+from tarotai.core.models.types import CardMeaning, SpreadType, Reading, QuestionContext
+from tarotai.ai.prompts.manager import MultiStagePrompt, PromptStage
+from tarotai.ai.prompts.templates import PromptTemplateManager
+from tarotai.core.services.reading import ReadingInput
+from tarotai.config.schemas.config import get_config, AISettings
+from tarotai.ai.clients.unified import UnifiedAIClient
+from tarotai.ai.rag.manager import RAGManager as RAGSystem
+from tarotai.ai.clients.providers.voyage import VoyageClient
 import logging
 from pathlib import Path
 

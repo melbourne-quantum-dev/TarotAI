@@ -14,8 +14,8 @@ Last Updated: 2025-01-17
 from datetime import datetime
 import logging
 from typing import Dict, Any, List
-from ...ai.clients.base import BaseAIClient
-from ...ai.clients.providers.voyage import VoyageClient
+from tarotai.ai.clients.base import BaseAIClient
+from tarotai.ai.clients.providers.voyage import VoyageClient
 
 logger = logging.getLogger(__name__)
 

@@ -1,8 +1,8 @@
 from typing import List, Tuple, Dict, Optional, Any
 from pathlib import Path
 from dataclasses import dataclass
-from ..models.types import CardMeaning, CardEmbeddings, ReadingEmbeddings  # Updated import path
-from ..models.deck import TarotDeck
+from tarotai.core.models.types import CardMeaning, CardEmbeddings, ReadingEmbeddings
+from tarotai.core.models.deck import TarotDeck
 
 
 class ReadingInput:
