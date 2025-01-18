@@ -1,5 +1,5 @@
 from typing import List, Dict, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from tarotai.ai.clients.providers.voyage import VoyageClient
 from tarotai.ai.clients.base import BaseAIClient
 from tarotai.core.models.types import CardEmbeddings, ReadingEmbeddings, Reading
@@ -8,8 +8,8 @@ from tarotai.ai.rag.vector_store import VectorStore
 @dataclass
 class KnowledgeBase:
     """Stores and retrieves document embeddings"""
-    documents: List[str] = []
-    embeddings: List[List[float]] = []
+    documents: List[str] = field(default_factory=list)
+    embeddings: List[List[float]] = field(default_factory=list)
     
     def add_documents(self, documents: List[str], embeddings: List[List[float]]):
         """Add documents with their embeddings to the knowledge base"""
