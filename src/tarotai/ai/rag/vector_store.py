@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple
 from annoy import AnnoyIndex
-from ....core.models.types import Reading
+from tarotai.core.models.types import Reading
 
 class VectorStore:
     """Advanced vector storage and retrieval for readings"""
