@@ -1,15 +1,10 @@
+from ..imports import *
 import json
-import os
-from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-
 import httpx
-from dotenv import load_dotenv
+from ..base import BaseChatClient
+from ..registry import ProviderRegistry
 
-from tarotai.ai.clients.base import BaseChatClient
-from tarotai.core.errors.base import EnrichmentError  # not from .errors
-
-load_dotenv()
-
+@ProviderRegistry.register("deepseek")
 class DeepSeekClient(BaseChatClient):
     """Client for interacting with DeepSeek API with V3 features."""
     

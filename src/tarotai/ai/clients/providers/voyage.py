@@ -1,15 +1,10 @@
-import os
-from typing import Any, Dict, List, Optional, Union, AsyncGenerator
-
-from dotenv import load_dotenv
+from ..imports import *
 from tenacity import retry, stop_after_attempt, wait_exponential
 from voyageai import AsyncClient
+from ..base import BaseEmbeddingClient
+from ..registry import ProviderRegistry
 
-from tarotai.ai.clients.base import BaseEmbeddingClient
-from tarotai.core.errors.base import EnrichmentError
-
-load_dotenv()
-
+@ProviderRegistry.register("voyage")
 class VoyageClient(BaseEmbeddingClient):
     """Client for interacting with Voyage AI's embedding API."""
     

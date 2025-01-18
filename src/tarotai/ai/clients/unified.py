@@ -2,10 +2,7 @@
 from typing import Any, Dict, List
 
 from tarotai.config.schemas.config import AISettings
-
-from .providers.claude import ClaudeClient
-from .providers.deepseek_v3 import DeepSeekClient
-from .providers.voyage import VoyageClient
+from .registry import ProviderRegistry
 
 
 class UnifiedAIClient:
@@ -14,23 +11,8 @@ class UnifiedAIClient:
     def __init__(self, config: AISettings):
         """Initialize with configuration settings"""
         self.clients = {
-            "voyage": VoyageClient(
-                api_key=config.api_key
-            ),
-            "deepseek": DeepSeekClient(
-                api_key=config.api_key,
-                model=config.model,
-                temperature=config.temperature,
-                max_tokens=config.max_tokens,
-                timeout=config.timeout
-            ),
-            "anthropic": ClaudeClient(
-                api_key=config.api_key,
-                model=config.model,
-                temperature=config.temperature,
-                max_tokens=config.max_tokens,
-                timeout=config.timeout
-            )
+            name: ProviderRegistry.get_provider(name)(**config.dict())
+            for name in ["voyage", "deepseek", "anthropic"]
         }
         self.default_client = self.clients["deepseek"]
 
