@@ -54,15 +54,14 @@ class TarotCard(BaseModel):
 
     @validator('number')
     def validate_number(cls, v, values):
-        """Validate card number based on suit.
-        
-        Raises:
-            ValueError: If number is invalid for the card's suit
-        """
-        if values.get('suit') == CardSuit.MAJOR and not 0 <= v <= 21:
-            raise ValueError("Major Arcana cards must be numbered 0-21")
-        if values.get('suit') != CardSuit.MAJOR and not 1 <= v <= 14:
-            raise ValueError("Minor Arcana cards must be numbered 1-14")
+        """Validate card number based on suit."""
+        suit = values.get('suit')
+        if suit == CardSuit.MAJOR:
+            if not 0 <= v <= 21:
+                raise ValueError("Major Arcana cards must be numbered 0-21")
+        elif suit is not None:  # Minor Arcana
+            if not 1 <= v <= 14:
+                raise ValueError("Minor Arcana cards must be numbered 1-14")
         return v
 
     def to_dict(self) -> Dict[str, Any]:

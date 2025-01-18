@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from enum import Enum, auto
 from typing import Dict, List, Optional
@@ -52,6 +53,8 @@ class CardMeaning(BaseModel):
     planet: Optional[str] = None
 
 class Reading(BaseModel):
+    """Represents a tarot reading"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     context: QuestionContext
     reading_type: ReadingType
     spread_type: SpreadType
@@ -59,6 +62,7 @@ class Reading(BaseModel):
     is_reversed: List[bool]
     timestamp: datetime = Field(default_factory=datetime.now)
     interpretation: Optional[str] = None
+    model: Optional[str] = None
 
 class UserProfile(BaseModel):
     id: str

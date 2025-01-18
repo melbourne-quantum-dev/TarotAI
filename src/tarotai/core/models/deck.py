@@ -61,6 +61,9 @@ class TarotDeck:
         try:
             with open(cards_data, 'r') as f:
                 cards_raw = json.load(f)
+                # Ensure we're loading the 'cards' array from the JSON
+                if isinstance(cards_raw, dict) and 'cards' in cards_raw:
+                    return [CardMeaning(**card) for card in cards_raw['cards']]
                 return [CardMeaning(**card) for card in cards_raw]
         except (json.JSONDecodeError, FileNotFoundError) as e:
             raise DeckError(

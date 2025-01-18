@@ -7,7 +7,7 @@ try:
     from importlib.metadata import version
     __version__ = version("tarotai")
 except Exception:
-    __version__ = "2.0.0"
+    __version__ = "2.1.0"  # Update this to match your desired version
 
 # Core imports
 from tarotai.core.models import SpreadType, TarotCard, TarotDeck
