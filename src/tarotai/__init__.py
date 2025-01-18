@@ -1,7 +1,6 @@
 """
 TarotAI - Neural-Enhanced Tarot Reading System
 """
-from pathlib import Path
 
 # Package version handling
 try:

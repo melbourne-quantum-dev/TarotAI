@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 from pathlib import Path
+from typing import cast
 FILES_TO_MOVE = [
     'card_processor.py',
     'interpreter.py',
