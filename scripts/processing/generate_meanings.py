@@ -165,18 +165,47 @@ def save_cards(cards: List[Dict[str, Any]], file_path: str) -> None:
     with open(file_path, "w") as f:
         json.dump({"cards": cards}, f, indent=2)
 
-async def process_all_cards():
-    # Verify required files exist
-    golden_dawn_path = Path("data/processed/golden_dawn/golden_dawn_knowledge.json")
-    if not golden_dawn_path.exists():
-        raise FileNotFoundError(
-            f"Golden Dawn knowledge file not found at {golden_dawn_path}. "
-            "You must run process_golden_dawn.py first to create this file."
-        )
+DEFAULT_KNOWLEDGE = {
+    "reading_methods": {
+        "Celtic Cross": {
+            "description": "A classic 10-card spread for comprehensive readings.",
+            "steps": ["Shuffle", "Draw 10 cards", "Interpret positions"],
+            "positions": ["Present", "Challenge", "Past", "Future", "Above", "Below", "Advice", "External", "Hopes", "Outcome"]
+        }
+    },
+    "historical_approaches": {
+        "Waite": {
+            "era": "Early 20th Century",
+            "approach": "Symbolic and intuitive",
+            "key_insights": ["Focus on imagery", "Blend of esoteric traditions"]
+        }
+    },
+    "lore": {
+        "Major Arcana": {
+            "topic": "Major Arcana",
+            "description": "The 22 cards representing life's spiritual journey.",
+            "symbolism": ["Fool's Journey", "Archetypes"],
+            "references": ["Book T", "Golden Dawn teachings"]
+        }
+    }
+}
 
+async def process_all_cards(skip_pdf_processing: bool = False):
     # Initialize components
     ai_client = DeepSeekClient()
-    golden_dawn = GoldenDawnKnowledgeBase(str(golden_dawn_path))
+    
+    # Load Golden Dawn knowledge
+    if skip_pdf_processing:
+        print("Using default knowledge base")
+        golden_dawn = DEFAULT_KNOWLEDGE
+    else:
+        golden_dawn_path = Path("data/processed/golden_dawn/golden_dawn_knowledge.json")
+        if not golden_dawn_path.exists():
+            raise FileNotFoundError(
+                f"Golden Dawn knowledge file not found at {golden_dawn_path}. "
+                "You must run process_golden_dawn.py first to create this file."
+            )
+        golden_dawn = GoldenDawnKnowledgeBase(str(golden_dawn_path))
     
     # Load cards
     with open("data/cards_ordered.json") as f:
@@ -215,7 +244,16 @@ async def process_all_cards():
             json.dump({"cards": cards}, f, indent=2)
 
 async def main():
-    await process_all_cards()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--skip-pdf-processing",
+        action="store_true",
+        help="Skip PDF processing and use pre-processed data"
+    )
+    args = parser.parse_args()
+    
+    await process_all_cards(skip_pdf_processing=args.skip_pdf_processing)
 
 if __name__ == "__main__":
     asyncio.run(main())

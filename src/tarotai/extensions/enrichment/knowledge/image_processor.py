@@ -77,11 +77,8 @@ class GoldenDawnImageProcessor:
                 }
             ]
             
-            embedding = await self.voyage_client.generate_multimodal_embedding(
-                content,
-                image_quality="medium",
-                max_image_size=1024
-            )
+            # Generate embedding without unsupported parameters
+            embedding = await self.voyage_client.generate_multimodal_embedding(content)
             
             embeddings[img_key] = {
                 "embedding": embedding,
