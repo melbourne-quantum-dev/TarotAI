@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 
 import httpx
 from dotenv import load_dotenv
@@ -235,6 +235,25 @@ class DeepSeekClient(BaseAIClient):
         - Clarity (0-1)
         """
         return await self.json_prompt(evaluation_prompt)
+
+    async def stream_response(self, prompt: str, **kwargs) -> AsyncGenerator[str, None]:
+        """Stream response from DeepSeek API"""
+        try:
+            async with self.session.stream(
+                "POST",
+                f"{self.base_url}/chat/completions",
+                json={
+                    "model": self.model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "stream": True,
+                    **kwargs
+                }
+            ) as response:
+                async for chunk in response.aiter_text():
+                    if chunk:
+                        yield chunk
+        except Exception as e:
+            raise EnrichmentError(f"DeepSeek streaming failed: {str(e)}")
 
     async def generate_meaning_from_correspondences(
         self,
