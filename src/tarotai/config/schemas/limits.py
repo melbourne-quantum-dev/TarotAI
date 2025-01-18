@@ -1,4 +1,7 @@
-from pydantic import BaseModel, Field
+try:
+    from pydantic.v1 import BaseModel, Field
+except ImportError:
+    from pydantic import BaseModel, Field
 
 class InterpretationLimits(BaseModel):
     """Limits for different types of tarot interpretations

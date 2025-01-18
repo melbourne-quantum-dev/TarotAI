@@ -1,11 +1,15 @@
 try:
-    from pydantic import Field, validator, root_validator, ValidationError
+    from pydantic.v1 import Field, validator, root_validator, ValidationError
     from pydantic_settings import BaseSettings
-except ImportError as e:
-    raise ImportError(
-        "Required packages not found. Please install with: "
-        "pip install pydantic>=2.10.5 pydantic-settings>=2.2.1"
-    ) from e
+except ImportError:
+    try:
+        from pydantic import Field, validator, root_validator, ValidationError
+        from pydantic_settings import BaseSettings
+    except ImportError as e:
+        raise ImportError(
+            "Required packages not found. Please install with: "
+            "pip install pydantic>=2.10.5 pydantic-settings>=2.2.1"
+        ) from e
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from tarotai.core.errors import ConfigError
