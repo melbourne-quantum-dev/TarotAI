@@ -1,7 +1,7 @@
 from typing import List, Dict, Optional
 from dataclasses import dataclass
-from ...core.clients import VoyageClient
-from ...core.clients.base import BaseAIClient
+from tarotai.ai.clients.providers.voyage import VoyageClient
+from tarotai.ai.clients.base import BaseAIClient
 
 @dataclass
 class KnowledgeBase:

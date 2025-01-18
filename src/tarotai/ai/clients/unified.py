@@ -1,10 +1,10 @@
 from typing import Dict, Any, Optional, List
-from ...config import AISettings
-from .base import BaseAIClient
-from ...ai.clients.providers.voyage import VoyageClient
-from .providers.deepseek import DeepSeekClient
-from .providers.anthropic import AnthropicClient
-from .providers.openai import OpenAIClient
+from tarotai.config.schemas.config import AISettings
+from tarotai.ai.clients.base import BaseAIClient
+from tarotai.ai.clients.providers.voyage import VoyageClient
+from tarotai.ai.clients.providers.deepseek import DeepSeekClient
+from tarotai.ai.clients.providers.anthropic import AnthropicClient
+from tarotai.ai.clients.providers.openai import OpenAIClient
 
 class UnifiedAIClient:
     """Unified interface for multiple AI providers"""
