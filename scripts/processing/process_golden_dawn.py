@@ -1,146 +1,76 @@
-#!/usr/bin/env python3
-"""
-Golden Dawn Knowledge Processing Script
-Extracts and structures knowledge from the Golden Dawn PDF source.
-"""
-import asyncio
-import json
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, Optional
-
-# AI client imports
-from tarotai.ai.clients import initialize_ai_clients
-from tarotai.config import get_config
-from tarotai.core.errors import ProcessingError
-
-# Core imports
-from tarotai.core.logging import setup_logging
-
-# Enrichment imports
-from tarotai.extensions.enrichment.knowledge.golden_dawn import (
-    extract_pdf_content,
-    save_knowledge
-)
-from tarotai.extensions.enrichment.knowledge.image_processor import (
-    GoldenDawnImageProcessor,
-)
-
-# Setup logging
-logger = setup_logging()
-
-async def enhanced_process_golden_dawn(
-    pdf_path: Path,
-    ai_clients: Dict[str, Any],
-    output_dir: Optional[Path] = None
-) -> Dict[str, Any]:
-    """
-    Enhanced processing pipeline for Golden Dawn knowledge extraction.
-    """
-    try:
-        logger.info(f"Starting enhanced Golden Dawn processing: {pdf_path}")
-        
-        if output_dir is None:
-            output_dir = pdf_path.parent / "processed"
-            output_dir.mkdir(exist_ok=True)
-            
-        # Extract textual knowledge
-        logger.info("Extracting textual knowledge...")
-        knowledge = extract_pdf_content(pdf_path)
-        
-        # Process each card with complete schema
-        for card in knowledge.cards:
-            if not card.get("golden_dawn"):
-                card["golden_dawn"] = {
-                    "title": "",
-                    "symbolism": [],
-                    "reading_methods": [],
-                    "reversed_notes": "",
-                    "shadow_aspects": []
-                }
-            
-            if not card.get("embeddings"):
-                card["embeddings"] = {
-                    "upright": [],
-                    "reversed": []
-                }
-                
-            if not card.get("metadata"):
-                card["metadata"] = {
-                    "last_updated": datetime.now().isoformat(),
-                    "source": "generated",
-                    "confidence": 0.0
-                }
-        
-        # Save knowledge base
-        knowledge_path = output_dir / "golden_dawn_knowledge.json"
-        save_knowledge(knowledge, knowledge_path)
-        logger.info(f"Saved knowledge base to {knowledge_path}")
-        
-        # Process images if Voyage client is available
-        image_results = None
-        if "voyage" in ai_clients:
-            logger.info("Processing images with Voyage...")
-            image_processor = GoldenDawnImageProcessor(ai_clients["voyage"])
-            image_results = await image_processor.process_pdf_images(
-                pdf_path,
-                output_dir
-            )
-            logger.info(f"Processed {image_results['num_images']} images")
-        else:
-            logger.warning("Voyage client not available - skipping image processing")
-        
-        # Combine results
-        output = {
-            "knowledge": knowledge.dict(),
-            "images": image_results,
-            "metadata": {
-                "processed_at": datetime.now().isoformat(),
-                "version": "2.1.0",
-                "pdf_path": str(pdf_path),
-                "output_dir": str(output_dir)
-            }
-        }
-        
-        # Save combined results
-        results_path = output_dir / "golden_dawn_results.json"
-        with open(results_path, "w") as f:
-            json.dump(output, f, indent=2)
-        logger.info(f"Saved combined results to {results_path}")
-        
-        return output
-        
-    except Exception as e:
-        logger.error(f"Error in enhanced processing: {str(e)}")
-        raise ProcessingError(f"Golden Dawn processing failed: {str(e)}")
-
-async def main():
-    """Main entry point"""
-    try:
-        # Load configuration
-        config = get_config()
-        
-        # Initialize AI clients
-        ai_clients = await initialize_ai_clients()
-        
-        # Set paths
-        pdf_path = Path(config.data_dir) / "sources" / "golden_dawn.pdf"
-        output_dir = Path(config.data_dir) / "processed" / "golden_dawn"
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Process Golden Dawn knowledge
-        results = await enhanced_process_golden_dawn(
-            pdf_path=pdf_path,
-            ai_clients=ai_clients,
-            output_dir=output_dir
-        )
-        
-        logger.info("Golden Dawn processing completed successfully")
-        return results
-        
-    except Exception as e:
-        logger.error(f"Processing failed: {str(e)}")
-        raise
-
-if __name__ == "__main__":
-    asyncio.run(main())
+# scripts/processing/process_golden_dawn.py                                                                                      
+ import json                                                                                                                      
+ from pathlib import Path                                                                                                         
+ from typing import Dict, List, Optional                                                                                          
+                                                                                                                                  
+ from dotenv import load_dotenv                                                                                                   
+ from PyPDF2 import PdfReader                                                                                                     
+ from tqdm import tqdm                                                                                                            
+                                                                                                                                  
+ from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (                                                            
+     GoldenDawnKnowledge,                                                                                                         
+     GoldenDawnKnowledgeBase,                                                                                                     
+     GoldenDawnReadingMethod,                                                                                                     
+     HistoricalApproach,                                                                                                          
+     GoldenDawnLore                                                                                                               
+ )                                                                                                                                
+ from src.tarotai.ai.clients.providers.voyage import VoyageClient                                                                 
+                                                                                                                                  
+ load_dotenv()                                                                                                                    
+                                                                                                                                  
+ def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str, Path]:                                                
+     """Process the Golden Dawn PDF and save structured knowledge."""                                                             
+     if not pdf_path.exists():                                                                                                    
+         raise FileNotFoundError(f"Golden Dawn PDF not found at {pdf_path}")                                                      
+                                                                                                                                  
+     # Initialize AI clients                                                                                                      
+     voyage_client = VoyageClient()                                                                                               
+                                                                                                                                  
+     # Create output directory                                                                                                    
+     output_dir.mkdir(parents=True, exist_ok=True)                                                                                
+                                                                                                                                  
+     # Initialize knowledge base                                                                                                  
+     knowledge_base = GoldenDawnKnowledgeBase(str(pdf_path), voyage_client)                                                       
+                                                                                                                                  
+     # Save processed data                                                                                                        
+     output_files = {                                                                                                             
+         "knowledge": output_dir / "golden_dawn_knowledge.json",                                                                  
+         "images": output_dir / "golden_dawn_images.json",                                                                        
+         "embeddings": output_dir / "golden_dawn_embeddings.json"                                                                 
+     }                                                                                                                            
+                                                                                                                                  
+     # Save knowledge                                                                                                             
+     with open(output_files["knowledge"], "w") as f:                                                                              
+         json.dump(knowledge_base.knowledge.dict(), f, indent=2)                                                                  
+                                                                                                                                  
+     # Save image data if available                                                                                               
+     if hasattr(knowledge_base, "image_embeddings"):                                                                              
+         with open(output_files["images"], "w") as f:                                                                             
+             json.dump(knowledge_base.image_embeddings, f, indent=2)                                                              
+                                                                                                                                  
+     # Save embeddings                                                                                                            
+     with open(output_files["embeddings"], "w") as f:                                                                             
+         json.dump({                                                                                                              
+             "text_embeddings": knowledge_base.embeddings,                                                                        
+             "version": knowledge_base.version                                                                                    
+         }, f, indent=2)                                                                                                          
+                                                                                                                                  
+     return output_files                                                                                                          
+                                                                                                                                  
+ def main():                                                                                                                      
+     # Paths                                                                                                                      
+     pdf_path = Path("data/golden_dawn.pdf")                                                                                      
+     output_dir = Path("data/processed/golden_dawn")                                                                              
+                                                                                                                                  
+     print(f"Processing Golden Dawn PDF at {pdf_path}...")                                                                        
+     try:                                                                                                                         
+         output_files = process_golden_dawn_pdf(pdf_path, output_dir)                                                             
+         print("\nProcessing complete! Output files:")                                                                            
+         for name, path in output_files.items():                                                                                  
+             print(f"- {name}: {path}")                                                                                           
+     except Exception as e:                                                                                                       
+         print(f"\nError processing PDF: {str(e)}")                                                                               
+         raise                                                                                                                    
+                                                                                                                                  
+ if __name__ == "__main__":                                                                                                       
+     main()                      
