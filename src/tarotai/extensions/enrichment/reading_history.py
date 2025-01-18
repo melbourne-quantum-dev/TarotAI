@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional, cast
 import json
-from tarotai.core.types import Reading, CardMeaning, SpreadPosition
+from tarotai.core.types import Reading, SpreadPosition
 
 class ReadingHistoryManager:
     def __init__(self, history_file: Path = Path("data/readings.json")):
