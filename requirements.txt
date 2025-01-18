@@ -1,3 +1,4 @@
+# Requires Python 3.11 or higher
 # Core Dependencies
 annoy>=1.17.3
 PyMuPDF>=1.23.0

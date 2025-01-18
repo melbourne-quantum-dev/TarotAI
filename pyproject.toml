@@ -14,7 +14,7 @@ authors = [
     { name = "Your Name", email = "your.email@example.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.11,<3.13"
 
 dependencies = [
     # Core AI/ML Stack
@@ -92,10 +92,11 @@ tarotai = [
 ]
 
 [tool.uv]
+resolution = "highest"
+python = ">=3.11"
 cache-dir = ".uv_cache"
 allow-prereleases = false
 strict = true
-resolution = "highest"
 
 [tool.uv.sources]
 pypi = { url = "https://pypi.org/simple" }

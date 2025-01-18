@@ -64,8 +64,8 @@ setup_environment() {
 
     # Check Python version
     PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-    if [[ "$PYTHON_VERSION" < "3.12" ]]; then
-        error "Python 3.12 or higher is required. Found $PYTHON_VERSION"
+    if [[ "$PYTHON_VERSION" < "3.11" ]]; then
+        error "Python 3.11 or higher is required. Found $PYTHON_VERSION"
     fi
 
     if [ -d ".venv" ]; then
