@@ -11,18 +11,20 @@ except Exception:
     __version__ = "2.0.0"
 
 # Core imports
-from .core import (
+from tarotai.core.models import (
     TarotCard,
     TarotDeck,
     ReadingInput,
-    SpreadType,
+    SpreadType
+)
+from tarotai.core.errors import (
     ErrorSeverity,
     TarotAIError,
     ProcessingError,
     EnrichmentError,
-    EmbeddingError,
-    setup_logging
+    EmbeddingError
 )
+from tarotai.core.services import setup_logging
 
 from .core.services import TarotInterpreter
 
@@ -41,7 +43,7 @@ from .cli import app
 from .config import get_config
 
 __all__ = [
-    # Core
+    # Core Models
     'TarotCard',
     'TarotDeck',
     'ReadingInput',
@@ -56,6 +58,7 @@ __all__ = [
     
     # Services
     'TarotInterpreter',
+    'setup_logging',
     
     # AI
     'UnifiedAIClient',
@@ -66,9 +69,6 @@ __all__ = [
     # CLI and Config
     'app',
     'get_config',
-    
-    # Logging
-    'setup_logging',
     
     # Version
     '__version__'
