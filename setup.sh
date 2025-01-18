@@ -52,13 +52,16 @@ check_python_dependencies() {
 
 setup_environment() {
     if [ -d ".venv" ]; then
-        log "Existing virtual environment found"
-        source .venv/bin/activate || error "Failed to activate existing environment"
-    else
-        log "Creating fresh virtual environment..."
-        uv venv .venv || error "Failed to create virtual environment"
-        source .venv/bin/activate || error "Failed to activate environment"
+        log "Removing existing virtual environment..."
+        rm -rf .venv
     fi
+    
+    log "Creating fresh virtual environment..."
+    uv venv .venv || error "Failed to create virtual environment"
+    source .venv/bin/activate || error "Failed to activate environment"
+    
+    # Ensure pip is up-to-date
+    python -m pip install --upgrade pip || error "Failed to update pip"
 }
 
 # Configure uv environment
@@ -82,6 +85,16 @@ install_dependencies() {
     # Purge old cache
     log "Clearing old cache..."
     uv pip cache purge
+    
+    # Install core dependencies manually first
+    log "Installing core dependencies..."
+    uv pip install --strict \
+        PyPDF2>=3.0.0 \
+        numpy>=1.26.0 \
+        pydantic>=2.10.5 \
+        voyageai>=0.3.0 || {
+        error "Failed to install core dependencies"
+    }
     
     # Install package with modern resolver
     echo "Installing package in editable mode with modern resolver..."

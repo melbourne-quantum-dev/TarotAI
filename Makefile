@@ -16,7 +16,11 @@ all: check
 # Install dependencies
 install:
 	@echo "Installing dependencies with modern resolver..."
-	@export UV_INDEX_URL="https://pypi.org/simple" && \
+	@if [ ! -d ".venv" ]; then \
+		uv venv .venv; \
+	fi
+	@source .venv/bin/activate && \
+	 export UV_INDEX_URL="https://pypi.org/simple" && \
 	 export UV_CACHE_DIR=".uv_cache" && \
 	 export UV_PIP_VERSION=">=23.3.2" && \
 	 ./setup.sh

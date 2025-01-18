@@ -93,7 +93,6 @@ tarotai = [
 
 [tool.uv]
 cache-dir = ".uv_cache"
-prefer-binary = true
 allow-prereleases = false
 strict = true
 resolution = "highest"
