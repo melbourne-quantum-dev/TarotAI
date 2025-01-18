@@ -170,6 +170,66 @@ class GoldenDawnKnowledgeBase:
             ],
             "max_reading_methods": 5
         }
+
+    def _generate_embeddings(self) -> List[Dict]:
+        """Generate embeddings for all sections"""
+        embeddings = []
+        voyage_key = os.getenv("VOYAGE_API_KEY")
+        if not voyage_key:
+            raise EnrichmentError("Voyage API key not found in environment variables.")
+            
+        # Generate embeddings for reading methods
+        for method_name, method in self.knowledge.reading_methods.items():
+            content = f"{method_name}: {method.description}"
+            embedding = get_embedding(
+                content,
+                model="voyage-2", 
+                api_key=voyage_key
+            )
+            embeddings.append({
+                "content": content,
+                "embedding": embedding,
+                "metadata": {
+                    "type": "reading_method",
+                    "name": method_name
+                }
+            })
+            
+        # Generate embeddings for historical approaches
+        for approach_name, approach in self.knowledge.historical_approaches.items():
+            content = f"{approach_name}: {approach.approach}"
+            embedding = get_embedding(
+                content,
+                model="voyage-2",
+                api_key=voyage_key
+            )
+            embeddings.append({
+                "content": content,
+                "embedding": embedding,
+                "metadata": {
+                    "type": "historical_approach",
+                    "name": approach_name
+                }
+            })
+            
+        # Generate embeddings for lore
+        for lore_name, lore in self.knowledge.lore.items():
+            content = f"{lore_name}: {lore.description}"
+            embedding = get_embedding(
+                content,
+                model="voyage-2",
+                api_key=voyage_key
+            )
+            embeddings.append({
+                "content": content,
+                "embedding": embedding,
+                "metadata": {
+                    "type": "lore",
+                    "name": lore_name
+                }
+            })
+            
+        return embeddings
     
     def _create_card_index(self) -> Dict[str, Dict]:
         """Create a quick lookup index for card information"""
@@ -205,26 +265,6 @@ def load_knowledge(input_path: Path) -> GoldenDawnKnowledge:
     with open(input_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return GoldenDawnKnowledge(**data)
-        
-    def _generate_embeddings(self) -> List[Dict]:
-        """Generate embeddings for all sections"""
-        embeddings = []
-        voyage_key = os.getenv("VOYAGE_API_KEY")
-        if not voyage_key:
-            raise EnrichmentError("Voyage API key not found in environment variables.")
-            
-        for section in self.sections:
-            embedding = get_embedding(
-                section['content'],
-                model="voyage-2",
-                api_key=voyage_key
-            )
-            embeddings.append({
-                "content": section['content'],
-                "embedding": embedding,
-                "metadata": section['metadata']
-            })
-        return embeddings
 
     def find_relevant_sections(self, query_embedding: List[float], top_k: int = 3) -> List[Dict]:
         """Find most relevant sections using cosine similarity."""
