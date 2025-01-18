@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from tarotai.core.models.types import CardEmbeddings, CardMeaning
+from tarotai.extensions.enrichment.knowledge.golden_dawn import GoldenDawnKnowledgeBase
 
 
 @dataclass
