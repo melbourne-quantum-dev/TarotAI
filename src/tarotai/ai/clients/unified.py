@@ -15,24 +15,24 @@ class UnifiedAIClient:
         """Initialize with configuration settings"""
         self.clients = {
             "voyage": VoyageClient(
-                api_key=config.ai_providers["voyage"].api_key
+                api_key=config.api_key
             ),
             "deepseek": DeepSeekClient(
-                api_key=config.ai_providers["deepseek"].api_key,
-                model=config.ai_providers["deepseek"].model,
-                temperature=config.ai_providers["deepseek"].temperature,
-                max_tokens=config.ai_providers["deepseek"].max_tokens,
-                timeout=config.ai_providers["deepseek"].timeout
+                api_key=config.api_key,
+                model=config.model,
+                temperature=config.temperature,
+                max_tokens=config.max_tokens,
+                timeout=config.timeout
             ),
             "anthropic": ClaudeClient(
-                api_key=config.ai_providers["anthropic"].api_key,
-                model=config.ai_providers["anthropic"].model,
-                temperature=config.ai_providers["anthropic"].temperature,
-                max_tokens=config.ai_providers["anthropic"].max_tokens,
-                timeout=config.ai_providers["anthropic"].timeout
+                api_key=config.api_key,
+                model=config.model,
+                temperature=config.temperature,
+                max_tokens=config.max_tokens,
+                timeout=config.timeout
             )
         }
-        self.default_client = self.clients[config.default_provider]
+        self.default_client = self.clients["deepseek"]
 
     async def generate_response(self, prompt: str, **kwargs) -> Dict[str, Any]:
         """Generate a response using the default client"""
