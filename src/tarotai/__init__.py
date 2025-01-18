@@ -26,7 +26,7 @@ from tarotai.core.errors import (
 )
 from tarotai.core.services import setup_logging
 
-from .core.services import TarotInterpreter
+from tarotai.core.services import TarotInterpreter
 
 # AI imports
 from .ai import (
