@@ -141,13 +141,84 @@ verify_api_keys() {
     success "API keys verified"
 }
 
+verify_setup() {
+    log "Verifying complete setup..."
+    check_data_structure
+    check_python_dependencies
+    setup_environment
+    install_dependencies
+    verify_api_keys
+    verify_dependencies
+    success "Setup verification complete!"
+}
+
+clean_setup() {
+    log "Cleaning up setup..."
+    if [ -d ".venv" ]; then
+        log "Removing virtual environment..."
+        rm -rf .venv
+    fi
+    if [ -d ".uv_cache" ]; then
+        log "Clearing UV cache..."
+        rm -rf .uv_cache
+    fi
+    success "Cleanup complete!"
+}
+
+print_help() {
+    echo "Usage: setup.sh [OPTION]"
+    echo
+    echo "Options:"
+    echo "  --verify-keys    Verify required API keys"
+    echo "  --verify-deps    Verify dependency integrity"
+    echo "  --clean          Clean up existing setup"
+    echo "  --verify         Verify complete setup"
+    echo "  -h, --help       Show this help message"
+    echo
+    echo "Running without options performs full setup"
+}
+
 main() {
+    local action="full"
+    
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --verify-keys)
+                verify_api_keys
+                exit 0
+                ;;
+            --verify-deps)
+                verify_dependencies
+                exit 0
+                ;;
+            --clean)
+                clean_setup
+                exit 0
+                ;;
+            --verify)
+                verify_setup
+                exit 0
+                ;;
+            -h|--help)
+                print_help
+                exit 0
+                ;;
+            *)
+                error "Unknown argument: $1"
+                ;;
+        esac
+        shift
+    done
+
+    # Default full setup
     log "Starting TarotAI setup for data processing..."
     check_data_structure
     check_python_dependencies
     setup_environment
     install_dependencies
     verify_api_keys
+    verify_dependencies
     success "Setup complete! Ready for data processing 🎴"
     echo
     echo "Next steps:"
