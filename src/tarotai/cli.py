@@ -1,6 +1,6 @@
 import typer
 import questionary
-from typing import Optional, Callable, List
+from typing import Optional, List
 from pathlib import Path
 from rich.panel import Panel
 

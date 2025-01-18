@@ -1,9 +1,7 @@
-from typing import List, Dict, Optional
+from typing import List, Dict
 from dataclasses import dataclass, field
 from tarotai.ai.clients.providers.voyage import VoyageClient
 from tarotai.ai.clients.base import BaseAIClient
-from tarotai.core.models.types import CardEmbeddings, ReadingEmbeddings, Reading
-from tarotai.ai.rag.vector_store import VectorStore
 
 @dataclass
 class KnowledgeBase:

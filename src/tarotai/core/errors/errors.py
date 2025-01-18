@@ -1,5 +1,4 @@
 from typing import Optional, Dict, Any
-from pydantic import BaseModel
 from fastapi import HTTPException
 from datetime import datetime
 from ..models.types import ErrorSeverity

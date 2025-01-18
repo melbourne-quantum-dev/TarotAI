@@ -1,15 +1,11 @@
 from dataclasses import dataclass
-from pathlib import Path
-from typing import List, Tuple, Dict, Optional
+from typing import List, Optional
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
 from rich.status import Status
 from rich.align import Align
 from rich.columns import Columns
 from rich.text import Text
-from rich.box import DOUBLE
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from tarotai.core.models.types import Reading
 from tarotai.config.schemas.config import UnifiedSettings as Settings

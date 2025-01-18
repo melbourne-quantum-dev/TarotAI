@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, AsyncGenerator
+from typing import Dict, List, Any, AsyncGenerator
 import logging
 
 class BaseAIClient(ABC):

@@ -12,7 +12,6 @@ from typing import Dict, Any, Optional
 # Core imports
 from tarotai.core.logging import setup_logging
 from tarotai.core.errors import ProcessingError
-from tarotai.core.services import CardProcessor
 from tarotai.config import get_config
 
 # AI client imports

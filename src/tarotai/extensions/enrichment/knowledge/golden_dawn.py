@@ -1,5 +1,5 @@
 from PyPDF2 import PdfReader
-from typing import List, Dict, Optional, Type
+from typing import List, Dict, Optional
 import os
 import json
 from pathlib import Path

@@ -9,15 +9,12 @@ try:
     from pydantic import (
         BaseModel,
         Field, 
-        ValidationError, 
-        ConfigDict,
-        model_validator
+        ValidationError
     )
     from pydantic_settings import (
         BaseSettings, 
         SettingsConfigDict
     )
-    from pydantic.types import SecretStr
 except ImportError as e:
     raise ImportError(
         "Failed to import Pydantic V2 components. "

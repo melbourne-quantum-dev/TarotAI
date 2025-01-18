@@ -5,17 +5,13 @@ Handles document storage, retrieval, and generation of responses using
 both local knowledge and AI models.
 """
 
-from typing import List, Dict, Optional, Any
-from pathlib import Path
+from typing import List, Dict, Any
 import logging
 from dataclasses import dataclass
 from tarotai.config.schemas.config import get_config
 from tarotai.ai.embeddings.manager import EmbeddingManager
 from tarotai.ai.embeddings.storage import EmbeddingStorage
 from tarotai.ai.clients.base import BaseAIClient
-from tarotai.core.models.types import Reading
-from tarotai.ai.rag.generator import RAGSystem
-from tarotai.ai.rag.vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,6 @@
 """
 Script to fix imports after refactoring
 """
-import os
 import re
 from pathlib import Path
 from typing import Set, Tuple

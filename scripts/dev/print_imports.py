@@ -1,6 +1,6 @@
 import ast
 from pathlib import Path
-from typing import Set, Dict, List
+from typing import Set, Dict
 import re
 
 def get_package_name(import_name: str) -> str:

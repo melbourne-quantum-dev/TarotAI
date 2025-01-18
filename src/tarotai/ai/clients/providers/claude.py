@@ -4,7 +4,6 @@ from typing import Dict, Any, List, Optional, AsyncGenerator
 from dotenv import load_dotenv
 from tarotai.core.errors.errors import EnrichmentError
 from tarotai.ai.clients.base import BaseAIClient
-from tarotai.core.models.types import CardEmbeddings, ReadingEmbeddings
 
 load_dotenv()
 

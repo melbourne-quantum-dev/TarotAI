@@ -1,8 +1,7 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 import numpy as np
 from dataclasses import dataclass
 import logging
-from tarotai.core.models.types import CardEmbeddings, ReadingEmbeddings
 
 logger = logging.getLogger(__name__)
 

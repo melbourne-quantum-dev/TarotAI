@@ -1,7 +1,6 @@
 import json
 import asyncio
 from datetime import datetime
-from pathlib import Path
 from tarotai.extensions.enrichment.clients import DeepSeekClient, VoyageClient
 from tarotai.extensions.enrichment.knowledge.golden_dawn import GoldenDawnKnowledgeBase
 from typing import Dict, Any, List

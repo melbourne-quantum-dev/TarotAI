@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 from tarotai.config.schemas.config import AISettings
 from tarotai.ai.clients.base import BaseAIClient
 from tarotai.ai.clients.providers.voyage import VoyageClient
