@@ -23,15 +23,22 @@ load_dotenv()
 async def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str, Path]:
     """Process the Golden Dawn PDF and save structured knowledge.
 
+    This must be run before generate_meanings.py as it creates the required
+    knowledge base files that are dependencies for card interpretation.
+
     Args:
         pdf_path: Path to the Golden Dawn PDF file.
         output_dir: Directory to save processed files.
 
     Returns:
-        Dictionary of output file paths.
+        Dictionary of output file paths with keys:
+        - knowledge: Path to golden_dawn_knowledge.json
+        - images: Path to golden_dawn_images.json
+        - embeddings: Path to golden_dawn_embeddings.json
 
     Raises:
         FileNotFoundError: If the PDF file is not found.
+        RuntimeError: If processing fails at any stage
     """
     if not pdf_path.exists():
         raise FileNotFoundError(f"Golden Dawn PDF not found at {pdf_path}")
@@ -89,19 +96,30 @@ async def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str,
 
 
 async def main():
-    """Main function for processing Golden Dawn PDF."""
+    """Main function for processing Golden Dawn PDF.
+    
+    This must be run before generate_meanings.py to create the required
+    knowledge base files.
+    """
     # Paths
     pdf_path = Path("data/golden_dawn.pdf")
     output_dir = Path("data/processed/golden_dawn")
 
     print(f"Processing Golden Dawn PDF at {pdf_path}...")
+    print("This process may take several minutes depending on the PDF size.")
+    
     try:
-        output_files = process_golden_dawn_pdf(pdf_path, output_dir)
-        print("\nProcessing complete! Output files:")
+        output_files = await process_golden_dawn_pdf(pdf_path, output_dir)
+        print("\nProcessing complete! Output files created:")
         for name, path in output_files.items():
             print(f"- {name}: {path}")
+        print("\nYou can now run generate_meanings.py to create card interpretations.")
     except Exception as e:
         print(f"\nError processing PDF: {str(e)}")
+        print("Please ensure:")
+        print("1. The PDF exists at data/golden_dawn.pdf")
+        print("2. You have sufficient disk space")
+        print("3. Your environment variables are properly configured")
         raise
 
 

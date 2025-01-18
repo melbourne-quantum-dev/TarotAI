@@ -165,9 +165,17 @@ def save_cards(cards: List[Dict[str, Any]], file_path: str) -> None:
         json.dump({"cards": cards}, f, indent=2)
 
 async def process_all_cards():
+    # Verify required files exist
+    golden_dawn_path = Path("data/processed/golden_dawn/golden_dawn_knowledge.json")
+    if not golden_dawn_path.exists():
+        raise FileNotFoundError(
+            f"Golden Dawn knowledge file not found at {golden_dawn_path}. "
+            "You must run process_golden_dawn.py first to create this file."
+        )
+
     # Initialize components
     ai_client = DeepSeekClient()
-    golden_dawn = GoldenDawnKnowledgeBase("data/golden_dawn.pdf")
+    golden_dawn = GoldenDawnKnowledgeBase(str(golden_dawn_path))
     
     # Load cards
     with open("data/cards_ordered.json") as f:
