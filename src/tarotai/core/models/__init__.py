@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Import specific models instead of *
+# Import models
 from tarotai.core.models.types import (
     CardMeaning,
     Reading,
@@ -12,12 +12,10 @@ from tarotai.core.models.types import (
     QuestionContext
 )
 
-# Import specific services
-from tarotai.core.services import (
-    CardProcessor,
-    TarotInterpreter,
-    ReadingInput
-)
+# Import services separately
+from tarotai.core.services.card_processor import CardProcessor
+from tarotai.core.services.interpreter import TarotInterpreter
+from tarotai.core.services.reading import ReadingInput
 
 __all__ = [
     'CardMeaning', 'Reading', 'CardSuit', 'SpreadType',
