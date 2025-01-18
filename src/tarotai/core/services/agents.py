@@ -35,23 +35,8 @@ class InterpretationAgent(BaseAgent):
         return self._process_interpretation(response)
         
     def _build_interpretation_prompt(self, cards: List[Dict], context: Dict) -> str:
-        """Build interpretation prompt from cards and context"""
-        card_list = "\n".join(
-            f"{i+1}. {card['name']} ({'Reversed' if card.get('reversed', False) else 'Upright'})"
-            for i, card in enumerate(cards)
-        )
-        return f"""
-        Interpret this tarot reading:
-        
-        Cards:
-        {card_list}
-        
-        Context:
-        {context.get('question', 'General reading')}
-        
-        Additional Context:
-        {context.get('user_context', 'No additional context')}
-        """
+        """Use pre-rendered prompt from template"""
+        return context.get("prompt", "")
         
     def _process_interpretation(self, response: Dict) -> Dict:
         """Process raw API response into interpretation format"""

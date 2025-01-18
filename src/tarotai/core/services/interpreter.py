@@ -111,8 +111,21 @@ class TarotInterpreter:
         question: Optional[str] = None,
         context: Optional[QuestionContext] = None
     ) -> str:
-        """Generate interpretation using agent system"""
+        """Generate interpretation using agent system and prompt templates"""
         try:
+            # Get prompt template
+            from tarotai.ai.clients.registry import ProviderRegistry
+            prompt = ProviderRegistry.render_prompt(
+                "tarot_interpretation",
+                cards=[{
+                    "name": card.name,
+                    "reversed": reversed,
+                    "golden_dawn": card.golden_dawn
+                } for card, reversed in cards],
+                question=question or "General reading",
+                context=self._build_context_summary(context)
+            )
+            
             result = await self.agent_manager.interpret_reading(
                 cards=[{
                     "name": card.name,
@@ -121,7 +134,8 @@ class TarotInterpreter:
                 } for card, reversed in cards],
                 context={
                     "question": question or "General reading",
-                    "user_context": self._build_context_summary(context)
+                    "user_context": self._build_context_summary(context),
+                    "prompt": prompt
                 }
             )
             
