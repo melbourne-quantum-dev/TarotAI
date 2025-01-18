@@ -1,6 +1,7 @@
 import pytest
+from pathlib import Path
 
-from tarotai.core.models.card import TarotCard
+from tarotai.core.models.card import TarotCard, CardManager
 from tarotai.core.models.types import CardSuit
 
 

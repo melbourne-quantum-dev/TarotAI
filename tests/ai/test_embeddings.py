@@ -1,4 +1,6 @@
+import json
 import pytest
+from pathlib import Path
 
 from tarotai.ai.embeddings.manager import EmbeddingManager
 from tarotai.ai.rag.vector_store import VectorStore
