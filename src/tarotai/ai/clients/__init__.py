@@ -1,12 +1,12 @@
 """
 AI client implementations and initialization for various providers
 """
-from .base import BaseAIClient  # Changed from ..core
-from .unified import UnifiedAIClient
-from .providers.deepseek_v3 import DeepSeekClient  # Updated path
-from .providers.claude import ClaudeClient    # Updated path
-from .providers.voyage import VoyageClient
 from ...config.schemas.config import get_config  # Use relative import
+from .base import BaseAIClient  # Changed from ..core
+from .providers.claude import ClaudeClient  # Updated path
+from .providers.deepseek_v3 import DeepSeekClient  # Updated path
+from .providers.voyage import VoyageClient
+from .unified import UnifiedAIClient
 
 __all__ = [
     'BaseAIClient',

@@ -3,7 +3,7 @@ Core services for TarotAI
 """
 from .card_processor import CardProcessor
 from .interpreter import TarotInterpreter
-from .reading import ReadingInput, RandomDrawInput, ManualInput
+from .reading import ManualInput, RandomDrawInput, ReadingInput
 
 __all__ = [
     'CardProcessor',
