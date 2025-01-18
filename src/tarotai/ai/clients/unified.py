@@ -2,9 +2,8 @@ from typing import Dict, Any, Optional, List
 from tarotai.config.schemas.config import AISettings
 from tarotai.ai.clients.base import BaseAIClient
 from tarotai.ai.clients.providers.voyage import VoyageClient
-from tarotai.ai.clients.providers.deepseek import DeepSeekClient
-from tarotai.ai.clients.providers.anthropic import AnthropicClient
-from tarotai.ai.clients.providers.openai import OpenAIClient
+from tarotai.ai.clients.providers.deepseek_v3 import DeepSeekClient
+from tarotai.ai.clients.providers.claude import ClaudeClient
 
 class UnifiedAIClient:
     """Unified interface for multiple AI providers"""
@@ -13,8 +12,7 @@ class UnifiedAIClient:
         self.clients = {
             "voyage": VoyageClient(config.voyage_model),
             "deepseek": DeepSeekClient(config.deepseek_model),
-            "anthropic": AnthropicClient(config.anthropic_model),
-            "openai": OpenAIClient(config.openai_model)
+            "anthropic": ClaudeClient(config.anthropic_model)
         }
         self.default_client = self.clients[config.default_provider]
         
