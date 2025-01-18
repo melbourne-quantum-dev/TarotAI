@@ -14,25 +14,28 @@ from tarotai.core.models.types import (
 
 @pytest.fixture
 def mock_embedding():
-    return [0.1] * 1024
+    return [0.1] * 768  # Updated to match the embedding size in test deck
 
 @pytest.fixture
-def vector_store():
+def test_deck():
+    """Load the generated test deck"""
+    deck_path = Path("data/test_deck.json")
+    if not deck_path.exists():
+        pytest.skip("Test deck not found, run generate_test_deck.py first")
+    
+    with open(deck_path) as f:
+        data = json.load(f)
+    return [CardMeaning(**card) for card in data['cards']]
+
+@pytest.fixture
+def vector_store(test_deck):
     store = VectorStore()
-    # Add some test readings
-    for i in range(10):
+    # Add test deck cards to the vector store
+    for i, card in enumerate(test_deck):
+        embedding = [float(i)] * 768  # Match the embedding size
         reading = Reading(
             id=f"test-{i}",
-            cards=[CardMeaning(
-                name="The Fool",
-                number=0,
-                suit="major",
-                arcana_type="major",
-                is_reversed=True,
-                keywords=["beginnings", "innocence"],
-                upright_meaning="Test upright",
-                reversed_meaning="Test reversed"
-            )],
+            cards=[card],
             interpretation=f"Test interpretation {i}",
             model="test-model",
             context=QuestionContext(
@@ -44,7 +47,6 @@ def vector_store():
             spread_type=SpreadType.SINGLE,
             is_reversed=[False]
         )
-        embedding = [float(i)] * 1024
         store.add_reading(reading, embedding)
     store.build_index()
     return store
@@ -90,11 +92,13 @@ def test_embedding_manager_initialization(tmp_path):
     assert manager.version == 1
     assert len(manager.card_embeddings) == 0
 
-def test_card_embeddings_serialization():
+def test_card_embeddings_serialization(test_deck):
+    # Test with a card from the generated deck
+    card = test_deck[0]
     embeddings = CardEmbeddings(
-        text_embedding=[0.1] * 1024,
-        image_embedding=[0.2] * 1024,
+        text_embedding=card.embeddings['upright'],
+        image_embedding=card.embeddings['reversed'],
         version="2.0"
     )
-    assert len(embeddings.text_embedding) == 1024
+    assert len(embeddings.text_embedding) == 768
     assert embeddings.version == "2.0"

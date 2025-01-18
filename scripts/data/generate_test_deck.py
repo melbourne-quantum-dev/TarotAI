@@ -55,9 +55,19 @@ class TestDeckGenerator:
         - Astrological correspondence
         - Kabbalistic path
         - Golden Dawn symbolism
+        - Embeddings (generate placeholders for now)
         Return as JSON.
         """
-        return await self.ai_client.json_prompt(prompt)
+        card_data = await self.ai_client.json_prompt(prompt)
+        
+        # Add placeholder embeddings
+        card_data['embeddings'] = {
+            'upright': [0.0] * 768,
+            'reversed': [0.0] * 768,
+            'symbolism': [0.0] * 768
+        }
+        
+        return card_data
     
     async def generate_deck(self) -> List[Dict]:
         """Generate complete deck following Golden Dawn order"""
