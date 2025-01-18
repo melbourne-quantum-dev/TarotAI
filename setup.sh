@@ -53,20 +53,47 @@ setup_environment() {
     fi
 }
 
+# Configure uv environment
+export UV_INDEX_URL="https://pypi.org/simple"
+export UV_CACHE_DIR=".uv_cache"
+export UV_PIP_VERSION=">=23.3.2"
+
+verify_dependencies() {
+    log "Verifying dependency integrity..."
+    uv pip check || {
+        error "Dependency integrity check failed"
+        echo "Run 'uv pip sync' to fix dependency conflicts"
+    }
+    success "Dependencies verified"
+}
+
 install_dependencies() {
-    log "Installing project dependencies..."
+    log "Installing project dependencies with uv..."
     echo
     
-    echo "Installing package in editable mode..."
-    uv pip install --quiet -e . || {
+    # Purge old cache
+    log "Clearing old cache..."
+    uv pip cache purge
+    
+    # Install package with modern resolver
+    echo "Installing package in editable mode with modern resolver..."
+    uv pip install \
+        --resolution=highest \
+        --no-cache-dir \
+        --strict \
+        -e . || {
         error "Failed to install package"
         echo "Tip: Check if all required build tools are installed"
     }
     echo "✓ Package installed"
     
-    echo "Installing core dependencies..."
+    # Install core dependencies
+    echo "Installing core dependencies with strict resolution..."
     if [ -f "requirements.txt" ]; then
-        uv pip sync requirements.txt || {
+        uv pip sync \
+            --resolution=highest \
+            --strict \
+            requirements.txt || {
             error "Failed to sync core dependencies"
             echo "Tip: Check requirements.txt for version conflicts"
         }
@@ -75,9 +102,13 @@ install_dependencies() {
         echo "⚠ No requirements.txt found - skipping core dependencies"
     fi
     
+    # Install dev dependencies
     echo "Installing development dependencies..."
     if [ -f "dev-requirements.txt" ]; then
-        uv pip sync dev-requirements.txt || {
+        uv pip sync \
+            --resolution=highest \
+            --strict \
+            dev-requirements.txt || {
             error "Failed to sync dev dependencies"
             echo "Tip: Check dev-requirements.txt for version conflicts"
         }
@@ -86,11 +117,16 @@ install_dependencies() {
         echo "⚠ No dev-requirements.txt found - skipping dev dependencies"
     fi
     
+    # Verify installation
     echo "Verifying installation..."
     if ! python3 -c "import tarotai" &> /dev/null; then
         error "Failed to verify installation - tarotai package not found"
     fi
-    success "Dependencies installed successfully"
+    
+    # Verify dependency integrity
+    verify_dependencies
+    
+    success "Dependencies installed successfully with modern resolver"
     echo
 }
 

@@ -93,6 +93,20 @@ tarotai = [
 
 [tool.uv]
 cache-dir = ".uv_cache"
+prefer-binary = true
+allow-prereleases = false
+strict = true
+resolution = "highest"
+
+[tool.uv.sources]
+pypi = { url = "https://pypi.org/simple" }
+cache = { strategy = "http", path = ".uv_cache" }
+
+[tool.uv.resolver]
+prefer-binary = true
+allow-prereleases = false
+strict = true
+resolution = "highest"
 
 [tool.isort]
 profile = "black"

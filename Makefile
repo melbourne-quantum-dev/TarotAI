@@ -15,8 +15,20 @@ all: check
 
 # Install dependencies
 install:
-	@echo "Installing dependencies..."
-	@./setup.sh
+	@echo "Installing dependencies with modern resolver..."
+	@export UV_INDEX_URL="https://pypi.org/simple" && \
+	 export UV_CACHE_DIR=".uv_cache" && \
+	 export UV_PIP_VERSION=">=23.3.2" && \
+	 ./setup.sh
+	$(QUANTUM_SUCCESS)
+
+# Verify dependency integrity
+verify-deps:
+	@echo "Verifying dependency integrity..."
+	@uv pip check || { \
+		echo "❌ Dependency verification failed!"; \
+		exit 1; \
+	}
 	$(QUANTUM_SUCCESS)
 
 # Run tests
