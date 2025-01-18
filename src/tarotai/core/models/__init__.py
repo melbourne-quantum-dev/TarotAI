@@ -1,15 +1,26 @@
-"""
-Core models for TarotAI
-"""
-from .types import (
-    CardMeaning, Reading, CardSuit, SpreadType,
-    ReadingType, UserProfile, QuestionContext
+from pathlib import Path
+from typing import List, Dict, Any
+
+# Import specific models instead of *
+from tarotai.core.models.types import (
+    CardMeaning,
+    Reading,
+    CardSuit,
+    SpreadType,
+    ReadingType,
+    UserProfile,
+    QuestionContext
 )
-from .card import *
-from .deck import *
+
+# Import specific services
+from tarotai.core.services import (
+    CardProcessor,
+    TarotInterpreter,
+    ReadingInput
+)
 
 __all__ = [
     'CardMeaning', 'Reading', 'CardSuit', 'SpreadType',
     'ReadingType', 'UserProfile', 'QuestionContext',
-    'TarotCard', 'TarotDeck', 'CardManager'
+    'CardProcessor', 'TarotInterpreter', 'ReadingInput'
 ]

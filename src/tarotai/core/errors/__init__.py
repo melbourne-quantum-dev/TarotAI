@@ -117,3 +117,13 @@ __all__ = [
     'ConfigurationError',
     'ValidationError'
 ]
+from .errors import ConfigError, TarotError, DeckError, EnrichmentError, EmbeddingError, ReadingError
+
+__all__ = [
+    'ConfigError',
+    'TarotError',
+    'DeckError',
+    'EnrichmentError', 
+    'EmbeddingError',
+    'ReadingError'
+]

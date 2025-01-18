@@ -4,29 +4,14 @@ Configuration Schema Module
 Core configuration with version-aware Pydantic imports.
 """
 
-# Version-aware imports with explicit error handling
-try:
-    from pydantic import (
-        BaseModel,
-        Field, 
-        ValidationError
-    )
-    from pydantic_settings import (
-        BaseSettings, 
-        SettingsConfigDict
-    )
-except ImportError as e:
-    raise ImportError(
-        "Failed to import Pydantic V2 components. "
-        "Ensure pydantic>=2.10.5 and pydantic-settings>=2.2.1 "
-        f"are installed: {str(e)}"
-    )
-
-# Standard library imports
+from typing import Dict, Any, List, Optional, ClassVar
 from pathlib import Path
-from typing import Dict, Any, Optional, List, ClassVar
-import yaml
 import logging
+import yaml
+
+# Pydantic imports
+from pydantic import BaseModel, Field, ValidationError
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Local imports
 from tarotai.core.errors import ConfigError
