@@ -9,9 +9,9 @@ from typing import List, Dict, Optional, Any
 from pathlib import Path
 import logging
 from dataclasses import dataclass
-from src.tarotai.config.schemas.config import get_config
-from src.tarotai.ai.embeddings import EmbeddingManager, EmbeddingStorage
-from src.tarotai.ai.clients import BaseAIClient
+from ....config.schemas.config import get_config
+from ..embeddings import EmbeddingManager, EmbeddingStorage
+from ..clients import BaseAIClient
 
 logger = logging.getLogger(__name__)
 
