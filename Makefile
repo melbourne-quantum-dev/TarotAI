@@ -8,7 +8,7 @@ QUANTUM_SUCCESS := @echo "✨ Success!"
 QUANTUM_SIGNATURE := @echo "🎴 TarotAI"
 
 .PHONY: all install clean test coverage lint format check validate docs serve-docs \
-		validate-cards generate-cards update-embeddings process-golden-dawn process-data help
+        validate-cards generate-cards update-embeddings process-golden-dawn process-data help
 
 # Default target
 all: check
