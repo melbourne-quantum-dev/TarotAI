@@ -3,7 +3,13 @@ from pathlib import Path
 import pytest
 
 from tarotai.core.models.deck import TarotDeck
-from tarotai.core.models.types import Reading
+from tarotai.core.models.types import (
+    Reading,
+    CardMeaning,
+    QuestionContext,
+    ReadingType,
+    SpreadType
+)
 from tarotai.core.services.reading import ManualInput
 
 
