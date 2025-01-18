@@ -66,8 +66,8 @@ install:
 .PHONY: process-data
 process-data:
 	@echo "🎴 Processing Tarot data..."
-	$(PYTHON) scripts/process_golden_dawn.py
-	$(PYTHON) scripts/generate_embeddings.py
+	$(PYTHON) scripts/processing/process_golden_dawn.py
+	$(PYTHON) scripts/processing/generate_embeddings.py
 
 # Testing targets
 .PHONY: test
