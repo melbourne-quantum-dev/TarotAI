@@ -7,7 +7,8 @@ VENV := .venv
 QUANTUM_SUCCESS := @echo "✨ Success!"
 QUANTUM_SIGNATURE := @echo "🎴 TarotAI"
 
-.PHONY: all install clean test coverage lint format check validate migrate docs serve-docs
+.PHONY: all install clean test coverage lint format check validate docs serve-docs \
+        validate-cards generate-cards update-embeddings process-golden-dawn process-data help
 
 # Default target
 all: check
@@ -41,7 +42,7 @@ lint:
 	@flake8 src/ tests/ \
 		--max-line-length=79
 	@mypy src/ tests/
-	@python scripts/validate_cards.py
+	@python scripts/processing/validate_card_schema.py
 	$(QUANTUM_SUCCESS)
 
 # Format code
@@ -56,20 +57,14 @@ clean:
 	@python scripts/dev/cleanup.py --verbose
 	$(QUANTUM_SIGNATURE)
 
-# Run import migration
-migrate:
-	@echo "Running import migration..."
-	@python scripts/dev/import_migration.py
-	$(QUANTUM_SUCCESS)
-
 # Run all checks
-check: lint test migrate
+check: lint test
 	$(QUANTUM_SUCCESS)
 
-# Validate project structure
+# Validate project structure and card data
 validate:
-	@echo "Validating project structure..."
-	@python scripts/validate_structure.py
+	@echo "Validating project structure and card data..."
+	@python scripts/processing/validate_card_schema.py
 	$(QUANTUM_SUCCESS)
 
 # Generate documentation
@@ -84,7 +79,7 @@ serve-docs:
 	@cd docs/_build/html && python -m http.server 8000
 	$(QUANTUM_SUCCESS)
 
-
+# Validate card data
 validate-cards:
 	@echo "Validating card data..."
 	@python scripts/processing/validate_card_schema.py
@@ -121,9 +116,8 @@ help:
 	@echo "  lint              - Run code quality checks"
 	@echo "  format            - Format code"
 	@echo "  clean             - Clean build artifacts"
-	@echo "  migrate           - Run import migration"
 	@echo "  check             - Run all checks"
-	@echo "  validate          - Validate project structure"
+	@echo "  validate          - Validate project structure and card data"
 	@echo "  docs              - Generate documentation"
 	@echo "  serve-docs        - Serve documentation locally"
 	@echo "  validate-cards    - Validate card data"
