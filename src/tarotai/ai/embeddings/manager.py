@@ -22,6 +22,12 @@ class EmbeddingManager:
         self.version = 1
         self.card_embeddings: Dict[str, CardEmbeddings] = {}
         
+    def generate_embedding(self, text: str) -> List[float]:
+        """Generate a basic embedding for text"""
+        # TODO: Replace with actual embedding generation logic
+        # For now, return a dummy embedding
+        return [0.0] * 768  # Standard embedding size
+        
     def load_embeddings(self) -> None:
         """Load saved embeddings from disk"""
         embeddings_file = self.data_dir / "card_embeddings.json"
