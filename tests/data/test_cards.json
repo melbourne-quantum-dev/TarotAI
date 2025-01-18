@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-01-19T01:09:54.123613",
+  "schema_version": "1.0",
+  "cards": [
+    {
+      "name": "Test Card 1",
+      "number": 1,
+      "suit": "test",
+      "keywords": ["test", "example"],
+      "upright_meaning": "Test upright meaning",
+      "reversed_meaning": "Test reversed meaning",
+      "element": "TEST",
+      "astrological": "Test Astrology",
+      "kabbalistic": "Test Kabbalah",
+      "decan": null,
+      "golden_dawn": {
+        "title": "Test Title",
+        "symbolism": ["Test Symbol"],
+        "reading_methods": ["Test Method"],
+        "reversed_notes": "Test notes",
+        "shadow_aspects": ["Test Aspect"]
+      },
+      "embeddings": {
+        "upright": [0.1, 0.2, 0.3],
+        "reversed": [0.3, 0.2, 0.1]
+      },
+      "metadata": {
+        "last_updated": "2025-01-19",
+        "source": "test",
+        "confidence": 0.99
+      }
+    },
+    {
+      "name": "Test Card 2",
+      "number": 2,
+      "suit": "test",
+      "keywords": ["test2", "example2"],
+      "upright_meaning": "Test upright meaning 2",
+      "reversed_meaning": "Test reversed meaning 2",
+      "element": "TEST2",
+      "astrological": "Test Astrology 2",
+      "kabbalistic": "Test Kabbalah 2",
+      "decan": null,
+      "golden_dawn": {
+        "title": "Test Title 2",
+        "symbolism": ["Test Symbol 2"],
+        "reading_methods": ["Test Method 2"],
+        "reversed_notes": "Test notes 2",
+        "shadow_aspects": ["Test Aspect 2"]
+      },
+      "embeddings": {
+        "upright": [0.4, 0.5, 0.6],
+        "reversed": [0.6, 0.5, 0.4]
+      },
+      "metadata": {
+        "last_updated": "2025-01-19",
+        "source": "test",
+        "confidence": 0.99
+      }
+    }
+  ]
+}
