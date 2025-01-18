@@ -10,7 +10,7 @@ from tarotai.core.errors.base import EnrichmentError  # not from .errors
 
 load_dotenv()
 
-class DeepSeekClient(BaseAIClient):
+class DeepSeekClient(BaseChatClient):
     """Client for interacting with DeepSeek API with V3 features."""
     
     def __init__(self, api_key: Optional[str] = None):

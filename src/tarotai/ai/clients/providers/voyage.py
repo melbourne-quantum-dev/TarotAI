@@ -10,7 +10,7 @@ from tarotai.core.errors.base import EnrichmentError
 
 load_dotenv()
 
-class VoyageClient(BaseAIClient):
+class VoyageClient(BaseEmbeddingClient):
     """Client for interacting with Voyage AI's embedding API."""
     
     def __init__(self, api_key: Optional[str] = None):
