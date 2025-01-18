@@ -21,7 +21,8 @@ console = Console()
 REQUIRED_CARD_FIELDS = [
     "name", "number", "suit", 
     "keywords", "upright_meaning", 
-    "reversed_meaning"
+    "reversed_meaning", "golden_dawn", 
+    "embeddings"
 ]
 
 def validate_card(card_data: Dict) -> List[str]:
@@ -48,6 +49,28 @@ def validate_card(card_data: Dict) -> List[str]:
         elif number < 0 or number > 21:
             errors.append("Card number must be between 0 and 21")
             
+    # Validate golden_dawn structure
+    if "golden_dawn" in card_data:
+        gd = card_data["golden_dawn"]
+        if not isinstance(gd, dict):
+            errors.append("golden_dawn must be a dictionary")
+        else:
+            required_gd_fields = ["title", "symbolism", "reading_methods"]
+            for field in required_gd_fields:
+                if field not in gd:
+                    errors.append(f"Missing golden_dawn field: {field}")
+                    
+    # Validate embeddings structure
+    if "embeddings" in card_data:
+        emb = card_data["embeddings"]
+        if not isinstance(emb, dict):
+            errors.append("embeddings must be a dictionary")
+        else:
+            required_emb_fields = ["upright", "reversed"]
+            for field in required_emb_fields:
+                if field not in emb:
+                    errors.append(f"Missing embeddings field: {field}")
+                    
     return errors
 
 def validate_deck(deck_path: Path) -> Dict[str, List[str]]:

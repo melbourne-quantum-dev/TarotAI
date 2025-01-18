@@ -45,6 +45,15 @@ def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str, Path]
     # Initialize knowledge base
     knowledge_base = GoldenDawnKnowledgeBase(str(pdf_path), voyage_client)
 
+    # Add validation before saving
+    for card in knowledge_base.knowledge.cards:
+        if not card.get("title"):
+            card["title"] = f"Golden Dawn Interpretation of {card['name']}"
+        if not card.get("symbolism"):
+            card["symbolism"] = []
+        if not card.get("reading_methods"):
+            card["reading_methods"] = []
+
     # Save processed data
     output_files = {
         "knowledge": output_dir / "golden_dawn_knowledge.json",

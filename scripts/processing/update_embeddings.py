@@ -8,7 +8,7 @@ from tarotai.ai.embeddings.manager import EmbeddingManager
 def update_card_embeddings(card_data: Dict, embedding_manager: EmbeddingManager) -> Dict:
     """Update embeddings for a single card"""
     if "embeddings" not in card_data:
-        card_data["embeddings"] = {}
+        card_data["embeddings"] = {"upright": [], "reversed": []}
         
     # Generate new embeddings if needed
     if "upright_meaning" in card_data and not card_data["embeddings"].get("upright"):
@@ -20,6 +20,16 @@ def update_card_embeddings(card_data: Dict, embedding_manager: EmbeddingManager)
         card_data["embeddings"]["reversed"] = embedding_manager.generate_embedding(
             card_data["reversed_meaning"]
         )
+        
+    # Ensure golden_dawn structure exists
+    if "golden_dawn" not in card_data:
+        card_data["golden_dawn"] = {
+            "title": "",
+            "symbolism": [],
+            "reading_methods": [],
+            "reversed_notes": "",
+            "shadow_aspects": []
+        }
         
     return card_data
 
