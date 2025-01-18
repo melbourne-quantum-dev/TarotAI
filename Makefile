@@ -98,4 +98,5 @@ help:
 	@echo "  validate    - Validate project structure"
 	@echo "  docs        - Generate documentation"
 	@echo "  serve-docs  - Serve documentation locally"
+	@echo "  help        - Show this help message"
 	$(QUANTUM_SIGNATURE)
