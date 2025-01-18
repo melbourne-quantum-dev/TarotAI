@@ -20,7 +20,7 @@ from tarotai.ai.clients.providers.voyage import VoyageClient
 load_dotenv()
 
 
-def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str, Path]:
+async def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str, Path]:
     """Process the Golden Dawn PDF and save structured knowledge.
 
     Args:
@@ -44,6 +44,10 @@ def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str, Path]
 
     # Initialize knowledge base
     knowledge_base = GoldenDawnKnowledgeBase(str(pdf_path), voyage_client)
+
+    # If there's an image processing task, await it
+    if hasattr(knowledge_base, '_image_processing_task'):
+        knowledge_base.image_embeddings = await knowledge_base._image_processing_task
 
     # Add validation before saving
     for card in knowledge_base.knowledge.cards:
@@ -84,7 +88,7 @@ def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str, Path]
     return output_files
 
 
-def main():
+async def main():
     """Main function for processing Golden Dawn PDF."""
     # Paths
     pdf_path = Path("data/golden_dawn.pdf")
@@ -102,4 +106,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import asyncio
+    asyncio.run(main())

@@ -124,7 +124,7 @@ def extract_pdf_content(pdf_path: str) -> GoldenDawnKnowledge:
 class GoldenDawnKnowledgeBase:
     """Knowledge base for Golden Dawn tarot interpretations with multimodal support."""
     
-    async def __init__(self, pdf_path: str, voyage_client: Optional[VoyageClient] = None):
+    def __init__(self, pdf_path: str, voyage_client: Optional[VoyageClient] = None):
         cache_path = Path(pdf_path).with_suffix('.json')
         image_cache_path = cache_path.with_name(f"{cache_path.stem}_images.json")
         
@@ -147,11 +147,11 @@ class GoldenDawnKnowledgeBase:
             else:
                 print("Processing PDF images...")
                 if hasattr(self, 'image_processor'):
-                    result = await self.image_processor.process_pdf_images(
+                    # Store the coroutine for later await
+                    self._image_processing_task = self.image_processor.process_pdf_images(
                         Path(pdf_path),
                         cache_path.parent
                     )
-                    self.image_embeddings = result
                 
         self.embeddings = self._generate_embeddings()
         self.card_index = self._create_card_index()
