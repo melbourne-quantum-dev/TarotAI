@@ -62,32 +62,6 @@ class VoyageClient(BaseAIClient):
         image_cost = self.usage_tracker["image_pixels"] / 1000000 * 0.01
         return text_cost + image_cost
 
-    async def generate_multimodal_embedding(
-        self,
-        content: List[Dict[str, Any]],
-        input_type: Optional[str] = None
-    ) -> List[float]:
-        """Generate embeddings for mixed text/image content"""
-        try:
-            result = await self.client.embed_multimodal(
-                content,
-                model="voyage-multimodal-3",
-                input_type=input_type
-            )
-            
-            # Update usage tracking
-            self.usage_stats["total_requests"] += 1
-            for item in content:
-                if item["type"] == "text":
-                    self.usage_stats["total_tokens"] += len(item["text"].split())
-                    self.usage_stats["total_characters"] += len(item["text"])
-                elif item["type"] == "image_url":
-                    self.usage_stats["image_pixels"] += 1000000  # Estimate based on typical image size
-                    
-            return result.embeddings[0]
-        except Exception as e:
-            self.usage_stats["errors"] += 1
-            raise EnrichmentError(f"Multimodal embedding failed: {str(e)}")
 
     async def rerank_documents(
         self,

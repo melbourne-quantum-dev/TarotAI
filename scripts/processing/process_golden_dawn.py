@@ -68,18 +68,12 @@ async def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str,
     # Save processed data
     output_files = {
         "knowledge": output_dir / "golden_dawn_knowledge.json",
-        "images": output_dir / "golden_dawn_images.json",
         "embeddings": output_dir / "golden_dawn_embeddings.json",
     }
 
     # Save knowledge
     with open(output_files["knowledge"], "w") as f:
         json.dump(knowledge_base.knowledge.dict(), f, indent=2)
-
-    # Save image data if available
-    if hasattr(knowledge_base, "image_embeddings"):
-        with open(output_files["images"], "w") as f:
-            json.dump(knowledge_base.image_embeddings, f, indent=2)
 
     # Save embeddings
     with open(output_files["embeddings"], "w") as f:

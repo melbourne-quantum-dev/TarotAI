@@ -126,7 +126,6 @@ class GoldenDawnKnowledgeBase:
     
     def __init__(self, pdf_path: str, voyage_client: Optional[VoyageClient] = None):
         cache_path = Path(pdf_path).with_suffix('.json')
-        image_cache_path = cache_path.with_name(f"{cache_path.stem}_images.json")
         
         if cache_path.exists():
             print(f"Loading cached knowledge base from {cache_path}")
@@ -136,26 +135,10 @@ class GoldenDawnKnowledgeBase:
             print(f"Saving knowledge base cache to {cache_path}")
             save_knowledge(self.knowledge, cache_path)
             
-        # Initialize image processor if Voyage client is provided
         self.voyage_client = voyage_client
-        if self.voyage_client:
-            self.image_processor = GoldenDawnImageProcessor(self.voyage_client)
-            if image_cache_path.exists():
-                print(f"Loading cached image embeddings from {image_cache_path}")
-                with open(image_cache_path) as f:
-                    self.image_embeddings = json.load(f)
-            else:
-                print("Processing PDF images...")
-                if hasattr(self, 'image_processor'):
-                    # Store the coroutine for later await
-                    self._image_processing_task = self.image_processor.process_pdf_images(
-                        Path(pdf_path),
-                        cache_path.parent
-                    )
-                
         self.embeddings = self._generate_embeddings()
         self.card_index = self._create_card_index()
-        self.version = "2.2.0"  # Updated version for multimodal support
+        self.version = "2.2.0"
         self._setup_validation_rules()
         
     def _setup_validation_rules(self):
