@@ -3,7 +3,13 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-import fitz  # PyMuPDF
+try:
+    import fitz  # PyMuPDF
+except ImportError:
+    raise ImportError(
+        "PyMuPDF (fitz) is required for image processing. "
+        "Install it with: pip install PyMuPDF"
+    )
 from PIL import Image
 
 from tarotai.ai.clients.providers.voyage import VoyageClient
