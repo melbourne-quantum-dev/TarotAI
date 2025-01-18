@@ -6,24 +6,33 @@ Version 2.1.0
 
 ### Setup
 ```bash
-pip install -r requirements.txt && \
-pip install -e ".[dev]" && \
-pip install types-pydantic types-httpx types-python-dotenv types-requests
+# Install dependencies using uv (modern Python package manager)
+pip install uv
+uv venv .venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+uv pip install -e ".[dev,docs]"
 ```
 
 ### Running Tests
 ```bash
-pytest tests/
+# Run all tests
+make test
+
+# Run specific test groups
+make test-card-manager
+make test-reading-input
+make test-golden-dawn
 ```
 
 ### Code Formatting
 ```bash
-black src/ tests/
+make format
 ```
 
 ### Type Checking
 ```bash
-mypy src/ tests/
+make lint
 ```
 
 ---
