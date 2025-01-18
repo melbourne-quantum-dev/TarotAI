@@ -1,7 +1,7 @@
 # Requires Python 3.11 or higher
 # Core Dependencies
 annoy>=1.17.3
-PyMuPDF>=1.23.0
+pymupdf>=1.23.0
 anthropic>=0.39.0
 elevenlabs>=1.50.3
 fastapi>=0.109.0

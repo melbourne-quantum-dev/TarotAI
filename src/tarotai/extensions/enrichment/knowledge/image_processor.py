@@ -8,7 +8,8 @@ try:
 except ImportError:
     raise ImportError(
         "PyMuPDF (fitz) is required for image processing. "
-        "Install it with: pip install PyMuPDF"
+        "Install it with: pip install pymupdf\n"
+        "Note: The package name is 'pymupdf' but it's imported as 'fitz'"
     )
 from PIL import Image
 
