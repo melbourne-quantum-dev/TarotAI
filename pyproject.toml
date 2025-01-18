@@ -22,6 +22,7 @@ classifiers = [
 ]
 
 dependencies = [
+    "annoy>=1.17.3",
     "anthropic>=0.39.0",
     "elevenlabs>=1.50.3",
     "fastapi>=0.109.0",
