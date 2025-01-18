@@ -92,7 +92,7 @@ tarotai = [
 ]
 
 [tool.uv]
-python-version = ">=3.11"
+python-preference = "3.11"
 resolution = "highest"
 cache-dir = ".uv_cache"
 allow-prereleases = false
@@ -100,7 +100,6 @@ strict = true
 
 [tool.uv.sources]
 pypi = { url = "https://pypi.org/simple" }
-cache = { strategy = "http", path = ".uv_cache" }
 
 [tool.uv.resolver]
 no-binary = ":all:"

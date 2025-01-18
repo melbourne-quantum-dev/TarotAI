@@ -113,6 +113,10 @@ class ProjectCleaner:
             # Look for cache directories recursively
             for path in self.project_root.rglob(cache_dir):
                 if path.is_dir() and self._should_move_cache(path):
+                    # Ensure we're not moving into a subdirectory of itself
+                    if cache_root in path.parents:
+                        continue
+                        
                     target = cache_root / path.relative_to(self.project_root)
                     if verbose:
                         action = "Would organize" if dry_run else "Organizing"

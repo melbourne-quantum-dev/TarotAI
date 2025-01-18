@@ -8,6 +8,12 @@ export UV_CACHE_DIR=".uv_cache"
 export UV_PIP_VERSION=">=23.3.2"
 export UV_PYTHON=">=3.11"
 
+# Configure uv environment
+export UV_INDEX_URL="https://pypi.org/simple"
+export UV_CACHE_DIR=".uv_cache"
+export UV_PIP_VERSION=">=23.3.2"
+export UV_PYTHON=">=3.11"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
