@@ -111,6 +111,7 @@ install_dependencies() {
         --resolution=highest \
         --no-cache-dir \
         --strict \
+        -r requirements.txt \
         -e . || {
         error "Failed to install package"
         echo "Tip: Check if all required build tools are installed"
