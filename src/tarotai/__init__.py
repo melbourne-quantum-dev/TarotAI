@@ -10,14 +10,6 @@ try:
 except Exception:
     __version__ = "2.0.0"
 
-from tarotai.core.errors import (
-    EmbeddingError,
-    EnrichmentError,
-    ErrorSeverity,
-    ProcessingError,
-    TarotAIError,
-)
-
 # Core imports
 from tarotai.core.models import SpreadType, TarotCard, TarotDeck
 from tarotai.core.services import TarotInterpreter, setup_logging
