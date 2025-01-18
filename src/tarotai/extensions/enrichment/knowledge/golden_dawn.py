@@ -136,10 +136,15 @@ class GoldenDawnKnowledgeBase:
             save_knowledge(self.knowledge, cache_path)
             
         self.voyage_client = voyage_client
-        self.embeddings = self._generate_embeddings()
-        self.card_index = self._create_card_index()
+        self.embeddings = []
+        self.card_index = {}
         self.version = "2.2.0"
         self._setup_validation_rules()
+        
+        # Initialize async components
+        if self.voyage_client:
+            self.embeddings = self._generate_embeddings()
+            self.card_index = self._create_card_index()
         
     def _setup_validation_rules(self):
         """Setup validation rules for Golden Dawn knowledge"""

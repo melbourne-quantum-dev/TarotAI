@@ -1,6 +1,12 @@
 # scripts/processing/process_golden_dawn.py                                                                                      
 """Process Golden Dawn PDF and extract structured knowledge."""
 import json
+import sys
+from pathlib import Path
+
+# Add the project root to Python path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(project_root))
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -14,6 +20,9 @@ from tarotai.extensions.enrichment.knowledge.golden_dawn import (
     GoldenDawnReadingMethod,
     HistoricalApproach,
     GoldenDawnLore,
+    extract_pdf_content,
+    save_knowledge,
+    load_knowledge,
 )
 from tarotai.ai.clients.providers.voyage import VoyageClient
 
