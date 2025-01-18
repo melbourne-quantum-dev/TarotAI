@@ -37,8 +37,32 @@ def sample_card_data():
     return {
         "name": "The Fool",
         "number": 0,
-        "suit": CardSuit.MAJOR.value,  # Use enum value
+        "suit": CardSuit.MAJOR.value,
         "keywords": ["test"],
         "upright_meaning": "Test upright",
         "reversed_meaning": "Test reversed"
+    }
+
+@pytest.fixture
+def sample_reading_data():
+    return {
+        "id": "test-reading",
+        "cards": [{
+            "name": "The Fool",
+            "number": 0,
+            "suit": "major",
+            "keywords": ["test"],
+            "upright_meaning": "Test upright",
+            "reversed_meaning": "Test reversed"
+        }],
+        "interpretation": "Test interpretation",
+        "model": "test-model",
+        "context": {
+            "question": "Test",
+            "focus": "Test",
+            "raw_question": "Test"
+        },
+        "reading_type": "GENERAL",
+        "spread_type": "SINGLE",
+        "is_reversed": [False]
     }

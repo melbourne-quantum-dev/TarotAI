@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from tarotai.core.models.types import CardSuit
 
@@ -52,10 +52,10 @@ class TarotCard(BaseModel):
     element: Optional[str] = None
     planetary_correspondence: Optional[str] = None
 
-    @validator('number')
-    def validate_number(cls, v, values):
+    @field_validator('number')
+    def validate_number(cls, v, info):
         """Validate card number based on suit."""
-        suit = values.get('suit')
+        suit = info.data.get('suit')
         if suit == CardSuit.MAJOR:
             if not 0 <= v <= 21:
                 raise ValueError("Major Arcana cards must be numbered 0-21")

@@ -50,3 +50,40 @@ def test_card_validation():
             number=-1,  # Invalid number
             suit="Test Suit"
         )
+
+def test_card_validation_invalid_suit():
+    """Test card validation with invalid suit"""
+    with pytest.raises(ValueError):
+        TarotCard(
+            name="Invalid Card",
+            number=0,
+            suit="Invalid Suit",
+            keywords=["test"],
+            upright_meaning="Test",
+            reversed_meaning="Test"
+        )
+
+def test_card_validation_minor_arcana():
+    """Test minor arcana number validation"""
+    with pytest.raises(ValueError):
+        TarotCard(
+            name="Invalid Minor Card",
+            number=15,  # Invalid for minor arcana
+            suit=CardSuit.WANDS,
+            keywords=["test"],
+            upright_meaning="Test",
+            reversed_meaning="Test"
+        )
+
+def test_card_meaning_reversed():
+    """Test reversed meaning functionality"""
+    card = TarotCard(
+        name="Test Card",
+        number=0,
+        suit=CardSuit.MAJOR,
+        keywords=["test"],
+        upright_meaning="Upright",
+        reversed_meaning="Reversed"
+    )
+    assert card.get_meaning(False) == "Upright"
+    assert card.get_meaning(True) == "Reversed"
