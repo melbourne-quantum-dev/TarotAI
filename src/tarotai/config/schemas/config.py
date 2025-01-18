@@ -42,17 +42,23 @@ class AISettings(BaseSettings):
         default=True, 
         description="Whether the provider is enabled"
     )
-    api_key: str = Field(
-        default="",
+    api_key: SecretStr = Field(
+        default=SecretStr(""),
         env=[
             "AI_API_KEY",
-            "DEEPSEEK_API_KEY",
+            "DEEPSEEK_API_KEY", 
             "OPENAI_API_KEY",
             "ANTHROPIC_API_KEY",
             "VOYAGE_API_KEY"
         ],
-        description="API key for the provider"
+        description="API key for the provider (masked in logs)"
     )
+
+    @property
+    def masked_api_key(self) -> str:
+        """Get masked API key for logging"""
+        key = self.api_key.get_secret_value()
+        return f"****{key[-4:]}" if key else "****"
     model: str = Field(
         default="deepseek-chat", 
         description="Model name to use"

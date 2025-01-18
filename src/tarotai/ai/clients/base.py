@@ -1,17 +1,42 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, AsyncGenerator, Dict, List, Optional
+from anyio import create_task_group, fail_after
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type
+)
 
 
 class BaseAIClient(ABC):
-    """Base interface for all AI clients"""
+    """Base interface for all AI clients with modern async practices"""
     
     def __init__(self):
         self.logger = logging.getLogger(f"ai_client.{self.__class__.__name__}")
+        self.timeout = 30.0
+        self.max_retries = 3
         
     @abstractmethod
     async def generate_response(self, prompt: str, **kwargs) -> Dict[str, Any]:
-        """Generate a response from the AI model"""
+        """Generate a response from the AI model with structured concurrency"""
+        async with create_task_group() as tg:
+            with fail_after(self.timeout):
+                return await tg.start(self._generate_with_retry, prompt, **kwargs)
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=4, max=10),
+        retry=retry_if_exception_type((TimeoutError, ConnectionError))
+    )
+    async def _generate_with_retry(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """Internal method with retry logic"""
+        return await self._generate_response_impl(prompt, **kwargs)
+
+    @abstractmethod
+    async def _generate_response_impl(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """Implementation-specific response generation"""
         pass
         
     @abstractmethod
