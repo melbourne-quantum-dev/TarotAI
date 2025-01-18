@@ -5,7 +5,11 @@ from pathlib import Path
 from rich.panel import Panel
 
 from tarotai.ui.display import TarotDisplay
-from tarotai.core.voice import TarotVoice
+try:
+    from tarotai.core.voice import TarotVoice
+    VOICE_ENABLED = True
+except ImportError:
+    VOICE_ENABLED = False
 from tarotai.core.deck import TarotDeck
 from tarotai.core.reading import RandomDrawInput, ManualInput, Reading
 from tarotai.core.interpreter import TarotInterpreter
@@ -303,13 +307,22 @@ def voice(
     """Perform a tarot reading using voice commands"""
     display = TarotDisplay()
     interpreter = TarotInterpreter()
+    
+    if not VOICE_ENABLED:
+        display.display_error(
+            "Voice functionality is not available",
+            "The voice extension requires additional dependencies that are not installed.\n"
+            "Please install the voice extension to use this feature."
+        )
+        raise typer.Exit(code=1)
+        
     voice = TarotVoice()
 
     try:
         # Display welcome sequence
         display.display_welcome()
         
-        def process_voice_command(text: str):
+        def process_voice_command(text: str) -> None:
             display.console.print(f"\n[bold cyan]🎤 Heard:[/] {text}")
             
             # Process commands
