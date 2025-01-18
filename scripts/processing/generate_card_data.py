@@ -77,8 +77,8 @@ def generate_card_data(input_file: Path, output_file: Path) -> None:
 
 def main():
     """Main function for generating card data"""
-    input_file = Path("data/raw_cards.json")
-    output_file = Path("data/cards_ordered.json")
+    input_file = Path("data/cards_ordered.json")  # Changed from raw_cards.json
+    output_file = Path("data/cards_ordered.json")  # Output to the same file
     
     print(f"Generating card data from {input_file}...")
     generate_card_data(input_file, output_file)
