@@ -25,8 +25,8 @@ install:
 	 export UV_PIP_VERSION=">=23.3.2" && \
 	 export UV_PYTHON=">=3.12" && \
 	 uv pip install -r <(grep -v realtimestt requirements.txt) && \
-	 uv pip install pytest pytest-cov pytest-asyncio && \
-	 uv pip install -e .
+	 uv pip install -e .[dev] && \
+	 uv pip install pytest pytest-cov pytest-asyncio
 
 # Run test suite
 test:
