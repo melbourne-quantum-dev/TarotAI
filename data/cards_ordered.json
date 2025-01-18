@@ -5,7 +5,7 @@
   "cards": [
     {
       "number": 1,
-      "suit": "WANDS",
+      "suit": "wands",
       "name": "Ace of Wands",
       "element": "FIRE",
       "astrological": "Root of the Powers of Fire",
@@ -33,7 +33,7 @@
     },
     {
       "number": 1,
-      "suit": "CUPS",
+      "suit": "cups",
       "name": "Ace of Cups",
       "element": "WATER",
       "astrological": "Root of the Powers of Water",
@@ -45,7 +45,7 @@
     },
     {
       "number": 1,
-      "suit": "SWORDS",
+      "suit": "swords",
       "name": "Ace of Swords",
       "element": "AIR",
       "astrological": "Root of the Powers of Air",
@@ -57,7 +57,7 @@
     },
     {
       "number": 1,
-      "suit": "PENTACLES",
+      "suit": "pentacles",
       "name": "Ace of Pentacles",
       "element": "EARTH",
       "astrological": "Root of the Powers of Earth",

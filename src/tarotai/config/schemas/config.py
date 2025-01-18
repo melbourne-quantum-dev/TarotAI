@@ -181,10 +181,6 @@ class UnifiedSettings(BaseSettings):
                 detail={"error": str(e), "file": file_path}
             )
 
-@property
-def ai(self) -> AISettings:
-    """Get the default AI settings"""
-    return self.ai_providers["deepseek"]
 
 def get_config() -> UnifiedSettings:
     """
