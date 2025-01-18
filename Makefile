@@ -32,6 +32,13 @@ test:
 	@pytest tests/ -v
 	$(QUANTUM_SUCCESS)
 
+# Run golden dawn specific tests
+test-golden-dawn:
+	@echo "Running Golden Dawn tests..."
+	@pytest tests/test_golden_dawn.py -v
+	@pytest tests/test_process_golden_dawn.py -v
+	$(QUANTUM_SUCCESS)
+
 # Generate test coverage report
 coverage:
 	@echo "Generating test coverage report..."
