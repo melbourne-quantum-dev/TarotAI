@@ -95,7 +95,11 @@ validate-cards:
 # Generate card data
 generate-cards:
 	@echo "Generating card data..."
-	@$(PYTHON) scripts/processing/generate_cards.py
+	@if [ ! -f "scripts/processing/generate_card_data.py" ]; then \
+		echo "❌ Error: generate_card_data.py not found!"; \
+		exit 1; \
+	fi
+	@$(PYTHON) scripts/processing/generate_card_data.py
 	$(QUANTUM_SUCCESS)
 
 # Update card embeddings
