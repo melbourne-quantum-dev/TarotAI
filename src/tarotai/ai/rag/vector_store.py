@@ -1,4 +1,5 @@
 from typing import Dict, List, Tuple
+
 try:
     from annoy import AnnoyIndex
 except ImportError:
@@ -6,6 +7,7 @@ except ImportError:
         "Annoy is required for vector storage. Install with: pip install annoy"
     )
 from tarotai.core.models.types import Reading
+
 
 class VectorStore:
     """Advanced vector storage and retrieval for readings"""

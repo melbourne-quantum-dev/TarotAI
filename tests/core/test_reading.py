@@ -1,8 +1,11 @@
-import pytest
-from tarotai.core.models.types import Reading
-from tarotai.core.models.deck import TarotDeck
-from tarotai.core.services.reading import ManualInput
 from pathlib import Path
+
+import pytest
+
+from tarotai.core.models.deck import TarotDeck
+from tarotai.core.models.types import Reading
+from tarotai.core.services.reading import ManualInput
+
 
 def test_reading_creation():
     """Test basic reading creation"""

@@ -1,48 +1,41 @@
-.PHONY: all setup test lint format clean docs validate check update
+# TarotAI Makefile
+# Manages development workflows and quality checks
 
-define QUANTUM_SIGNATURE
-@echo "╔══════════════════════════════════════════════════════════════╗"
-@echo "║ ┌──────────────────────────────────────────────────────────┐ ║"
-@echo "║ │                ⚛ DR. ZHOU'S QUANTUM REALM ⚛             │ ║"
-@echo "║ └──────────────────────────────────────────────────────────┘ ║"
-@echo "║                                                              ║"
-@echo "║    ▓▒░ Quantum Computing Enthusiast ░▒▓                     ║"
-@echo "║         Faraday Cage Certified                               ║"
-@echo "║         Typing Speed: 0.99c                                  ║"
-@echo "║                                                              ║"
-@echo "╚══════════════════════════════════════════════════════════════╝"
-endef
+SHELL := /bin/bash
+PYTHON := python3
+VENV := .venv
+QUANTUM_SUCCESS := @echo "✨ Success!"
+QUANTUM_SIGNATURE := @echo "🎴 TarotAI"
 
-define QUANTUM_SUCCESS
-@echo "╔══════════════════════════════════════════════════════════════╗"
-@echo "║ ┌──────────────────────────────────────────────────────────┐ ║"
-@echo "║ │                ⚡ QUANTUM STATE ACHIEVED ⚡               │ ║"
-@echo "║ └──────────────────────────────────────────────────────────┘ ║"
-@echo "║                                                              ║"
-@echo "║    ▓▒░ Wavefunction Successfully Collapsed ░▒▓              ║"
-@echo "║         Entanglement Verified                               ║"
-@echo "║                                                              ║"
-@echo "╚══════════════════════════════════════════════════════════════╝"
-endef
+.PHONY: all install clean test coverage lint format check validate migrate docs serve-docs
 
 # Default target
 all: check
 
-# Setup environment
-setup:
-	@echo "Setting up development environment..."
+# Install dependencies
+install:
+	@echo "Installing dependencies..."
 	@./setup.sh
-	$(QUANTUM_SIGNATURE)
+	$(QUANTUM_SUCCESS)
 
-# Run tests with coverage
+# Run tests
 test:
 	@echo "Running tests..."
 	@pytest tests/ \
-		--cov=tarotai \
-		--cov-report=term-missing
+		--cov=src \
+		--cov-report=term-missing \
+		--cov-report=html \
+		-v
 	$(QUANTUM_SUCCESS)
 
-# Run all code quality checks
+# Generate coverage report
+coverage:
+	@echo "Generating coverage report..."
+	@coverage report
+	@coverage html
+	$(QUANTUM_SUCCESS)
+
+# Run code quality checks
 lint:
 	@echo "Running code quality checks..."
 	@flake8 src/ tests/ \
@@ -60,36 +53,49 @@ format:
 # Clean build artifacts
 clean:
 	@echo "Running project cleanup..."
-	@python scripts/dev/cleanup.py
-	@echo "Removing build artifacts..."
-	@rm -rf .venv/ __pycache__/ .pytest_cache/ .mypy_cache/ .uv_cache/
-	@find . -name '*.pyc' -delete
-	@find . -name '*.pyo' -delete
-	@find . -name '__pycache__' -delete
+	@python scripts/dev/cleanup.py --verbose
 	$(QUANTUM_SIGNATURE)
+
+# Run import migration
+migrate:
+	@echo "Running import migration..."
+	@python scripts/dev/import_migration.py
+	$(QUANTUM_SUCCESS)
+
+# Run all checks
+check: lint test migrate
+	$(QUANTUM_SUCCESS)
+
+# Validate project structure
+validate:
+	@echo "Validating project structure..."
+	@python scripts/validate_structure.py
+	$(QUANTUM_SUCCESS)
 
 # Generate documentation
 docs:
 	@echo "Generating documentation..."
-	@pdoc --html --output-dir docs src/tarotai
+	@cd docs && make html
 	$(QUANTUM_SUCCESS)
 
-# Validate configuration and data
-validate:
-	@echo "Validating configuration..."
-	@python -c "from tarotai.config.schemas.config import get_config; get_config()"
-	@echo "Validating card data..."
-	@python scripts/validate_cards.py
+# Serve documentation locally
+serve-docs:
+	@echo "Serving documentation..."
+	@cd docs/_build/html && python -m http.server 8000
 	$(QUANTUM_SUCCESS)
 
-# Run all checks (test + lint + validate)
-check: test lint validate
-	@echo "All checks passed!"
-	$(QUANTUM_SUCCESS)
-
-# Update dependencies
-update:
-	@echo "Updating dependencies..."
-	@uv pip compile --upgrade
-	@uv pip sync
-	$(QUANTUM_SUCCESS)
+# Help target
+help:
+	@echo "TarotAI Makefile targets:"
+	@echo "  install     - Install project dependencies"
+	@echo "  test        - Run test suite"
+	@echo "  coverage    - Generate test coverage report"
+	@echo "  lint        - Run code quality checks"
+	@echo "  format      - Format code"
+	@echo "  clean       - Clean build artifacts"
+	@echo "  migrate     - Run import migration"
+	@echo "  check       - Run all checks"
+	@echo "  validate    - Validate project structure"
+	@echo "  docs        - Generate documentation"
+	@echo "  serve-docs  - Serve documentation locally"
+	$(QUANTUM_SIGNATURE)

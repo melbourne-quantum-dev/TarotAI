@@ -1,7 +1,16 @@
 import pytest
+
 from tarotai.ai.embeddings.manager import EmbeddingManager
-from tarotai.core.models.types import CardEmbeddings, Reading, CardMeaning, QuestionContext, ReadingType, SpreadType
 from tarotai.ai.rag.vector_store import VectorStore
+from tarotai.core.models.types import (
+    CardEmbeddings,
+    CardMeaning,
+    QuestionContext,
+    Reading,
+    ReadingType,
+    SpreadType,
+)
+
 
 @pytest.fixture
 def mock_embedding():

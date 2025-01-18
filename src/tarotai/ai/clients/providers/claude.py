@@ -1,9 +1,11 @@
 import os
+from typing import Any, AsyncGenerator, Dict, List, Optional
+
 import anthropic
-from typing import Dict, Any, List, Optional, AsyncGenerator
 from dotenv import load_dotenv
-from tarotai.core.errors.errors import EnrichmentError
+
 from tarotai.ai.clients.base import BaseAIClient
+from tarotai.core.errors.base import EnrichmentError
 
 load_dotenv()
 

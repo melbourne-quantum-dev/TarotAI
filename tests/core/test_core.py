@@ -1,6 +1,8 @@
 from pathlib import Path
+
 from tarotai.core.models.deck import TarotDeck
 from tarotai.core.models.types import CardMeaning
+
 
 def test_deck_initialization():
     """Test that the deck initializes with all 78 cards"""

@@ -1,6 +1,9 @@
 from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
+
 from tarotai.core.models.types import CardMeaning
+
 
 class PromptStage(BaseModel):
     """Represents a single stage in a multi-stage prompt"""

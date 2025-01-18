@@ -3,14 +3,15 @@ TarotDeck implementation for TarotAI.
 Handles deck operations including shuffling, drawing, and management of card states.
 """
 
-import random
-from pathlib import Path
-from typing import List, Tuple, Optional
 import json
+import random
 import traceback
+from pathlib import Path
+from typing import List, Optional, Tuple
 
-from tarotai.core.models.types import CardMeaning, CardSuit, ErrorSeverity
 from tarotai.core.errors import DeckError
+from tarotai.core.models.types import CardMeaning, CardSuit, ErrorSeverity
+
 
 class TarotDeck:
     """

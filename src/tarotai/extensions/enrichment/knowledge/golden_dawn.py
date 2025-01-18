@@ -1,15 +1,19 @@
-from PyPDF2 import PdfReader
-from typing import List, Dict, Optional
-import os
 import json
+import os
 from pathlib import Path
-from tqdm import tqdm
-from voyageai import get_embedding
+from typing import Dict, List, Optional
+
 from dotenv import load_dotenv
 from pydantic import BaseModel
+from PyPDF2 import PdfReader
+from tqdm import tqdm
+from voyageai import get_embedding
+
 from tarotai.ai.clients.providers.voyage import VoyageClient
-from .image_processor import GoldenDawnImageProcessor
+
 from ..exceptions import EnrichmentError
+from .image_processor import GoldenDawnImageProcessor
+
 
 class GoldenDawnReadingMethod(BaseModel):
     name: str

@@ -1,6 +1,7 @@
-from typing import List, Tuple, Dict, Any
-from tarotai.core.models.types import CardMeaning, CardEmbeddings, ReadingEmbeddings
+from typing import Any, Dict, List, Tuple
+
 from tarotai.core.models.deck import TarotDeck
+from tarotai.core.models.types import CardEmbeddings, CardMeaning, ReadingEmbeddings
 
 
 class ReadingInput:

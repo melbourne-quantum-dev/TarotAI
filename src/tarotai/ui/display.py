@@ -1,14 +1,16 @@
 from dataclasses import dataclass
 from typing import List, Optional
+
+from rich.align import Align
+from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
 from rich.status import Status
-from rich.align import Align
-from rich.columns import Columns
 from rich.text import Text
 
-from tarotai.core.models.types import Reading
 from tarotai.config.schemas.config import UnifiedSettings as Settings
+from tarotai.core.models.types import Reading
+
 
 @dataclass
 class TarotASCII:

@@ -1,8 +1,10 @@
 import pytest
-from tarotai.core.models.types import CardSuit
-from tarotai.core.models.deck import TarotDeck
+
 from tarotai.config.schemas.config import get_config
 from tarotai.core.models.card import TarotCard
+from tarotai.core.models.deck import TarotDeck
+from tarotai.core.models.types import CardSuit
+
 
 @pytest.fixture(scope="session")
 def config():

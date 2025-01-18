@@ -1,9 +1,10 @@
-import json
 import asyncio
+import json
 from datetime import datetime
+from typing import Any, Dict, List
+
 from tarotai.extensions.enrichment.clients import DeepSeekClient, VoyageClient
 from tarotai.extensions.enrichment.knowledge.golden_dawn import GoldenDawnKnowledgeBase
-from typing import Dict, Any, List
 
 SYSTEM_ROLE = """
 You are an expert tarot interpreter with deep knowledge of:

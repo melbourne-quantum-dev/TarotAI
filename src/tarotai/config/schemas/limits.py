@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
 
 class InterpretationLimits(BaseModel):
     """Limits for different types of tarot interpretations"""

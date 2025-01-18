@@ -1,9 +1,11 @@
-from RealtimeSTT import AudioToTextRecorder
-from typing import Callable, Optional
 import logging
-from elevenlabs import generate, set_api_key
-import pyttsx3
 import os
+from typing import Callable, Optional
+
+import pyttsx3
+from elevenlabs import generate, set_api_key
+from RealtimeSTT import AudioToTextRecorder
+
 
 class TarotVoice:
     def __init__(self):

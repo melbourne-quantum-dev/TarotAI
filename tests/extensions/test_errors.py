@@ -1,5 +1,6 @@
 from tarotai.core.errors import TarotError
 
+
 def test_basic_error():
     """Test basic error creation"""
     error = TarotError(

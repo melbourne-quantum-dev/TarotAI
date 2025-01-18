@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Final
 
+
 class EnvVars(str, Enum):
     """Environment variables with type safety"""
     DEEPSEEK_API_KEY: Final = "DEEPSEEK_API_KEY"

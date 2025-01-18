@@ -3,8 +3,8 @@ from .knowledge.golden_dawn import (
     GoldenDawnKnowledge,
     GoldenDawnKnowledgeBase,
     extract_pdf_content,
+    load_knowledge,
     save_knowledge,
-    load_knowledge
 )
 
 __all__ = [

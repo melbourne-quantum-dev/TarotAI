@@ -1,10 +1,12 @@
-import typer
-import questionary
-from typing import Optional, List
 from pathlib import Path
+from typing import List, Optional
+
+import questionary
+import typer
 from rich.panel import Panel
 
 from tarotai.ui.display import TarotDisplay
+
 try:
     from tarotai.core.voice import TarotVoice
     VOICE_ENABLED = True
@@ -12,8 +14,8 @@ except ImportError:
     VOICE_ENABLED = False
 from tarotai.core.models.deck import TarotDeck
 from tarotai.core.models.types import Reading
-from tarotai.core.services.reading import RandomDrawInput, ManualInput
 from tarotai.core.services.interpreter import TarotInterpreter
+from tarotai.core.services.reading import ManualInput, RandomDrawInput
 
 app = typer.Typer(
     help="TarotAI - Neural-Enhanced Tarot Reading System",

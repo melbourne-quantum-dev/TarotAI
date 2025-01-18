@@ -1,4 +1,11 @@
-from tarotai.config.schemas.config import get_config, UnifiedSettings, AISettings, TarotSettings
+from tarotai.config.schemas.config import (
+    AISettings,
+    TarotSettings,
+    UnifiedSettings,
+    get_config,
+)
+
+
 def test_config_loading():
     """Test that config loads without errors"""
     config = get_config()

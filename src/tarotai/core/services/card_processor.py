@@ -11,9 +11,10 @@ Version: 2.0.0
 Last Updated: 2025-01-17
 """
 
-from datetime import datetime
 import logging
-from typing import Dict, Any, List
+from datetime import datetime
+from typing import Any, Dict, List
+
 from tarotai.ai.clients.base import BaseAIClient
 from tarotai.ai.clients.providers.voyage import VoyageClient
 

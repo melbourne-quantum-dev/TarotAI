@@ -1,5 +1,7 @@
 import pytest
+
 from tarotai.core.models.card import TarotCard
+
 
 @pytest.mark.unit
 def test_minimal_card_creation():

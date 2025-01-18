@@ -7,11 +7,14 @@ See also:
 - src/tarotai/core/deck.py for deck management
 """
 
-from pathlib import Path
-from typing import List, Dict, Optional, Any
 import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field, validator
+
 from tarotai.core.models.types import CardSuit
+
 
 class CardError(Exception):
     """Base exception for card-related errors.

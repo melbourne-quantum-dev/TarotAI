@@ -1,8 +1,10 @@
-from typing import Dict, List
+import json
 from dataclasses import dataclass
 from pathlib import Path
-import json
-from tarotai.core.models.types import CardMeaning, CardEmbeddings
+from typing import Dict, List
+
+from tarotai.core.models.types import CardEmbeddings, CardMeaning
+
 
 @dataclass
 class CardEmbeddings:

@@ -1,10 +1,12 @@
 import os
-from typing import Dict, Any, List, Optional, Union
-from voyageai import AsyncClient
+from typing import Any, Dict, List, Optional, Union
+
 from dotenv import load_dotenv
-from tenacity import retry, wait_exponential, stop_after_attempt
-from tarotai.core.errors.errors import EnrichmentError
+from tenacity import retry, stop_after_attempt, wait_exponential
+from voyageai import AsyncClient
+
 from tarotai.ai.clients.base import BaseAIClient
+from tarotai.core.errors.base import EnrichmentError
 
 load_dotenv()
 

@@ -1,11 +1,14 @@
 import io
-from typing import Dict, Any, List
-from pathlib import Path
-from PIL import Image
-import fitz  # PyMuPDF
 import json
+from pathlib import Path
+from typing import Any, Dict, List
+
+import fitz  # PyMuPDF
+from PIL import Image
+
 from tarotai.ai.clients.providers.voyage import VoyageClient
 from tarotai.core.errors import EnrichmentError
+
 
 class GoldenDawnImageProcessor:
     """Processes and stores Golden Dawn PDF images with multimodal embeddings"""

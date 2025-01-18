@@ -1,6 +1,7 @@
-from enum import Enum, auto
-from typing import List, Optional, Dict
 from datetime import datetime
+from enum import Enum, auto
+from typing import Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 __all__ = [
