@@ -1,5 +1,6 @@
 import pytest
 from pathlib import Path
+from tarotai.core.models.types import CardSuit
 from tarotai.core.models.deck import TarotDeck
 from tarotai.config.schemas.config import get_config
 from tarotai.core.models.card import TarotCard
