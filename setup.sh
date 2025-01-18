@@ -55,8 +55,21 @@ setup_environment() {
 
 install_dependencies() {
     log "Installing project dependencies..."
-    uv pip install --quiet -e ".[dev]" || error "Failed to install dependencies"
+    echo
+    echo "Installing core dependencies..."
+    uv pip install --quiet -e . || error "Failed to install core dependencies"
+    echo "✓ Core dependencies installed"
+    
+    echo "Installing development dependencies..."
+    uv pip install --quiet -e ".[dev]" || error "Failed to install dev dependencies"
+    echo "✓ Development dependencies installed"
+    
+    echo "Verifying installation..."
+    if ! python3 -c "import tarotai" &> /dev/null; then
+        error "Failed to verify installation - tarotai package not found"
+    fi
     success "Dependencies installed successfully"
+    echo
 }
 
 verify_api_keys() {
