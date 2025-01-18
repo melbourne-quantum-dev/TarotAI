@@ -2,7 +2,14 @@
 
 # Add pre-flight checks
 if ! command -v python3 &> /dev/null; then
-    echo "Python 3.10+ is required. Please install it first."
+    echo "Python 3.12+ is required. Please install it first."
+    exit 1
+fi
+
+# Add version check
+python_version=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+if (( $(echo "$python_version < 3.12" | bc -l) )); then
+    echo "Python 3.12+ is required. Current version: $python_version"
     exit 1
 fi
 
@@ -19,7 +26,6 @@ function cleanup() {
 if [ -d ".venv" ]; then
     echo "Existing virtual environment found. Updating..."
     source .venv/bin/activate
-    uv pip install --upgrade -r requirements.txt
 else
     # Create fresh environment
     cleanup
@@ -31,11 +37,10 @@ else
         python3 -m pip install --upgrade pip
         python3 -m pip install uv
     fi
-    
-    # Install dependencies
-    uv pip install -r requirements.txt
-    uv pip install -e .
 fi
+
+# Install dependencies
+uv pip install -e ".[dev]"
 
 # Create config files if missing
 if [ ! -f "assistant_config.yml" ]; then

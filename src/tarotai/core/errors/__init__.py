@@ -1,91 +1,119 @@
-"""Error types and handling for TarotAI"""
-
-from typing import Optional, Dict, Any
-from pydantic import BaseModel
-from fastapi import HTTPException
-from datetime import datetime
+"""
+Core error types for TarotAI system.
+Provides a structured hierarchy of exceptions for different components.
+"""
 from enum import Enum
+from typing import Optional, Any, Dict
 
-class ErrorSeverity(str, Enum):
-    """Severity levels for error reporting"""
-    DEBUG = "debug"
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
-    CRITICAL = "critical"
+class ErrorSeverity(Enum):
+    """Severity levels for TarotAI errors"""
+    LOW = "low"           # Minor issues that don't affect core functionality
+    MEDIUM = "medium"     # Issues that degrade but don't prevent functionality
+    HIGH = "high"         # Issues that prevent specific features from working
+    CRITICAL = "critical" # Issues that prevent system operation
 
-class TarotError(Exception):
+class TarotAIError(Exception):
     """Base exception class for TarotAI system"""
     def __init__(
         self,
         message: str,
-        severity: ErrorSeverity = ErrorSeverity.ERROR,
-        code: Optional[str] = None,
-        detail: Optional[Dict[str, Any]] = None
+        severity: ErrorSeverity = ErrorSeverity.MEDIUM,
+        details: Optional[Dict[str, Any]] = None
     ):
         self.message = message
         self.severity = severity
-        self.code = code or self.__class__.__name__
-        self.detail = detail or {}
-        self.timestamp = datetime.now()
-        super().__init__(message)
+        self.details = details or {}
+        super().__init__(self.message)
 
-class TarotHTTPException(TarotError):
-    """HTTP-specific error for API endpoints"""
-    def __init__(self, status_code: int, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.status_code = status_code
+class DeckError(TarotAIError):
+    """Raised when deck operations fail"""
+    def __init__(
+        self,
+        message: str,
+        severity: ErrorSeverity = ErrorSeverity.HIGH,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        super().__init__(message, severity, details)
 
-    def to_http_exception(self) -> HTTPException:
-        return HTTPException(
-            status_code=self.status_code,
-            detail={
-                "message": self.message,
-                "code": self.code,
-                "detail": self.detail
-            }
-        )
+class ProcessingError(TarotAIError):
+    """Raised when processing operations fail"""
+    def __init__(
+        self,
+        message: str,
+        severity: ErrorSeverity = ErrorSeverity.HIGH,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        super().__init__(message, severity, details)
 
-class DeckError(TarotError):
-    """Errors related to deck operations"""
-    pass
+class EnrichmentError(TarotAIError):
+    """Raised when enrichment operations fail"""
+    def __init__(
+        self,
+        message: str,
+        severity: ErrorSeverity = ErrorSeverity.MEDIUM,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        super().__init__(message, severity, details)
 
-class ConfigError(TarotError):
-    """Configuration related errors"""
-    pass
+class EmbeddingError(TarotAIError):
+    """Raised when embedding operations fail"""
+    def __init__(
+        self,
+        message: str,
+        severity: ErrorSeverity = ErrorSeverity.HIGH,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        super().__init__(message, severity, details)
 
-class EnrichmentError(TarotError):
-    """Errors during card enrichment"""
-    pass
+class AIClientError(TarotAIError):
+    """Raised when AI client operations fail"""
+    def __init__(
+        self,
+        message: str,
+        client_name: str,
+        severity: ErrorSeverity = ErrorSeverity.HIGH,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        details = details or {}
+        details["client_name"] = client_name
+        super().__init__(message, severity, details)
 
-class EmbeddingError(TarotError):
-    """Errors during embedding generation"""
-    pass
+class ConfigurationError(TarotAIError):
+    """Raised when configuration issues occur"""
+    def __init__(
+        self,
+        message: str,
+        config_key: Optional[str] = None,
+        severity: ErrorSeverity = ErrorSeverity.CRITICAL,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        details = details or {}
+        if config_key:
+            details["config_key"] = config_key
+        super().__init__(message, severity, details)
 
-class ReadingError(TarotError):
-    """Errors during tarot reading generation"""
-    pass
-
-def handle_error(error: Exception) -> TarotError:
-    """Convert any error to TarotError"""
-    if isinstance(error, TarotError):
-        return error
-    
-    return TarotError(
-        message=str(error),
-        severity=ErrorSeverity.ERROR,
-        code="UNKNOWN_ERROR",
-        detail={"original_error": error.__class__.__name__}
-    )
+class ValidationError(TarotAIError):
+    """Raised when data validation fails"""
+    def __init__(
+        self,
+        message: str,
+        field_name: Optional[str] = None,
+        severity: ErrorSeverity = ErrorSeverity.HIGH,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        details = details or {}
+        if field_name:
+            details["field_name"] = field_name
+        super().__init__(message, severity, details)
 
 __all__ = [
     'ErrorSeverity',
-    'TarotError',
-    'TarotHTTPException',
+    'TarotAIError',
     'DeckError',
-    'ConfigError',
+    'ProcessingError',
     'EnrichmentError',
     'EmbeddingError',
-    'ReadingError',
-    'handle_error'
+    'AIClientError',
+    'ConfigurationError',
+    'ValidationError'
 ]

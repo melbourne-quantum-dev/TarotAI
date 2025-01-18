@@ -1,7 +1,7 @@
 import pytest
+from tarotai.ai.embeddings.manager import EmbeddingManager
+from tarotai.core.models.types import CardEmbeddings, Reading, CardMeaning, QuestionContext, ReadingType, SpreadType
 from tarotai.ai.rag.vector_store import VectorStore
-from tarotai.core.embedding_manager import EmbeddingManager, CardEmbeddings
-from tarotai.core.types import Reading, CardMeaning
 from pathlib import Path
 
 @pytest.fixture
@@ -15,9 +15,26 @@ def vector_store():
     for i in range(10):
         reading = Reading(
             id=f"test-{i}",
-            cards=[("Test Card", True)],
+            cards=[CardMeaning(
+                name="The Fool",
+                number=0,
+                suit="major",
+                arcana_type="major",
+                is_reversed=True,
+                keywords=["beginnings", "innocence"],
+                upright_meaning="Test upright",
+                reversed_meaning="Test reversed"
+            )],
             interpretation=f"Test interpretation {i}",
-            model="test-model"
+            model="test-model",
+            context=QuestionContext(
+                question="Test question",
+                focus="Test focus",
+                raw_question="Test raw question"
+            ),
+            reading_type=ReadingType.GENERAL,
+            spread_type=SpreadType.SINGLE,
+            is_reversed=[False]
         )
         embedding = [float(i)] * 1024
         store.add_reading(reading, embedding)
@@ -32,9 +49,26 @@ def test_vector_store_find_similar(vector_store, mock_embedding):
     # Add a target reading
     target_reading = Reading(
         id="target",
-        cards=[("Target Card", False)],
+        cards=[CardMeaning(
+            name="The Fool",
+            number=0,
+            suit="major",
+            arcana_type="major",
+            is_reversed=False,
+            keywords=["beginnings", "innocence"],
+            upright_meaning="Test upright",
+            reversed_meaning="Test reversed"
+        )],
         interpretation="Target interpretation",
-        model="test-model"
+        model="test-model",
+        context=QuestionContext(
+            question="Target question",
+            focus="Target focus",
+            raw_question="Target raw question"
+        ),
+        reading_type=ReadingType.GENERAL,
+        spread_type=SpreadType.SINGLE,
+        is_reversed=[False]
     )
     vector_store.add_reading(target_reading, mock_embedding)
     
@@ -50,10 +84,9 @@ def test_embedding_manager_initialization(tmp_path):
 
 def test_card_embeddings_serialization():
     embeddings = CardEmbeddings(
-        meaning_embedding=[0.1] * 1024,
-        symbolism_embedding=[0.2] * 1024,
-        contextual_embedding=[0.3] * 1024,
-        version=2
+        text_embedding=[0.1] * 1024,
+        image_embedding=[0.2] * 1024,
+        version="2.0"
     )
-    assert len(embeddings.meaning_embedding) == 1024
-    assert embeddings.version == 2
+    assert len(embeddings.text_embedding) == 1024
+    assert embeddings.version == "2.0"

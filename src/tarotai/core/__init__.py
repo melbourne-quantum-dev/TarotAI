@@ -1,91 +1,27 @@
-"""Core module for TarotAI"""
+"""Core TarotAI functionality"""
 
-from .errors import (
-    TarotError,
-    TarotHTTPException,
-    DeckError,
-    ConfigError,
-    EnrichmentError
-)
-
-from .models.types import (
-    CardMeaning,
-    Reading,
-    QuestionContext,
-    CardEmbeddings,
-    ReadingEmbeddings,
-    CardSuit,
-    SpreadType,
-    ReadingType,
-    UserProfile
-)
-
+from .models.card import TarotCard
 from .models.deck import TarotDeck
-from .models.card import TarotCard, CardManager
-from .services.interpreter import TarotInterpreter
+from .models.types import CardSuit, CardMeaning, SpreadType
 from .services.reading import ReadingInput
-from .services.card_processor import CardProcessor
+from .errors import (
+    ErrorSeverity,
+    TarotAIError,
+    ProcessingError,
+    EnrichmentError,
+    EmbeddingError
+)
+from .logging import setup_logging
 
 __all__ = [
-    # Errors
-    'TarotError',
-    'TarotHTTPException',
-    'DeckError',
-    'ConfigError',
-    'EnrichmentError',
-    
-    # Types
-    'CardMeaning',
-    'Reading',
-    'QuestionContext',
-    'CardEmbeddings',
-    'ReadingEmbeddings',
-    'CardSuit',
-    'SpreadType',
-    'ReadingType',
-    'UserProfile',
-    
-    # Core components
-    'TarotDeck',
     'TarotCard',
-    'CardManager',
-    'ReadingInput',
-    'CardProcessor',
-    'TarotInterpreter'
-]
-"""
-Core functionality for TarotAI
-"""
-from .models.types import *
-from .models.card import *
-from .models.deck import *
-from .services.reading import *
-from .services.interpreter import *
-from .services.card_processor import *
-
-__all__ = [
-    'CardMeaning',
-    'CardSuit',
     'TarotDeck',
     'ReadingInput',
-    'TarotInterpreter',
-    'CardProcessor'
-]
-"""
-Core functionality for TarotAI
-"""
-from .models.types import *
-from .models.card import *
-from .models.deck import *
-from .services.reading import *
-from .services.interpreter import *
-from .services.card_processor import *
-
-__all__ = [
-    'CardMeaning',
-    'CardSuit',
-    'TarotDeck',
-    'ReadingInput',
-    'TarotInterpreter',
-    'CardProcessor'
+    'SpreadType',
+    'ErrorSeverity',
+    'TarotAIError',
+    'ProcessingError',
+    'EnrichmentError',
+    'EmbeddingError',
+    'setup_logging'
 ]

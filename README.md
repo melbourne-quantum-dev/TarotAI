@@ -24,12 +24,14 @@
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/melbourne-quantum-dev/tarotai.git
    cd tarotai
    ```
 
 2. Install dependencies using uv:
+
    ```bash
    pip install uv
    uv venv .venv
@@ -38,6 +40,7 @@
    ```
 
 3. Configure API keys:
+
    ```bash
    nano .env  # or your preferred text editor
    ```
@@ -49,6 +52,7 @@
    - OpenAI (optional)
 
 4. Configure settings in `assistant_config.yml`:
+
    ```yaml
    version: 2.0.0
    environment: development
@@ -89,36 +93,43 @@
 ### Basic Usage
 
 #### Interactive Reading
+
 ```bash
 tarotai read --spread-type three_card --focus "Career" --question "What should I focus on?"
 ```
 
 #### Voice Interface
+
 ```bash
 tarotai voice
 ```
 
 #### Manual Reading
+
 ```bash
 tarotai manual --cards "The Fool" "The Magician" --reversed False True --focus "Relationships"
 ```
 
 #### Process Golden Dawn PDF
+
 ```bash
 tarotai process-golden-dawn --pdf data/golden_dawn.pdf
 ```
 
 #### Multimodal Search
+
 ```bash
 tarotai search-symbols --query "The Fool"
 ```
 
 #### Generate Card Meanings
+
 ```bash
 tarotai generate-meanings
 ```
 
 #### View Reading History
+
 ```bash
 tarotai history --card "The Fool"
 ```
@@ -126,27 +137,33 @@ tarotai history --card "The Fool"
 ### Troubleshooting
 
 If you encounter issues:
+
 1. Verify Python version (3.10+ required):
+
    ```bash
    python3 --version
    ```
 
 2. Check virtual environment activation:
+
    ```bash
    which python  # Should point to .venv/bin/python
    ```
 
 3. Verify dependencies:
+
    ```bash
    pip list | grep tarotai
    ```
 
 4. Check environment variables:
+
    ```bash
    cat .env
    ```
 
 5. Run tests to verify installation:
+
    ```bash
    pytest tests/
    ```
@@ -188,6 +205,7 @@ The Magician represents manifestation and resourcefulness...
 ### Python API Examples
 
 #### Basic Reading
+
 ```python
 from tarotai import TarotReader
 
@@ -200,6 +218,7 @@ reading = reader.execute_reading(
 ```
 
 #### Custom Spread
+
 ```python
 from tarotai import TarotReader, SpreadType
 
@@ -213,6 +232,7 @@ reading = reader.execute_reading(
 ```
 
 #### Generate Card Meanings
+
 ```python
 from tarotai.core.card_processor import CardProcessor
 from tarotai.ai.clients import initialize_ai_clients
@@ -226,6 +246,7 @@ card = await card_processor.generate_embeddings(card)
 ```
 
 #### Query Reading History
+
 ```python
 from tarotai.extensions.enrichment.reading_history import ReadingHistoryManager
 
@@ -245,6 +266,7 @@ For community standards, see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 ## Development
 
 ### Setup
+
 ```bash
 pip install -r requirements.txt && \
 pip install -e ".[dev]" && \
@@ -252,16 +274,19 @@ pip install types-pydantic types-httpx types-python-dotenv types-requests
 ```
 
 ### Running Tests
+
 ```bash
 pytest tests/
 ```
 
 ### Code Formatting
+
 ```bash
 black src/ tests/
 ```
 
 ### Type Checking
+
 ```bash
 mypy src/ tests/
 ```
@@ -283,9 +308,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 1. System Overview
 
 ### 1.1 Purpose
+
 TarotAI is a neural-enhanced divination interface providing programmatic access to tarot readings through a CLI interface. It combines traditional tarot interpretation with modern software engineering practices.
 
 ### 1.2 Key Features
+
 - Interactive CLI interface with rich visual feedback
 - Multiple spread types support
 - Context-aware interpretation engine
@@ -295,6 +322,7 @@ TarotAI is a neural-enhanced divination interface providing programmatic access 
 ## 2. Architecture
 
 ### 2.1 Component Structure
+
 ```
 tarotai/
 ├── src/
@@ -319,7 +347,9 @@ tarotai/
 ### 2.2 Key Components
 
 #### TarotDisplay
+
 Manages visual presentation and user feedback:
+
 ```python
 class TarotDisplay:
     def welcome_banner(self) -> str
@@ -328,7 +358,9 @@ class TarotDisplay:
 ```
 
 #### TarotInterface
+
 Handles user interaction:
+
 ```python
 class TarotInterface:
     SPREADS: Dict[str, Tuple[str, int]]
@@ -336,7 +368,9 @@ class TarotInterface:
 ```
 
 #### TarotReader
+
 Coordinates reading execution:
+
 ```python
 class TarotReader:
     def execute_reading(self, reading_type: str, focus: str, question: str) -> Reading
@@ -345,6 +379,7 @@ class TarotReader:
 ## 3. Implementation Guidelines
 
 ### 3.1 Code Standards
+
 - Use type hints consistently
 - Follow PEP 8 style guide
 - Document all public interfaces
@@ -354,6 +389,7 @@ class TarotReader:
 - Follow src-layout project structure
 
 ### 3.2 Error Handling
+
 ```python
 @contextmanager
 def loading_sequence(self, message: str):
@@ -366,6 +402,7 @@ def loading_sequence(self, message: str):
 ```
 
 ### 3.3 Type System
+
 ```python
 @dataclass
 class Reading:
@@ -383,11 +420,13 @@ class QuestionContext:
 ## 4. Testing & Quality Assurance
 
 ### 4.1 Test Structure
+
 - Unit tests for core components
 - Integration tests for CLI interface
 - End-to-end tests for complete readings
 
 ### 4.2 Test Guidelines
+
 ```python
 def test_reading_execution():
     reader = TarotReader(display=MockDisplay())
@@ -403,6 +442,7 @@ def test_reading_execution():
 ## 5. Deployment & Operations
 
 ### 5.1 Environment Setup
+
 ```bash
 # Required environment variables
 DATA_DIR=/path/to/data
@@ -428,6 +468,7 @@ uv pip install -e .
 ```
 
 ### 5.2 Deployment Process
+
 1. Update version in `__init__.py`
 2. Run test suite
 3. Build distribution package
@@ -436,6 +477,7 @@ uv pip install -e .
 ## 6. API Reference
 
 ### 6.1 Core Types
+
 ```python
 class Reading(BaseModel):
     context: QuestionContext
@@ -456,12 +498,14 @@ class CardMeaning(BaseModel):
 ```
 
 #### TarotDeck
+
 ```python
 class TarotDeck:
     def draw_spread(self, reading_type: str) -> List[Tuple[str, str]]
 ```
 
 ### 6.2 Constants
+
 ```python
 SPREADS = {
     "◈ Single Card": {
@@ -501,12 +545,14 @@ SPREADS = {
 ## 7. Developer Guide
 
 ### 7.1 Getting Started
+
 1. Clone repository
 2. Install dependencies
 3. Set up environment variables
 4. Run test suite
 
 #### Example Usage
+
 ```python
 reading = reader.execute_reading(
     reading_type=ReadingType.SINGLE,
@@ -516,6 +562,7 @@ reading = reader.execute_reading(
 ```
 
 ### 7.2 Common Tasks
+
 ```python
 # Creating a new reading
 reader = TarotReader(display=TarotDisplay())
@@ -527,6 +574,7 @@ reading = reader.execute_reading(
 ```
 
 ### 7.3 Troubleshooting
+
 - Check environment variables
 - Verify data file permissions
 - Review error logs
@@ -539,6 +587,7 @@ reading = reader.execute_reading(
 The system uses an iterative, AI-assisted process to generate and refine card meanings. This workflow ensures consistency and quality while maintaining alignment with traditional tarot interpretations.
 
 ### 9.1 Workflow Steps
+
 1. **Initialization**:
    - Load existing card data from `data/cards_ordered.json`.
    - Identify incomplete cards (missing meanings or embeddings).
@@ -565,6 +614,7 @@ The system uses an iterative, AI-assisted process to generate and refine card me
 ### 9.2 Key Components
 
 #### Prompt Templates
+
 ```python
 UPRIGHT_PROMPT = """
 Generate an upright meaning for the {card_name} tarot card. 
@@ -578,6 +628,7 @@ Generate a reversed meaning for the {card_name} tarot card.
 The upright meaning is: {upright_meaning}.
 Provide a concise, modern interpretation of the reversed energy.
 ```
+
 ```
 
 #### Validation Rules
@@ -611,6 +662,7 @@ async def main():
 ### 8.1 Core Components
 
 #### TarotDeck
+
 ```python
 class TarotDeck:
     def __init__(self, cards_data: Path):
@@ -622,6 +674,7 @@ class TarotDeck:
 ```
 
 ### TarotReader
+
 ```python
 class TarotReader:
     def __init__(self, deck: TarotDeck, interpreter: Interpreter):
@@ -640,6 +693,7 @@ class TarotReader:
 ```
 
 #### Interpreter
+
 ```python
 class Interpreter:
     def __init__(self, model_config: Dict[str, Any]):
@@ -655,6 +709,7 @@ class Interpreter:
 ```
 
 #### CLI Interface
+
 ```python
 @click.group()
 def cli():
@@ -671,6 +726,7 @@ def interactive(): ...
 ```
 
 ### 8.2 Data Flow
+
 1. User initiates reading through CLI
 2. TarotReader creates QuestionContext
 3. TarotDeck shuffles and draws cards
@@ -680,6 +736,7 @@ def interactive(): ...
 7. Results displayed via Rich console
 
 ### 8.3 Error Handling Strategy
+
 ```python
 class TarotError(Exception): pass
 class DeckError(TarotError): pass
@@ -701,6 +758,7 @@ def handle_reading_errors(func):
 ```
 
 ### 8.4 Testing Strategy
+
 - Unit tests for each core component
 - Integration tests for full reading flow
 - Mock API calls for interpretation
@@ -710,12 +768,14 @@ def handle_reading_errors(func):
 ## Appendix A: Security Considerations
 
 ### A.1 Data Protection
+
 - Secure storage of card meanings
 - Input validation
 - Error message sanitization
 - API key management for multiple AI providers (Anthropic, DeepSeek, Voyage)
 
 ### A.2 Error Handling
+
 - Graceful degradation
 - User feedback
 - Logging standards
@@ -723,11 +783,13 @@ def handle_reading_errors(func):
 ## Appendix B: Change Management
 
 ### B.1 Version Control
+
 - Feature branches
 - Pull request process
 - Code review requirements
 
 ### B.2 Release Process
+
 - Version numbering
 - Changelog maintenance
 - Deployment verification
@@ -739,6 +801,7 @@ def handle_reading_errors(func):
 The enrichment extension enhances the core tarot system with AI-powered features and historical analysis.
 
 #### 9.1.1 Key Capabilities
+
 - AI-enhanced card meanings beyond static definitions (via Anthropic or DeepSeek)
 - Reading pattern analysis and insights
 - Historical reading tracking and analysis
@@ -746,6 +809,7 @@ The enrichment extension enhances the core tarot system with AI-powered features
 - Flexible AI provider selection
 
 #### 9.1.2 Component Structure
+
 ```python
 extensions/
 └── enrichment/
@@ -766,13 +830,16 @@ extensions/
 ```
 
 #### 9.1.3 Core vs Extension
+
 The core system provides:
+
 - Basic card meanings and attributes
 - Spread mechanics and position meanings
 - Basic interpretation logic
 - Reading execution flow
 
 The enrichment extension adds:
+
 - Dynamic meaning enhancement via AI
 - Pattern recognition across readings
 - Historical context and learning
@@ -780,6 +847,7 @@ The enrichment extension adds:
 - Advanced interpretation insights
 
 #### 9.1.4 Integration Points
+
 ```python
 # Core reading enhanced with enrichment
 class Reading(BaseModel):
@@ -809,6 +877,7 @@ class CardMeaning(BaseModel):
 ```
 
 #### 9.1.5 Usage Example
+
 ```python
 # Core reading with enrichment
 async def execute_enriched_reading(
@@ -835,6 +904,7 @@ async def execute_enriched_reading(
 ## 10. Development Workflow
 
 ### 10.1 Setup Environment
+
 ```bash
 # Create virtual environment
 uv venv .venv
@@ -853,21 +923,25 @@ uv pip install -e .
 ### 10.2 Common Development Commands
 
 #### Run Tests
+
 ```bash
 uv run pytest tests/
 ```
 
 #### Generate Card Meanings
+
 ```bash
 uv run python scripts/generate_meanings.py
 ```
 
 #### Process Golden Dawn PDF
+
 ```bash
 uv run python src/tarotai/extensions/enrichment/enricher.py
 ```
 
 #### Run CLI Interface
+
 ```bash
 uv run python src/tarotai/cli.py
 ```
@@ -875,6 +949,7 @@ uv run python src/tarotai/cli.py
 ### 10.3 Git Workflow
 
 #### Standard Commit Process
+
 ```bash
 # Stage changes
 git add .
@@ -890,6 +965,7 @@ git push
 ```
 
 #### Recommended Commit Message Format
+
 ```
 type(scope): short description
 
@@ -899,6 +975,7 @@ type(scope): short description
 ```
 
 Where type is one of:
+
 - feat: New feature
 - fix: Bug fix
 - docs: Documentation changes
@@ -908,6 +985,7 @@ Where type is one of:
 - chore: Maintenance tasks
 
 Example:
+
 ```
 feat(enrichment): add Golden Dawn PDF processing
 ```
@@ -915,16 +993,19 @@ feat(enrichment): add Golden Dawn PDF processing
 ### 10.4 Code Quality Checks
 
 #### Run Linting
+
 ```bash
 uv run flake8 src/ tests/
 ```
 
 #### Run Type Checking
+
 ```bash
 uv run mypy src/ tests/
 ```
 
 #### Format Code
+
 ```bash
 uv run black src/ tests/
 ```

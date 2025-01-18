@@ -1,8 +1,8 @@
 import pytest
 from pathlib import Path
-from src.tarotai.core.models.deck import TarotDeck
-from src.tarotai.core.config import get_config
-from src.tarotai.core.models.card import TarotCard
+from tarotai.core.models.deck import TarotDeck
+from tarotai.config.schemas.config import get_config
+from tarotai.core.models.card import TarotCard
 
 @pytest.fixture(scope="session")
 def config():
@@ -22,9 +22,9 @@ def empty_deck(config):
 @pytest.fixture
 def sample_card():
     return TarotCard(
-        name="Test Card",
+        name="The Fool",
         number=0,
-        suit="Test Suit",
+        suit=CardSuit.MAJOR,  # Use enum value
         keywords=["test"],
         upright_meaning="Test upright",
         reversed_meaning="Test reversed"
@@ -33,9 +33,9 @@ def sample_card():
 @pytest.fixture
 def sample_card_data():
     return {
-        "name": "Test Card",
+        "name": "The Fool",
         "number": 0,
-        "suit": "Test Suit",
+        "suit": CardSuit.MAJOR.value,  # Use enum value
         "keywords": ["test"],
         "upright_meaning": "Test upright",
         "reversed_meaning": "Test reversed"

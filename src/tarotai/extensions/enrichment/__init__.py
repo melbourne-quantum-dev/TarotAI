@@ -1,16 +1,16 @@
 # src/tarotai/extensions/enrichment/__init__.py
-from .enricher import TarotEnricher
-from .reading_history import ReadingHistoryManager
-from .clients import DeepSeekClient, VoyageClient, ClaudeClient
-from .analyzers import TemporalAnalyzer, CombinationAnalyzer, InsightGenerator
+from .knowledge.golden_dawn import (
+    GoldenDawnKnowledge,
+    GoldenDawnKnowledgeBase,
+    extract_pdf_content,
+    save_knowledge,
+    load_knowledge
+)
 
 __all__ = [
-    'TarotEnricher',
-    'ReadingHistoryManager',
-    'DeepSeekClient', 
-    'VoyageClient',
-    'ClaudeClient',
-    'TemporalAnalyzer',
-    'CombinationAnalyzer',
-    'InsightGenerator'
+    'GoldenDawnKnowledge',
+    'GoldenDawnKnowledgeBase',
+    'extract_pdf_content',
+    'save_knowledge',
+    'load_knowledge'
 ]

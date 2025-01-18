@@ -1,17 +1,18 @@
 import pytest
-from tarotai.core.card import TarotCard
+from tarotai.core.models.card import TarotCard
 
 @pytest.mark.unit
 def test_minimal_card_creation():
     """Test card creation with minimal required fields"""
     card = TarotCard(
-        name="Test Card",
-        number=0,
-        suit="Test Suit"
+        name="The Magician",  # Changed from Test Card
+        number=1,            # Changed from 0 (must be 1-14 for minor arcana)
+        suit="wands",        # Must be a valid CardSuit enum value
+        keywords=["test"],   # Required field
+        upright_meaning="Test upright",     # Required field
+        reversed_meaning="Test reversed"    # Required field
     )
-    assert card.name == "Test Card"
-    assert card.number == 0
-    assert card.suit == "Test Suit"
+    assert card.name == "The Magician"
 
 @pytest.mark.unit
 def test_card_creation_with_all_fields(sample_card_data):

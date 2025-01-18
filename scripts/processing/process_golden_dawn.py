@@ -1,117 +1,130 @@
+#!/usr/bin/env python3
 """
-Golden Dawn PDF Processing Script
-
-This script handles:
-1. PDF content extraction
-2. Knowledge structuring
-3. Integration with TarotAI system
-
-Version: 2.0.0
-Last Updated: 2025-01-17
+Golden Dawn Knowledge Processing Script
+Extracts and structures knowledge from the Golden Dawn PDF source.
 """
-
 import asyncio
-from pathlib import Path
-import logging
-import os
+import json
 from datetime import datetime
-from typing import Dict, Any, List
-from src.tarotai.core.card_processor import CardProcessor
-from src.tarotai.ai.clients import initialize_ai_clients
-from src.tarotai.config.schemas.config import get_config
-from src.tarotai.core.logging import setup_logging
-from src.tarotai.extensions.enrichment.knowledge.golden_dawn import (
-    extract_pdf_content,
-    save_knowledge
-)
+from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Configure logging
-setup_logging()
-logger = logging.getLogger(__name__)
+# Core imports
+from tarotai.core.logging import setup_logging
+from tarotai.core.errors import ProcessingError
+from tarotai.core.services import CardProcessor
+from tarotai.config import get_config
+
+# AI client imports
+from tarotai.ai.clients import initialize_ai_clients
+
+# Enrichment imports
+from tarotai.extensions.enrichment.knowledge.golden_dawn import (
+    extract_pdf_content,
+    save_knowledge,
+    GoldenDawnKnowledge,
+    GoldenDawnKnowledgeBase
+)
+from tarotai.extensions.enrichment.knowledge.image_processor import GoldenDawnImageProcessor
+
+# Setup logging
+logger = setup_logging()
 
 async def enhanced_process_golden_dawn(
     pdf_path: Path,
     ai_clients: Dict[str, Any],
-    card_processor: CardProcessor
+    output_dir: Optional[Path] = None
 ) -> Dict[str, Any]:
-    """Enhanced processing with AI client optimization"""
+    """
+    Enhanced processing pipeline for Golden Dawn knowledge extraction.
+    
+    Args:
+        pdf_path: Path to the Golden Dawn PDF
+        ai_clients: Dictionary of initialized AI clients
+        output_dir: Optional output directory (defaults to pdf_path.parent/processed)
+    
+    Returns:
+        Dict containing structured knowledge and processing metadata
+    """
     try:
         logger.info(f"Starting enhanced Golden Dawn processing: {pdf_path}")
         
-        # Extract knowledge using Claude
-        pdf_content = extract_pdf_content(pdf_path)
-        gd_knowledge = await ai_clients["claude"].extract_structured_knowledge(pdf_content)
+        if output_dir is None:
+            output_dir = pdf_path.parent / "processed"
+            output_dir.mkdir(exist_ok=True)
+            
+        # Extract textual knowledge
+        logger.info("Extracting textual knowledge...")
+        knowledge = extract_pdf_content(pdf_path)
         
-        # Process cards
-        cards = gd_knowledge.get("cards", [])
-        processed_cards = []
+        # Save knowledge base
+        knowledge_path = output_dir / "golden_dawn_knowledge.json"
+        save_knowledge(knowledge, knowledge_path)
+        logger.info(f"Saved knowledge base to {knowledge_path}")
         
-        for card in cards:
-            try:
-                # Generate meanings and embeddings
-                card = await card_processor.generate_meanings(card, gd_knowledge)
-                card = await card_processor.generate_embeddings(card)
-                processed_cards.append(card)
-            except Exception as e:
-                logger.error(f"Error processing card {card.get('name')}: {str(e)}")
-                processed_cards.append(card)  # Keep original card data
+        # Process images if Voyage client is available
+        image_results = None
+        if "voyage" in ai_clients:
+            logger.info("Processing images with Voyage...")
+            image_processor = GoldenDawnImageProcessor(ai_clients["voyage"])
+            image_results = await image_processor.process_pdf_images(
+                pdf_path,
+                output_dir
+            )
+            logger.info(f"Processed {image_results['num_images']} images")
+        else:
+            logger.warning("Voyage client not available - skipping image processing")
         
-        return {
-            "cards": processed_cards,
+        # Combine results
+        output = {
+            "knowledge": knowledge.dict(),
+            "images": image_results,
             "metadata": {
                 "processed_at": datetime.now().isoformat(),
-                "ai_models_used": list(ai_clients.keys())
+                "version": "2.1.0",
+                "pdf_path": str(pdf_path),
+                "output_dir": str(output_dir)
             }
         }
         
+        # Save combined results
+        results_path = output_dir / "golden_dawn_results.json"
+        with open(results_path, "w") as f:
+            json.dump(output, f, indent=2)
+        logger.info(f"Saved combined results to {results_path}")
+        
+        return output
+        
     except Exception as e:
-        logger.error(f"Failed to process Golden Dawn PDF: {str(e)}")
-        raise
+        logger.error(f"Error in enhanced processing: {str(e)}")
+        raise ProcessingError(f"Golden Dawn processing failed: {str(e)}")
 
 async def main():
-    """Main execution function"""
+    """Main entry point"""
     try:
-        # Check required API keys
-        required_keys = {
-            "DEEPSEEK_API_KEY": "DeepSeek meaning generation", 
-            "ANTHROPIC_API_KEY": "Claude knowledge extraction",
-            "VOYAGE_API_KEY": "Voyage embeddings"
-        }
-        missing_keys = [key for key in required_keys if not os.getenv(key)]
-        if missing_keys:
-            raise ValueError(
-                f"Missing required API keys: {', '.join(missing_keys)}\n"
-                f"Please set these environment variables:\n"
-                + "\n".join(f"- {key}: {required_keys[key]}" for key in missing_keys)
-            )
-            
-        # Get configuration
+        # Load configuration
         config = get_config()
         
-        # Define paths
-        pdf_path = config.tarot.data_dir / "golden_dawn.pdf"
-        output_path = config.tarot.data_dir / "knowledge_cache" / "golden_dawn_processed.json"
+        # Initialize AI clients
+        ai_clients = await initialize_ai_clients()
         
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Set paths
+        pdf_path = Path(config.data_dir) / "sources" / "golden_dawn.pdf"
+        output_dir = Path(config.data_dir) / "processed" / "golden_dawn"
+        output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize clients
-        ai_clients = initialize_ai_clients()
-        card_processor = CardProcessor(ai_clients["deepseek"], ai_clients["voyage"])
-        
-        # Process PDF
-        result = await enhanced_process_golden_dawn(
-            pdf_path, 
-            ai_clients,
-            card_processor
+        # Process Golden Dawn knowledge
+        results = await enhanced_process_golden_dawn(
+            pdf_path=pdf_path,
+            ai_clients=ai_clients,
+            output_dir=output_dir
         )
         
-        # Save results
-        save_knowledge(result, output_path)
-        logger.info(f"Successfully saved processed knowledge to {output_path}")
+        logger.info("Golden Dawn processing completed successfully")
+        return results
         
     except Exception as e:
-        logger.error(f"Script execution failed: {str(e)}")
+        logger.error(f"Processing failed: {str(e)}")
         raise
 
 if __name__ == "__main__":

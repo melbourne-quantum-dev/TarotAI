@@ -1,86 +1,75 @@
+"""
+TarotAI - Neural-Enhanced Tarot Reading System
+"""
 from pathlib import Path
 
 # Package version handling
 try:
-    from importlib.metadata import version, PackageNotFoundError
-except ImportError:  # Python < 3.8
-    from importlib_metadata import version, PackageNotFoundError
-
-try:
+    from importlib.metadata import version
     __version__ = version("tarotai")
-except PackageNotFoundError:
-    __version__ = "2.1.0"  # Fallback to hardcoded version
+except Exception:
+    __version__ = "2.0.0"
 
-# Package data files
-def get_data_path():
-    """Get path to package data files"""
-    return Path(__file__).parent / "data"
-
-# Expose core components
-from .core.models.deck import TarotDeck
-from .core.models.card import TarotCard, CardManager
-from .core.services.interpreter import TarotInterpreter
-from .core.models.types import (
-    CardMeaning,
-    Reading,
-    QuestionContext,
-    CardSuit,
+# Core imports
+from .core import (
+    TarotCard,
+    TarotDeck,
+    ReadingInput,
     SpreadType,
-    ReadingType,
-    UserProfile,
-    CardEmbeddings,
-    ReadingEmbeddings
+    ErrorSeverity,
+    TarotAIError,
+    ProcessingError,
+    EnrichmentError,
+    EmbeddingError,
+    setup_logging
 )
-from .ui.display import TarotDisplay
-from .core.services.reading import ReadingInput
-from .core.services.card_processor import CardProcessor
+
+from .core.services import TarotInterpreter
+
+# AI imports
+from .ai import (
+    UnifiedAIClient
+)
+
+# UI imports
+from .ui import (
+    TarotDisplay,
+)
+
+# CLI and Config
 from .cli import app
+from .config import get_config
 
 __all__ = [
-    # Core models
-    "TarotDeck",
-    "TarotCard",
-    "CardManager",
+    # Core
+    'TarotCard',
+    'TarotDeck',
+    'ReadingInput',
+    'SpreadType',
     
-    # Types
-    "CardMeaning",
-    "Reading",
-    "QuestionContext",
-    "CardSuit",
-    "SpreadType",
-    "ReadingType",
-    "UserProfile",
-    "CardEmbeddings",
-    "ReadingEmbeddings",
+    # Errors
+    'ErrorSeverity',
+    'TarotAIError',
+    'ProcessingError',
+    'EnrichmentError',
+    'EmbeddingError',
     
-    # Processing
-    "CardProcessor",
-    "ReadingInput",
-    "TarotInterpreter",
+    # Services
+    'TarotInterpreter',
+    
+    # AI
+    'UnifiedAIClient',
     
     # UI
-    "TarotDisplay",
-    
-    # Utils
-    "get_data_path",
-    
-    # CLI
-    "app"
-]
-"""
-TarotAI - Neural-Enhanced Tarot Reading System
-"""
-from .core import *
-from .ai import *
-from .ui import *
-from .cli import app
-from .config import *
-
-__version__ = "2.0.0"
-__all__ = [
-    'TarotDeck',
-    'TarotInterpreter',
     'TarotDisplay',
-    'UnifiedAIClient',
-    'app'
+    
+    # CLI and Config
+    'app',
+    'get_config',
+    
+    # Logging
+    'setup_logging',
+    
+    # Version
+    '__version__'
 ]

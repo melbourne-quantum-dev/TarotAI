@@ -10,9 +10,10 @@ try:
     VOICE_ENABLED = True
 except ImportError:
     VOICE_ENABLED = False
-from tarotai.core.deck import TarotDeck
-from tarotai.core.reading import RandomDrawInput, ManualInput, Reading
-from tarotai.core.interpreter import TarotInterpreter
+from tarotai.core.models.deck import TarotDeck
+from tarotai.core.models.types import Reading
+from tarotai.core.services.reading import RandomDrawInput, ManualInput
+from tarotai.core.services.interpreter import TarotInterpreter
 
 app = typer.Typer(
     help="TarotAI - Neural-Enhanced Tarot Reading System",

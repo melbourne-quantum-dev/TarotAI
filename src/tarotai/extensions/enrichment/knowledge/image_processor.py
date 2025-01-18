@@ -6,8 +6,8 @@ from PyPDF2 import PdfReader
 from PIL import Image
 import fitz  # PyMuPDF
 import json
-from ..clients.voyage import VoyageClient
-from ..exceptions import EnrichmentError
+from tarotai.ai.clients.providers.voyage import VoyageClient
+from tarotai.core.errors import EnrichmentError
 
 class GoldenDawnImageProcessor:
     """Processes and stores Golden Dawn PDF images with multimodal embeddings"""
@@ -58,7 +58,6 @@ class GoldenDawnImageProcessor:
         embeddings = {}
         
         for img_key, img_meta in image_data.items():
-            # Create multimodal content
             content = [
                 {
                     "type": "text",
@@ -70,14 +69,12 @@ class GoldenDawnImageProcessor:
                 }
             ]
             
-            # Generate embedding
             embedding = await self.voyage_client.generate_multimodal_embedding(
                 content,
                 image_quality="medium",
                 max_image_size=1024
             )
             
-            # Store with metadata
             embeddings[img_key] = {
                 "embedding": embedding,
                 "metadata": {
@@ -93,13 +90,9 @@ class GoldenDawnImageProcessor:
         
     async def process_pdf_images(self, pdf_path: Path, output_dir: Path) -> Dict[str, Any]:
         """Full processing pipeline for PDF images"""
-        # Extract images
         image_data = await self.extract_images(pdf_path)
-        
-        # Generate embeddings
         embeddings = await self.generate_image_embeddings(image_data)
         
-        # Save results
         output_path = output_dir / "golden_dawn_image_embeddings.json"
         with open(output_path, "w") as f:
             json.dump(embeddings, f, indent=2)
