@@ -56,17 +56,35 @@ setup_environment() {
 install_dependencies() {
     log "Installing project dependencies..."
     echo
-    echo "Installing core dependencies..."
-    # Use sync for better UI and handling of hangs
-    uv pip sync requirements.txt || error "Failed to sync core dependencies"
-    echo "✓ Core dependencies installed"
-    
-    echo "Installing development dependencies..."
-    uv pip sync dev-requirements.txt || error "Failed to sync dev dependencies"
-    echo "✓ Development dependencies installed"
     
     echo "Installing package in editable mode..."
-    uv pip install --quiet -e . || error "Failed to install package"
+    uv pip install --quiet -e . || {
+        error "Failed to install package"
+        echo "Tip: Check if all required build tools are installed"
+    }
+    echo "✓ Package installed"
+    
+    echo "Installing core dependencies..."
+    if [ -f "requirements.txt" ]; then
+        uv pip sync requirements.txt || {
+            error "Failed to sync core dependencies"
+            echo "Tip: Check requirements.txt for version conflicts"
+        }
+        echo "✓ Core dependencies installed"
+    else
+        echo "⚠ No requirements.txt found - skipping core dependencies"
+    fi
+    
+    echo "Installing development dependencies..."
+    if [ -f "dev-requirements.txt" ]; then
+        uv pip sync dev-requirements.txt || {
+            error "Failed to sync dev dependencies"
+            echo "Tip: Check dev-requirements.txt for version conflicts"
+        }
+        echo "✓ Development dependencies installed"
+    else
+        echo "⚠ No dev-requirements.txt found - skipping dev dependencies"
+    fi
     
     echo "Verifying installation..."
     if ! python3 -c "import tarotai" &> /dev/null; then
