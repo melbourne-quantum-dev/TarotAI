@@ -48,7 +48,7 @@ class ProjectStructure:
             relocations=[
                 FileRelocation(
                     'errors.py',
-                    'src/tarotai/core/errors/base.py',
+                    'src/tarotai/core/errors/__init__.py',
                     'Core errors module'
                 ),
                 FileRelocation(

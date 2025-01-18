@@ -17,20 +17,24 @@ class ModelRouter:
     def __init__(self, config: AISettings):
         self.config = config
         self.clients = UnifiedAIClient(config)
+        self.model_map = {
+            "embedding": "voyage-2",
+            "interpretation": config.interpretation_model,
+            "enrichment": config.enrichment_model
+        }
         
     async def route_request(self, task_type: str, **kwargs) -> Any:
         """Route requests to appropriate model"""
+        model = self.model_map.get(task_type)
+        if not model:
+            raise ValueError(f"Unknown task type: {task_type}")
+            
         if task_type == "embedding":
             return await self.clients.generate_embedding(kwargs["text"])
-        elif task_type == "interpretation":
+        else:
             return await self.clients.generate_response(
                 kwargs["prompt"],
-                model=self.config.interpretation_model
-            )
-        elif task_type == "enrichment":
-            return await self.clients.generate_response(
-                kwargs["prompt"],
-                model=self.config.enrichment_model
+                model=model
             )
 
 class TarotInterpreter:

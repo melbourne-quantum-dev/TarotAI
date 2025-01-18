@@ -17,6 +17,11 @@ from typing import Any, Dict, List
 
 from tarotai.ai.clients.base import BaseAIClient
 from tarotai.ai.clients.providers.voyage import VoyageClient
+from tarotai.core.errors import (
+    ProcessingError,
+    EnrichmentError,
+    EmbeddingError
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +35,10 @@ class CardProcessor:
     async def generate_meanings(self, card: Dict[str, Any], golden_dawn: Dict[str, Any]) -> Dict[str, Any]:
         """Generate upright and reversed meanings for a card."""
         try:
+            if not card.get('name'):
+                raise ProcessingError("Card name is required")
+            if not golden_dawn:
+                raise ProcessingError("Golden Dawn data is required")
             # Prepare context variables
             context = {
                 "card_name": card["name"],
