@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import List, Dict, Optional, Any
 import json
 from pydantic import BaseModel, Field, validator
-from .types import CardMeaning, CardSuit
-from .errors import DeckError
+from ..models.types import CardMeaning, CardSuit
+from ..errors import DeckError
 
 class CardError(Exception):
     """Base exception for card-related errors.

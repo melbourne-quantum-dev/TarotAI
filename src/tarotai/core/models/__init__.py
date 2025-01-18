@@ -2,7 +2,7 @@
 Core Models Module - Contains all core data models and type definitions.
 """
 
-from .types import (
+from ..models.types import (
     CardMeaning, Reading, CardSuit, SpreadType,
     ReadingType, UserProfile, QuestionContext
 )
