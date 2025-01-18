@@ -3,8 +3,8 @@ import json
 from typing import Dict, Any, List, Optional, Union
 import httpx
 from dotenv import load_dotenv
-from ..exceptions import EnrichmentError
-from ...ai.clients.base import BaseAIClient
+from tarotai.core.errors.errors import EnrichmentError
+from tarotai.ai.clients.base import BaseAIClient
 
 load_dotenv()
 
