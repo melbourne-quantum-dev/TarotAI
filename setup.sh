@@ -1,134 +1,109 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -euo pipefail
+# Constants
+VENV_DIR=".venv"
+PYTHON_VERSION="3.12"
+MIN_PYTHON_VERSION="3.12.0"
 
-# Configure uv environment
-export UV_INDEX_URL="https://pypi.org/simple"
-export UV_CACHE_DIR=".uv_cache"
-export UV_PIP_VERSION=">=23.3.2"
-export UV_PYTHON=">=3.11"
-
-# Configure uv environment
-export UV_INDEX_URL="https://pypi.org/simple"
-export UV_CACHE_DIR=".uv_cache"
-export UV_PIP_VERSION=">=23.3.2"
-export UV_PYTHON=">=3.11"
-
+# Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
 
-log() { echo -e "${BLUE}[SETUP]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
-success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+# Logging functions
+log() {
+    echo -e "[SETUP] $1"
+}
 
-check_data_structure() {
-    log "Checking data directory structure..."
-    required_dirs=("data" "data/embeddings" "data/processed")
-    for dir in "${required_dirs[@]}"; do
-        if [ ! -d "$dir" ]; then
-            log "Creating directory: $dir"
-            mkdir -p "$dir"
-        fi
-    done
+success() {
+    echo -e "[${GREEN}SUCCESS${NC}] $1"
+}
+
+error() {
+    echo -e "[${RED}ERROR${NC}] $1"
+}
+
+warning() {
+    echo -e "[${YELLOW}WARNING${NC}] $1"
+}
+
+# Check if Python version meets requirements
+check_python_version() {
+    local current_version=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
+    local min_version=$MIN_PYTHON_VERSION
     
-    # Check for required data files
-    required_files=("data/cards_ordered.json" "data/golden_dawn.pdf")
-    for file in "${required_files[@]}"; do
-        if [ ! -f "$file" ]; then
-            error "Missing required file: $file"
-        fi
-    done
+    if ! command -v python3 &> /dev/null; then
+        error "Python 3 is not installed"
+        exit 1
+    fi
+    
+    if ! python3 -c "import sys; exit(0 if sys.version_info >= tuple(map(int, '${min_version}'.split('.'))) else 1)"; then
+        error "Python version must be >= ${min_version} (current: ${current_version})"
+        exit 1
+    fi
+}
+
+# Check and create required directories
+setup_directories() {
+    log "Checking data directory structure..."
+    
+    # Create required directories if they don't exist
+    mkdir -p data/{raw,processed,embeddings}
+    mkdir -p .cache/{.uv_cache,__pycache__}
+    mkdir -p config
+    mkdir -p logs
+    
     success "Data structure validated"
 }
 
-check_python_dependencies() {
+# Check Python dependencies
+check_dependencies() {
     log "Checking Python dependencies..."
-    required_packages=("PyPDF2" "numpy" "pydantic" "voyageai")
-    missing_packages=()
     
-    # Use python from virtual environment if available
-    PYTHON_CMD="python3"
-    if command -v python &> /dev/null; then
-        PYTHON_CMD="python"
+    # Check if pip is installed
+    if ! command -v pip &> /dev/null; then
+        error "pip is not installed"
+        exit 1
     fi
     
-    for pkg in "${required_packages[@]}"; do
-        if ! $PYTHON_CMD -c "import $pkg" &> /dev/null; then
-            missing_packages+=("$pkg")
-        fi
-    done
-    
-    if [ ${#missing_packages[@]} -ne 0 ]; then
-        log "Missing packages detected. Attempting to install..."
-        uv pip install --strict "${missing_packages[@]}" || error "Failed to install missing packages"
+    # Check if uv is installed
+    if ! command -v uv &> /dev/null; then
+        error "uv is not installed. Please install it with: pip install uv"
+        exit 1
     fi
     
     success "All required Python packages installed"
 }
 
-setup_environment() {
-    # Ensure Python is available
-    if ! command -v python3 &> /dev/null; then
-        error "Python 3 is not installed. Please install Python 3.11+ first."
+# Clean up existing virtual environment
+clean_venv() {
+    log "Removing existing virtual environment..."
+    if [ -d "$VENV_DIR" ]; then
+        rm -rf "$VENV_DIR"
     fi
+}
 
-    # Check Python version
-    PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-    if [[ "$PYTHON_VERSION" < "3.11" ]]; then
-        error "Python 3.11 or higher is required. Found $PYTHON_VERSION"
-    fi
-
-    if [ -d ".venv" ]; then
-        log "Removing existing virtual environment..."
-        rm -rf .venv
-    fi
-    
+# Create and activate virtual environment
+create_venv() {
     log "Creating fresh virtual environment..."
-    uv venv .venv || error "Failed to create virtual environment"
-    
-    # Activate environment
-    source .venv/bin/activate || error "Failed to activate environment"
-    
-    # Install pip using uv
+    uv venv --python=python3.12 "$VENV_DIR"
+    source "$VENV_DIR/bin/activate"
+}
+
+# Install pip in the virtual environment
+install_pip() {
     log "Installing pip..."
-    uv pip install --upgrade pip || error "Failed to install pip"
-    
-    # Verify pip installation
-    if ! python -m pip --version &> /dev/null; then
-        error "pip installation verification failed"
-    fi
-}
-
-# Configure uv environment
-export UV_INDEX_URL="https://pypi.org/simple"
-export UV_CACHE_DIR=".uv_cache"
-export UV_PIP_VERSION=">=23.3.2"
-export UV_PYTHON=">=3.11"
-
-verify_dependencies() {
-    log "Verifying dependency integrity..."
-    uv pip check || {
-        error "Dependency integrity check failed"
-        echo "Run 'uv pip sync' to fix dependency conflicts"
+    uv pip install --no-cache-dir pip || {
+        error "Failed to install pip"
+        exit 1
     }
-    success "Dependencies verified"
 }
 
+# Install project dependencies
 install_dependencies() {
     log "Installing project dependencies with uv..."
     echo
-    
-    # Clean installation without cache
-    log "Installing with clean state..."
-    uv pip install --no-cache-dir \
-        PyPDF2>=3.0.0 \
-        numpy>=1.26.0 \
-        pydantic>=2.10.5 \
-        voyageai>=0.3.0 || {
-        error "Failed to install core dependencies"
-    }
     
     # Install package with modern resolver
     echo "Installing package in editable mode with modern resolver..."
@@ -139,147 +114,25 @@ install_dependencies() {
         -e . || {
         error "Failed to install package"
         echo "Tip: Check if all required build tools are installed"
+        exit 1
     }
     echo "✓ Package installed"
-    
-    # Install core dependencies
-    echo "Installing core dependencies with strict resolution..."
-    if [ -f "requirements.txt" ]; then
-        uv pip install \
-            --resolution=highest \
-            --no-cache-dir \
-            --strict \
-            -r requirements.txt || {
-            error "Failed to install core dependencies"
-            echo "Tip: Check requirements.txt for version conflicts"
-        }
-        echo "✓ Core dependencies installed"
-    else
-        echo "⚠ No requirements.txt found - skipping core dependencies"
-    fi
-    
-    # Install dev dependencies
-    echo "Installing development dependencies..."
-    if [ -f "dev-requirements.txt" ]; then
-        uv pip install \
-            --resolution=highest \
-            --no-cache-dir \
-            --strict \
-            -r dev-requirements.txt || {
-            error "Failed to install dev dependencies"
-            echo "Tip: Check dev-requirements.txt for version conflicts"
-        }
-        echo "✓ Development dependencies installed"
-    else
-        echo "⚠ No dev-requirements.txt found - skipping dev dependencies"
-    fi
-    
-    # Verify installation
-    echo "Verifying installation..."
-    if ! python3 -c "import tarotai" &> /dev/null; then
-        error "Failed to verify installation - tarotai package not found"
-    fi
-    
-    # Verify dependency integrity
-    verify_dependencies
-    
-    success "Dependencies installed successfully with modern resolver"
-    echo
 }
 
-verify_api_keys() {
-    log "Verifying API keys..."
-    required_keys=("DEEPSEEK_API_KEY" "VOYAGE_API_KEY")
-    for key in "${required_keys[@]}"; do
-        if [ -z "${!key:-}" ]; then
-            error "Missing required API key: $key"
-        fi
-    done
-    success "API keys verified"
-}
-
-verify_setup() {
-    log "Verifying complete setup..."
-    check_data_structure
-    check_python_dependencies
-    setup_environment
-    install_dependencies
-    verify_api_keys
-    verify_dependencies
-    success "Setup verification complete!"
-}
-
-clean_setup() {
-    log "Cleaning up setup..."
-    if [ -d ".venv" ]; then
-        log "Removing virtual environment..."
-        rm -rf .venv
-    fi
-    if [ -d ".uv_cache" ]; then
-        log "Clearing UV cache..."
-        rm -rf .uv_cache
-    fi
-    success "Cleanup complete!"
-}
-
-print_help() {
-    echo "Usage: setup.sh [OPTION]"
-    echo
-    echo "Options:"
-    echo "  --verify-keys    Verify required API keys"
-    echo "  --verify-deps    Verify dependency integrity"
-    echo "  --clean          Clean up existing setup"
-    echo "  --verify         Verify complete setup"
-    echo "  -h, --help       Show this help message"
-    echo
-    echo "Running without options performs full setup"
-}
-
+# Main setup function
 main() {
-    local action="full"
+    echo "[SETUP] Starting TarotAI setup for data processing..."
     
-    # Parse arguments
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --verify-keys)
-                verify_api_keys
-                exit 0
-                ;;
-            --verify-deps)
-                verify_dependencies
-                exit 0
-                ;;
-            --clean)
-                clean_setup
-                exit 0
-                ;;
-            --verify)
-                verify_setup
-                exit 0
-                ;;
-            -h|--help)
-                print_help
-                exit 0
-                ;;
-            *)
-                error "Unknown argument: $1"
-                ;;
-        esac
-        shift
-    done
-
-    # Default full setup
-    log "Starting TarotAI setup for data processing..."
-    check_data_structure
-    check_python_dependencies
-    setup_environment
+    # Run setup steps
+    setup_directories
+    check_dependencies
+    clean_venv
+    create_venv
+    install_pip
     install_dependencies
-    verify_api_keys
-    verify_dependencies
-    success "Setup complete! Ready for data processing 🎴"
-    echo
-    echo "Next steps:"
-    echo "  make process-data"
+    
+    echo "✨ Setup complete! You can now use TarotAI."
 }
 
-main "$@"
+# Run main function
+main
