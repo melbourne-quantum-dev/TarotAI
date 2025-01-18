@@ -33,7 +33,7 @@ from .core.models.types import (
 )
 from .ui.display import TarotDisplay
 from .core.services.reading import ReadingInput
-from .core.card_processor import CardProcessor
+from .core.services.card_processor import CardProcessor
 from .cli import app
 
 __all__ = [
