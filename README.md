@@ -1,6 +1,6 @@
 # TarotAI - Neural-Enhanced Tarot Reading System
 
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![Python Version](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Tests](https://github.com/melbourne-quantum-dev/tarotai/actions/workflows/ci.yml/badge.svg)](https://github.com/melbourne-quantum-dev/tarotai/actions/workflows/ci.yml)
@@ -134,23 +134,19 @@ tarotai generate-meanings
 tarotai history --card "The Fool"
 ```
 
-### Troubleshooting
+### Development
 
-If you encounter issues:
+For detailed development workflow and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md)
 
-1. Verify Python version (3.10+ required):
+## License
 
-   ```bash
-   python3 --version
-   ```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-2. Check virtual environment activation:
+## Acknowledgments
 
-   ```bash
-   which python  # Should point to .venv/bin/python
-   ```
-
-3. Verify dependencies:
+- Inspired by the Golden Dawn tradition
+- Built with modern Python tools
+- Powered by AI technologies
 
    ```bash
    pip list | grep tarotai
