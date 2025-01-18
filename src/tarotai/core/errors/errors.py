@@ -5,7 +5,11 @@ from fastapi import HTTPException
 from . import ErrorSeverity  # Import ErrorSeverity from the package
 
 
-class TarotError(Exception):
+class TarotAIError(Exception):
+    """Alias for TarotError for backward compatibility"""
+    pass
+
+class TarotError(TarotAIError):
     """Base exception class for TarotAI system"""
     def __init__(
         self,

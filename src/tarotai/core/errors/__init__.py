@@ -14,6 +14,7 @@ class ErrorSeverity(Enum):
 
 from .errors import (
     TarotError,
+    TarotAIError,
     TarotHTTPException,
     ConfigError,
     DeckError,
@@ -28,6 +29,7 @@ from .errors import (
 __all__ = [
     'ErrorSeverity',
     'TarotError',
+    'TarotAIError',
     'TarotHTTPException',
     'ConfigError',
     'DeckError',
