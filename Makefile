@@ -82,29 +82,59 @@ serve-docs:
 # Validate card data
 validate-cards:
 	@echo "Validating card data..."
-	@python scripts/processing/validate_card_schema.py
+	@if ! python scripts/processing/validate_card_schema.py; then \
+		echo "❌ Card validation failed!"; \
+		exit 1; \
+	fi
 	$(QUANTUM_SUCCESS)
 
 # Generate card data
 generate-cards:
 	@echo "Generating card data..."
-	@python scripts/processing/generate_card_data.py
+	@if ! python scripts/processing/generate_card_data.py; then \
+		echo "❌ Card generation failed!"; \
+		exit 1; \
+	fi
 	$(QUANTUM_SUCCESS)
 
 # Update embeddings
 update-embeddings:
 	@echo "Updating card embeddings..."
-	@python scripts/processing/update_embeddings.py
+	@if ! python scripts/processing/update_embeddings.py; then \
+		echo "❌ Embedding update failed!"; \
+		exit 1; \
+	fi
 	$(QUANTUM_SUCCESS)
 
 # Process Golden Dawn PDF
 process-golden-dawn:
 	@echo "Processing Golden Dawn PDF..."
-	@python scripts/processing/process_golden_dawn.py
+	@if ! python scripts/processing/process_golden_dawn.py; then \
+		echo "❌ Golden Dawn processing failed!"; \
+		exit 1; \
+	fi
 	$(QUANTUM_SUCCESS)
 
 # Full data processing pipeline
-process-data: validate-cards generate-cards update-embeddings process-golden-dawn
+process-data:
+	@echo "Starting data processing pipeline..."
+	@if ! make validate-cards; then \
+		echo "❌ Pipeline failed at validation step"; \
+		exit 1; \
+	fi
+	@if ! make generate-cards; then \
+		echo "❌ Pipeline failed at card generation step"; \
+		exit 1; \
+	fi
+	@if ! make update-embeddings; then \
+		echo "❌ Pipeline failed at embedding update step"; \
+		exit 1; \
+	fi
+	@if ! make process-golden-dawn; then \
+		echo "❌ Pipeline failed at Golden Dawn processing step"; \
+		exit 1; \
+	fi
+	@echo "✅ Data processing pipeline completed successfully!"
 	$(QUANTUM_SIGNATURE)
 
 # Help target
