@@ -19,8 +19,6 @@ from tarotai.core.logging import setup_logging
 
 # Enrichment imports
 from tarotai.extensions.enrichment.knowledge.golden_dawn import (
-    GoldenDawnKnowledge,
-    GoldenDawnKnowledgeBase,
     extract_pdf_content,
     save_knowledge,
 )

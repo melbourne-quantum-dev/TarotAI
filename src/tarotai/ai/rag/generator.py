@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import List
 
 from tarotai.ai.clients.base import BaseAIClient
 from tarotai.ai.clients.providers.voyage import VoyageClient

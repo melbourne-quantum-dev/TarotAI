@@ -1,6 +1,4 @@
 from typing import Any, Dict, List
-
-from tarotai.ai.clients.base import BaseAIClient
 from tarotai.ai.clients.providers.claude import ClaudeClient
 from tarotai.ai.clients.providers.deepseek_v3 import DeepSeekClient
 from tarotai.ai.clients.providers.voyage import VoyageClient

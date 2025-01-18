@@ -6,12 +6,12 @@ Core configuration with version-aware Pydantic imports.
 
 import logging
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, Dict, List
 
 import yaml
 
 # Pydantic imports
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import Field, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Local imports
