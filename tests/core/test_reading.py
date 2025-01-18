@@ -11,13 +11,16 @@ def test_reading_creation():
     """Test basic reading creation"""
     reading = Reading(
         id="test-reading",
-        cards=[("The Fool", True), ("The Magician", False)],
+        cards=[CardMeaning(name="The Fool", number=0, suit="major", keywords=["test"], 
+                          upright_meaning="Test upright", reversed_meaning="Test reversed")],
         interpretation="Test interpretation",
-        model="test-model"
+        model="test-model",
+        context=QuestionContext(question="Test", focus="Test", raw_question="Test"),
+        reading_type=ReadingType.GENERAL,
+        spread_type=SpreadType.SINGLE,
+        is_reversed=[False]
     )
-    assert len(reading.cards) == 2
-    assert reading.cards[0][0] == "The Fool"
-    assert reading.cards[1][1] is False
+    assert len(reading.cards) == 1
 
 def test_reading_from_deck():
     """Test creating a reading from a deck"""

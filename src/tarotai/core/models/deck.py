@@ -80,7 +80,7 @@ class TarotDeck:
                 detail={
                     "file_path": str(cards_data),
                     "error_type": type(e).__name__,
-                    "traceback": traceback.format_exc() if self.config.dev_mode else None
+                    "traceback": traceback.format_exc()
                 },
                 severity=ErrorSeverity.CRITICAL
             )
