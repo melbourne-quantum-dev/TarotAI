@@ -1,23 +1,12 @@
 """
-Retrieval Augmented Generation system for TarotAI
+Retrieval-Augmented Generation (RAG) Module
 """
-from .knowledge_base import KnowledgeBase
-from .retriever import Retriever
-from .generator import Generator
-from .system import RAGSystem
-
-__all__ = [
-    'KnowledgeBase',
-    'Retriever',
-    'Generator',
-    'RAGSystem'
-]
-from tarotai.ai.rag.manager import RAGManager
-from tarotai.ai.rag.generator import RAGSystem
-from tarotai.ai.rag.vector_store import VectorStore
+from .manager import RAGManager
+from .generator import RAGSystem
+from .vector_store import VectorStore
 
 __all__ = [
     'RAGManager',
-    'RAGSystem', 
+    'RAGSystem',
     'VectorStore'
 ]

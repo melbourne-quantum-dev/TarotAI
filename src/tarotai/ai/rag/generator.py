@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from tarotai.ai.clients.providers.voyage import VoyageClient
 from tarotai.ai.clients.base import BaseAIClient
 from tarotai.core.models.types import CardEmbeddings, ReadingEmbeddings
+from .vector_store import VectorStore
 
 @dataclass
 class KnowledgeBase:
