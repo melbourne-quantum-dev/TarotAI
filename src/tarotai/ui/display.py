@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import List, Tuple, Dict, Optional
 from pathlib import Path
+from typing import List, Tuple, Dict, Optional
 from rich.console import Console
-from tarotai.config.schemas.config import UnifiedSettings as Settings
 from rich.table import Table
 from rich.panel import Panel
 from rich.status import Status
@@ -11,7 +10,9 @@ from rich.columns import Columns
 from rich.text import Text
 from rich.box import DOUBLE
 from rich.progress import Progress, SpinnerColumn, TextColumn
+
 from tarotai.core.models.types import Reading
+from tarotai.config.schemas.config import UnifiedSettings as Settings
 
 @dataclass
 class TarotASCII:

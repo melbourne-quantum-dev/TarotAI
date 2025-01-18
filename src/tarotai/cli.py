@@ -3,11 +3,12 @@ import questionary
 from typing import Optional, Callable, List
 from pathlib import Path
 from rich.panel import Panel
-from .display import TarotDisplay
-from .core.voice import TarotVoice
-from .core.deck import TarotDeck
-from .core.reading import RandomDrawInput, ManualInput, Reading
-from .core.interpreter import TarotInterpreter
+
+from tarotai.ui.display import TarotDisplay
+from tarotai.core.voice import TarotVoice
+from tarotai.core.deck import TarotDeck
+from tarotai.core.reading import RandomDrawInput, ManualInput, Reading
+from tarotai.core.interpreter import TarotInterpreter
 
 app = typer.Typer(
     help="TarotAI - Neural-Enhanced Tarot Reading System",

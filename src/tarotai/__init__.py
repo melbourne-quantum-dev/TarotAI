@@ -67,3 +67,20 @@ __all__ = [
     # CLI
     "app"
 ]
+"""
+TarotAI - Neural-Enhanced Tarot Reading System
+"""
+from .core import *
+from .ai import *
+from .ui import *
+from .cli import app
+from .config import *
+
+__version__ = "2.0.0"
+__all__ = [
+    'TarotDeck',
+    'TarotInterpreter',
+    'TarotDisplay',
+    'UnifiedAIClient',
+    'app'
+]

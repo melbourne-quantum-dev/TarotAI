@@ -71,3 +71,21 @@ __all__ = [
     'TarotInterpreter',
     'CardProcessor'
 ]
+"""
+Core functionality for TarotAI
+"""
+from .models.types import *
+from .models.card import *
+from .models.deck import *
+from .services.reading import *
+from .services.interpreter import *
+from .services.card_processor import *
+
+__all__ = [
+    'CardMeaning',
+    'CardSuit',
+    'TarotDeck',
+    'ReadingInput',
+    'TarotInterpreter',
+    'CardProcessor'
+]
