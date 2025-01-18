@@ -5,7 +5,7 @@ AI Model Testing and Benchmarking Script
 import asyncio
 import json
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from rich.console import Console
 from rich.table import Table
