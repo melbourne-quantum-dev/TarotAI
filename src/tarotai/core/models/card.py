@@ -11,8 +11,7 @@ from pathlib import Path
 from typing import List, Dict, Optional, Any
 import json
 from pydantic import BaseModel, Field, validator
-from tarotai.core.models.types import CardMeaning, CardSuit
-from tarotai.core.errors.errors import DeckError
+from tarotai.core.models.types import CardSuit
 
 class CardError(Exception):
     """Base exception for card-related errors.

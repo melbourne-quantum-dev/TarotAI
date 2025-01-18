@@ -1,8 +1,6 @@
 import io
-import base64
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from pathlib import Path
-from PyPDF2 import PdfReader
 from PIL import Image
 import fitz  # PyMuPDF
 import json
