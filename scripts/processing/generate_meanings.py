@@ -1,6 +1,7 @@
 import asyncio
 import json
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List
 
 from tarotai.extensions.enrichment.clients import DeepSeekClient, VoyageClient
