@@ -24,7 +24,8 @@ from tarotai.extensions.enrichment.knowledge.golden_dawn import (
     save_knowledge,
     load_knowledge,
 )
-from tarotai.ai.clients.providers.voyage import VoyageClient
+from tarotai.ai.clients.unified import UnifiedAIClient
+from tarotai.config.schemas.config import AISettings
 
 load_dotenv()
 
@@ -53,13 +54,14 @@ async def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str,
         raise FileNotFoundError(f"Golden Dawn PDF not found at {pdf_path}")
 
     # Initialize AI clients
-    voyage_client = VoyageClient()
+    config = AISettings.create_default()
+    ai_client = UnifiedAIClient(config)
 
     # Create output directory
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Initialize knowledge base
-    knowledge_base = GoldenDawnKnowledgeBase(str(pdf_path), voyage_client)
+    knowledge_base = GoldenDawnKnowledgeBase(str(pdf_path), ai_client)
 
     # If there's an image processing task, await it
     if hasattr(knowledge_base, '_image_processing_task'):

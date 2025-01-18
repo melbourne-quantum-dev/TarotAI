@@ -83,7 +83,7 @@ class EmbeddingManager:
     async def update_card_embeddings(
         self,
         cards: List[CardMeaning],
-        voyage_client
+        ai_client
     ) -> Dict[str, CardEmbeddings]:
         """Generate or update embeddings for cards"""
         new_embeddings = {}
@@ -94,9 +94,9 @@ class EmbeddingManager:
             context_text = f"{card.book_t_description} {card.golden_dawn_title}"
             
             new_embeddings[card.name] = CardEmbeddings(
-                meaning_embedding=await voyage_client.generate_embedding(meaning_text),
-                symbolism_embedding=await voyage_client.generate_embedding(symbolism_text),
-                contextual_embedding=await voyage_client.generate_embedding(context_text),
+                meaning_embedding=await ai_client.generate_embedding(meaning_text),
+                symbolism_embedding=await ai_client.generate_embedding(symbolism_text),
+                contextual_embedding=await ai_client.generate_embedding(context_text),
                 version=self.version
             )
             

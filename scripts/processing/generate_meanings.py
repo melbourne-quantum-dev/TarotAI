@@ -4,7 +4,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
-from tarotai.extensions.enrichment.clients import DeepSeekClient, VoyageClient
+from tarotai.ai.clients.unified import UnifiedAIClient
+from tarotai.config.schemas.config import AISettings
 from tarotai.extensions.enrichment.knowledge.golden_dawn import GoldenDawnKnowledgeBase
 
 SYSTEM_ROLE = """
@@ -94,7 +95,7 @@ async def generate_keywords(card: Dict, ai_client, gd_info: Dict) -> List[str]:
     """
     return await ai_client.json_prompt(prompt)
 
-async def generate_meanings(card: Dict[str, Any], ai_client: DeepSeekClient, golden_dawn: GoldenDawnKnowledgeBase) -> Dict[str, Any]:
+async def generate_meanings(card: Dict[str, Any], ai_client: UnifiedAIClient, golden_dawn: GoldenDawnKnowledgeBase) -> Dict[str, Any]:
     """Generate upright and reversed meanings for a card."""
     # Prepare context variables
     context = {
@@ -134,26 +135,26 @@ async def generate_meanings(card: Dict[str, Any], ai_client: DeepSeekClient, gol
     
     return card
 
-async def generate_embeddings(card: Dict[str, Any], voyage_client: VoyageClient) -> Dict[str, Any]:
+async def generate_embeddings(card: Dict[str, Any], ai_client: UnifiedAIClient) -> Dict[str, Any]:
     """Generate embeddings for a card's meanings."""
     if not card.get("embeddings"):
         card["embeddings"] = {}
     
     if not card["embeddings"].get("upright"):
-        card["embeddings"]["upright"] = await voyage_client.generate_embedding(card["upright_meaning"])
+        card["embeddings"]["upright"] = await ai_client.generate_embedding(card["upright_meaning"])
     
     if not card["embeddings"].get("reversed"):
-        card["embeddings"]["reversed"] = await voyage_client.generate_embedding(card["reversed_meaning"])
+        card["embeddings"]["reversed"] = await ai_client.generate_embedding(card["reversed_meaning"])
     
     return card
 
-async def process_cards(cards: List[Dict[str, Any]], ai_client: DeepSeekClient, voyage_client: VoyageClient) -> List[Dict[str, Any]]:
+async def process_cards(cards: List[Dict[str, Any]], ai_client: UnifiedAIClient) -> List[Dict[str, Any]]:
     """Process all cards to generate meanings and embeddings."""
     processed_cards = []
     for card in cards:
         try:
             card = await generate_meanings(card, ai_client)
-            card = await generate_embeddings(card, voyage_client)
+            card = await generate_embeddings(card, ai_client)
             processed_cards.append(card)
         except Exception as e:
             print(f"Error processing card {card.get('name')}: {str(e)}")
@@ -192,7 +193,8 @@ DEFAULT_KNOWLEDGE = {
 
 async def process_all_cards(skip_pdf_processing: bool = False):
     # Initialize components
-    ai_client = DeepSeekClient()
+    config = AISettings.create_default()
+    ai_client = UnifiedAIClient(config)
     
     # Load Golden Dawn knowledge
     if skip_pdf_processing:

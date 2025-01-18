@@ -9,7 +9,7 @@ from PyPDF2 import PdfReader
 from tqdm import tqdm
 from voyageai import get_embedding
 
-from tarotai.ai.clients.providers.voyage import VoyageClient
+from tarotai.ai.clients.unified import UnifiedAIClient
 
 from tarotai.extensions.enrichment.exceptions import EnrichmentError
 from .image_processor import GoldenDawnImageProcessor
@@ -124,7 +124,7 @@ def extract_pdf_content(pdf_path: str) -> GoldenDawnKnowledge:
 class GoldenDawnKnowledgeBase:
     """Knowledge base for Golden Dawn tarot interpretations with multimodal support."""
     
-    def __init__(self, pdf_path: str, voyage_client: Optional[VoyageClient] = None):
+    def __init__(self, pdf_path: str, ai_client: Optional[UnifiedAIClient] = None):
         cache_path = Path(pdf_path).with_suffix('.json')
         
         if cache_path.exists():
@@ -135,7 +135,7 @@ class GoldenDawnKnowledgeBase:
             print(f"Saving knowledge base cache to {cache_path}")
             save_knowledge(self.knowledge, cache_path)
             
-        self.voyage_client = voyage_client
+        self.ai_client = ai_client
         self.embeddings = []
         self.card_index = {}
         self.version = "2.2.0"
@@ -163,8 +163,8 @@ class GoldenDawnKnowledgeBase:
         """Generate embeddings for all sections"""
         embeddings = []
         
-        if not self.voyage_client:
-            raise EnrichmentError("Voyage client not initialized")
+        if not self.ai_client:
+            raise EnrichmentError("AI client not initialized")
             
         # Generate text embeddings
         text_embeddings = await self._generate_text_embeddings()
@@ -184,7 +184,7 @@ class GoldenDawnKnowledgeBase:
         # Generate embeddings for reading methods
         for method_name, method in self.knowledge.reading_methods.items():
             content = f"{method_name}: {method.description}"
-            embedding = await self.voyage_client.generate_embedding(content)
+            embedding = await self.ai_client.generate_embedding(content)
             embeddings.append({
                 "content": content,
                 "embedding": embedding,
