@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, Tuple, Dict, Optional
 from pathlib import Path
 from rich.console import Console
-from tarotai.core.config import Settings, get_config
+from tarotai.config.schemas.config import UnifiedSettings as Settings
 from rich.table import Table
 from rich.panel import Panel
 from rich.status import Status
@@ -11,7 +11,7 @@ from rich.columns import Columns
 from rich.text import Text
 from rich.box import DOUBLE
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from tarotai.core.types import Reading
+from tarotai.core.models.types import Reading
 
 @dataclass
 class TarotASCII:
@@ -64,7 +64,7 @@ class TarotDisplay:
     
     def __init__(self, console: Optional[Console] = None, config: Optional[Settings] = None):
         self.console = console or Console()
-        self.config = config or get_config()
+        self.config = config or Settings()  # Changed from get_config()
         self.ascii = TarotASCII()
         self.color_scheme = {
             'system': 'cyan',
