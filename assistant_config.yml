@@ -1,44 +1,45 @@
 version: 2.0.0
-environment: development
+environment: processing
 
 ai_providers:
   deepseek:
     enabled: true
-    api_key: ${DEEPSEEK_API_KEY}  # From .env or environment
+    api_key: ${DEEPSEEK_API_KEY}
     model: deepseek-chat
-    temperature: 0.7  # Must be between 0.0 and 1.0
-    max_tokens: 4000  # Must be > 0
-    timeout: 30  # Must be between 1 and 120 seconds
+    temperature: 0.7
+    max_tokens: 4000
+    timeout: 60  # Increased for processing
     interpretation_limits:
-      card_analysis: 1000
-      spread_analysis: 1500
-      context_synthesis: 1000
-      final_interpretation: 2000
+      card_analysis: 2000
+      spread_analysis: 3000
+      context_synthesis: 2000
+      final_interpretation: 4000
+  voyage:
+    enabled: true
+    api_key: ${VOYAGE_API_KEY}
+    model: voyage-large-2
+    temperature: 0.5  # Lower for consistency
+    max_tokens: 8000  # Increased for PDF processing
+    timeout: 120  # Increased for PDF processing
   anthropic:
     enabled: false
-    api_key: ${ANTHROPIC_API_KEY}
-    model: claude-3-opus
-    temperature: 0.7
-    max_tokens: 1000
-    timeout: 30
   openai:
     enabled: false
-    api_key: ${OPENAI_API_KEY}
-    model: gpt-4-turbo
-    temperature: 0.7
-    max_tokens: 1000
-    timeout: 30
+
+pdf_processing:
+  max_pages: 500
+  chunk_size: 1000
+  overlap: 200
+  max_retries: 5
+  timeout: 300
 
 tarot:
   default_spread: three_card
-  shuffle_on_start: true
+  shuffle_on_start: false  # Disabled for processing
   card_order: book_t
-  max_cache_size: 100
+  max_cache_size: 1000  # Increased for processing
   data_dir: data
-  allowed_spreads:
-    - single
-    - three_card
-    - celtic_cross
+  allowed_spreads: []
 
 log_level: INFO
 debug: false

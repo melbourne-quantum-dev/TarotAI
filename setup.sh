@@ -11,37 +11,43 @@ log() { echo -e "${BLUE}[SETUP]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 
-check_python_version() {
-    local python_version=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-    (( $(echo "$python_version < 3.12" | bc -l) )) && error "Python 3.12.x required. Current: $python_version"
-    log "Python version $python_version detected"
+check_data_structure() {
+    log "Checking data directory structure..."
+    required_dirs=("data" "data/embeddings" "data/processed")
+    for dir in "${required_dirs[@]}"; do
+        if [ ! -d "$dir" ]; then
+            log "Creating directory: $dir"
+            mkdir -p "$dir"
+        fi
+    done
+    
+    # Check for required data files
+    required_files=("data/cards_ordered.json" "data/golden_dawn.pdf")
+    for file in "${required_files[@]}"; do
+        if [ ! -f "$file" ]; then
+            error "Missing required file: $file"
+        fi
+    done
+    success "Data structure validated"
 }
 
-check_uv() {
-    if ! command -v uv &> /dev/null; then
-        log "Installing UV package manager..."
-        python3 -m pip install --quiet --upgrade pip
-        python3 -m pip install --quiet uv
-        success "UV installed successfully"
-    else
-        log "UV already installed"
-    fi
-}
-
-cleanup() {
-    log "Cleaning up previous installation..."
-    python3 scripts/dev/cleanup.py --verbose
-    success "Cleanup completed"
+check_python_dependencies() {
+    log "Checking Python dependencies..."
+    required_packages=("PyPDF2" "numpy" "pydantic" "voyageai")
+    for pkg in "${required_packages[@]}"; do
+        if ! python3 -c "import $pkg" &> /dev/null; then
+            error "Missing required Python package: $pkg"
+        fi
+    done
+    success "All required Python packages installed"
 }
 
 setup_environment() {
     if [ -d ".venv" ]; then
         log "Existing virtual environment found"
         source .venv/bin/activate || error "Failed to activate existing environment"
-        log "Updating dependencies..."
     else
         log "Creating fresh virtual environment..."
-        cleanup
         uv venv .venv || error "Failed to create virtual environment"
         source .venv/bin/activate || error "Failed to activate environment"
     fi
@@ -53,50 +59,28 @@ install_dependencies() {
     success "Dependencies installed successfully"
 }
 
-setup_config() {
-    if [ ! -f "assistant_config.yml" ]; then
-        cp config/assistant_config.example.yml assistant_config.yml || error "Failed to create assistant config"
-        log "Created assistant_config.yml"
-    else
-        log "assistant_config.yml already exists"
-    fi
-
-    if [ ! -f ".env" ]; then
-        cp .env.example .env || error "Failed to create .env"
-        log "Created .env file"
-    else
-        log ".env already exists"
-    fi
-    
-    log "Please configure your API keys in the .env file"
-}
-
-verify_installation() {
-    log "Verifying installation..."
-    python3 -c "import tarotai; print('🔮 TarotAI imported successfully!')" || error "Installation verification failed"
-    uv --version &> /dev/null || error "UV verification failed"
-    success "Installation verified successfully!"
+verify_api_keys() {
+    log "Verifying API keys..."
+    required_keys=("DEEPSEEK_API_KEY" "VOYAGE_API_KEY")
+    for key in "${required_keys[@]}"; do
+        if [ -z "${!key:-}" ]; then
+            error "Missing required API key: $key"
+        fi
+    done
+    success "API keys verified"
 }
 
 main() {
-    log "Starting TarotAI setup..."
-    command -v python3 &> /dev/null || error "Python 3.12+ is required"
-    check_python_version
-    check_uv
+    log "Starting TarotAI setup for data processing..."
+    check_data_structure
+    check_python_dependencies
     setup_environment
     install_dependencies
-    setup_config
-    verify_installation
+    verify_api_keys
+    success "Setup complete! Ready for data processing 🎴"
     echo
-    success "Setup complete! 🎉"
-    echo
-    echo "To activate the environment:"
-    echo "  source .venv/bin/activate"
-    echo
-    echo "Quick start:"
-    echo "  1. Configure API keys in .env"
-    echo "  2. Run 'make validate' to verify setup"
-    echo "  3. Run 'make check' to run all tests"
+    echo "Next steps:"
+    echo "  make process-data"
 }
 
 main "$@"
