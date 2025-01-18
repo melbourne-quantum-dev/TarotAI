@@ -84,19 +84,52 @@ serve-docs:
 	@cd docs/_build/html && python -m http.server 8000
 	$(QUANTUM_SUCCESS)
 
+# Validate card schema
+validate-cards:
+	@echo "Validating card schema..."
+	@python scripts/processing/validate_card_schema.py
+	$(QUANTUM_SUCCESS)
+
+# Generate card data
+generate-cards:
+	@echo "Generating card data..."
+	@python scripts/processing/generate_card_data.py
+	$(QUANTUM_SUCCESS)
+
+# Update embeddings
+update-embeddings:
+	@echo "Updating card embeddings..."
+	@python scripts/processing/update_embeddings.py
+	$(QUANTUM_SUCCESS)
+
+# Process Golden Dawn PDF
+process-golden-dawn:
+	@echo "Processing Golden Dawn PDF..."
+	@python scripts/processing/process_golden_dawn.py
+	$(QUANTUM_SUCCESS)
+
+# Full data processing pipeline
+process-data: validate-cards generate-cards update-embeddings process-golden-dawn
+	$(QUANTUM_SIGNATURE)
+
 # Help target
 help:
 	@echo "TarotAI Makefile targets:"
-	@echo "  install     - Install project dependencies"
-	@echo "  test        - Run test suite"
-	@echo "  coverage    - Generate test coverage report"
-	@echo "  lint        - Run code quality checks"
-	@echo "  format      - Format code"
-	@echo "  clean       - Clean build artifacts"
-	@echo "  migrate     - Run import migration"
-	@echo "  check       - Run all checks"
-	@echo "  validate    - Validate project structure"
-	@echo "  docs        - Generate documentation"
-	@echo "  serve-docs  - Serve documentation locally"
-	@echo "  help        - Show this help message"
+	@echo "  install           - Install project dependencies"
+	@echo "  test              - Run test suite"
+	@echo "  coverage          - Generate test coverage report"
+	@echo "  lint              - Run code quality checks"
+	@echo "  format            - Format code"
+	@echo "  clean             - Clean build artifacts"
+	@echo "  migrate           - Run import migration"
+	@echo "  check             - Run all checks"
+	@echo "  validate          - Validate project structure"
+	@echo "  docs              - Generate documentation"
+	@echo "  serve-docs        - Serve documentation locally"
+	@echo "  validate-cards    - Validate card schema"
+	@echo "  generate-cards    - Generate card data"
+	@echo "  update-embeddings - Update card embeddings"
+	@echo "  process-golden-dawn - Process Golden Dawn PDF"
+	@echo "  process-data      - Run full data processing pipeline"
+	@echo "  help              - Show this help message"
 	$(QUANTUM_SIGNATURE)
