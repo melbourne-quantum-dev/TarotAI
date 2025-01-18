@@ -1,6 +1,7 @@
 import pytest
 
 from tarotai.core.models.card import TarotCard
+from tarotai.core.models.types import CardSuit
 
 
 @pytest.mark.unit
