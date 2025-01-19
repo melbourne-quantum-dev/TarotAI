@@ -64,10 +64,22 @@ install:
 
 # Data processing targets
 .PHONY: process-data
-process-data:
-	@echo "🎴 Processing Tarot data..."
+process-data: process-golden-dawn generate-meanings
+
+.PHONY: process-golden-dawn
+process-golden-dawn:
+	@echo "🎴 Processing Golden Dawn PDF..."
 	$(PYTHON) scripts/processing/process_golden_dawn.py
-	$(PYTHON) scripts/processing/generate_embeddings.py
+
+.PHONY: generate-meanings
+generate-meanings:
+	@echo "🎴 Generating card meanings..."
+	$(PYTHON) scripts/processing/generate_meanings.py
+
+.PHONY: generate-base-deck
+generate-base-deck:
+	@echo "🎴 Generating base deck structure..."
+	$(PYTHON) scripts/processing/generate_meanings.py --base-deck
 
 # Testing targets
 .PHONY: test

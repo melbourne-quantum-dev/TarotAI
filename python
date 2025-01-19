@@ -1,0 +1,17 @@
+Generate 3-5 keywords for {{ card.name }} considering:
+
+Card Details:
+- Number: {{ card.number }}
+- Suit: {{ card.suit }}
+- Element: {{ card.element }}
+- Astrological: {{ card.astrological }}
+- Kabbalistic: {{ card.kabbalistic }}
+
+Return as JSON list of strings.
+
+Keywords should:
+1. Capture core symbolism
+2. Reflect traditional meanings
+3. Include modern interpretations
+4. Be concise and descriptive
+5. Support both upright and reversed meanings

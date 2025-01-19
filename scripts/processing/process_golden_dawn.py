@@ -30,6 +30,26 @@ from tarotai.config.schemas.config import AISettings
 load_dotenv()
 
 
+async def merge_golden_dawn_data(cards_path: Path, golden_dawn_path: Path):
+    """Merge Golden Dawn data with existing cards"""
+    with open(cards_path) as f:
+        cards = json.load(f)["cards"]
+        
+    with open(golden_dawn_path) as f:
+        golden_dawn = json.load(f)
+        
+    for card in cards:
+        gd_info = golden_dawn.get(card["name"], {})
+        if gd_info:
+            card["golden_dawn"] = {
+                "title": gd_info.get("title"),
+                "symbolism": gd_info.get("symbolism"),
+                "reading_methods": gd_info.get("reading_methods")
+            }
+            
+    with open(cards_path, "w") as f:
+        json.dump({"cards": cards}, f, indent=2)
+
 async def process_golden_dawn_pdf(pdf_path: Path, output_dir: Path) -> Dict[str, Path]:
     """Process the Golden Dawn PDF and save structured knowledge.
 

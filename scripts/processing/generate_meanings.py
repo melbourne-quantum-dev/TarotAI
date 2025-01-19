@@ -2,13 +2,119 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Dict, List, Optional
 
 from tarotai.ai.clients.unified import UnifiedAIClient
 from tarotai.config.schemas.config import AISettings
-from tarotai.extensions.enrichment.knowledge.golden_dawn import GoldenDawnKnowledgeBase
+from tarotai.ai.prompts.manager import PromptTemplateManager
 
-SYSTEM_ROLE = """
+class CardGenerator:
+    def __init__(self, ai_client: UnifiedAIClient):
+        self.ai_client = ai_client
+        self.prompt_manager = PromptTemplateManager()
+        
+    async def generate_card_template(self, card_data: Dict) -> Dict:
+        """Generate a complete card structure using templates"""
+        template = self.prompt_manager.get_template("card_meaning")
+        context = {
+            "card": card_data,
+            "reversed": False
+        }
+        
+        # Generate meanings
+        card_data["upright_meaning"] = await self.ai_client.generate_response(
+            template.render(**context)
+        )
+        
+        # Generate reversed meaning
+        context["reversed"] = True
+        card_data["reversed_meaning"] = await self.ai_client.generate_response(
+            template.render(**context)
+        )
+        
+        # Generate keywords if missing
+        if not card_data.get("keywords"):
+            keywords_prompt = self.prompt_manager.get_template("card_keywords")
+            card_data["keywords"] = await self.ai_client.json_prompt(
+                keywords_prompt.render(card=card_data)
+            )
+            
+        return card_data
+
+async def generate_base_deck() -> List[Dict]:
+    """Generate the base 78-card deck structure"""
+    deck = []
+    
+    # Major Arcana
+    for i in range(22):
+        deck.append({
+            "name": f"Major Arcana {i}",
+            "number": i,
+            "suit": "Major",
+            "element": None,
+            "astrological": None,
+            "kabbalistic": None
+        })
+        
+    # Minor Arcana
+    suits = ["Wands", "Cups", "Swords", "Pentacles"]
+    for suit in suits:
+        # Numbered cards
+        for i in range(1, 11):
+            deck.append({
+                "name": f"{i} of {suit}",
+                "number": i,
+                "suit": suit,
+                "element": _get_element(suit),
+                "astrological": None,
+                "kabbalistic": None
+            })
+            
+        # Court cards
+        court = ["Page", "Knight", "Queen", "King"]
+        for rank in court:
+            deck.append({
+                "name": f"{rank} of {suit}",
+                "number": None,
+                "suit": suit,
+                "element": _get_element(suit),
+                "astrological": None,
+                "kabbalistic": None
+            })
+            
+    return deck
+
+def _get_element(suit: str) -> str:
+    """Get element for a suit"""
+    elements = {
+        "Wands": "Fire",
+        "Cups": "Water",
+        "Swords": "Air",
+        "Pentacles": "Earth"
+    }
+    return elements.get(suit)
+
+async def merge_golden_dawn_data(cards_path: Path, golden_dawn_path: Path):
+    """Merge Golden Dawn data with existing cards"""
+    with open(cards_path) as f:
+        cards = json.load(f)["cards"]
+        
+    with open(golden_dawn_path) as f:
+        golden_dawn = json.load(f)
+        
+    for card in cards:
+        gd_info = golden_dawn.get(card["name"], {})
+        if gd_info:
+            card["golden_dawn"] = {
+                "title": gd_info.get("title"),
+                "symbolism": gd_info.get("symbolism"),
+                "reading_methods": gd_info.get("reading_methods")
+            }
+            
+    with open(cards_path, "w") as f:
+        json.dump({"cards": cards}, f, indent=2)
+
+async def main():
 You are an expert tarot interpreter with deep knowledge of:
 - Golden Dawn traditions
 - Astrological correspondences
