@@ -23,6 +23,28 @@
 ## Type System Reference
 
 ### Core Models
+```python
+from pydantic import BaseModel
+
+class TarotCard(BaseModel):
+    """Base representation of a tarot card."""
+    name: str
+    suit: CardSuit
+    number: int
+    meanings: CardMeaning
+
+class CardManager:
+    """Manages card operations and state."""
+    def __init__(self, deck: TarotDeck):
+        self.deck = deck
+
+class TarotDeck:
+    """Implements the Golden Dawn card sequence."""
+    def __init__(self):
+        self.cards: List[TarotCard] = []
+        self.manager = CardManager(self)
+```
+
 - `TarotCard` (src/tarotai/core/models/card.py)
   - Inherits from BaseModel
   - Handles card operations and validation
@@ -32,6 +54,34 @@
   - Enum for card suits (Major, Wands, Cups, Swords, Pentacles)
 
 ### AI Components
+```python
+class BaseAgent(ABC):
+    async def process(self, *args, **kwargs) -> AgentResult:
+        try:
+            result = await self._process_internal(*args, **kwargs)
+            return AgentResult(status="success", data=result)
+        except AgentError as e:
+            return AgentResult(status="error", error=e)
+        except Exception as e:
+            return AgentResult(status="error", error=AgentError(str(e)))
+
+class RAGSystem:
+    """Manages retrieval augmented generation."""
+    def __init__(self, vector_store: VectorStore):
+        self.vector_store = vector_store
+        self.chunk_size = 512
+        self.context_window = 4096
+        
+    async def retrieve(self, query: str) -> RAGResult:
+        embeddings = await self.generate_embeddings(query)
+        contexts = await self.vector_store.similarity_search(
+            embeddings,
+            k=3,
+            threshold=0.85
+        )
+        return self._build_rag_result(contexts)
+```
+
 - `BaseAgent` (src/tarotai/ai/agents/base.py)
   - Abstract base class for all agents
 - `BaseAIClient` (src/tarotai/ai/clients/base.py)
@@ -50,6 +100,22 @@
 ## Testing Patterns
 
 ### Core Testing
+```python
+# Unit test pattern
+def test_card_validation():
+    """Test card validation logic."""
+    card = TarotCard(name="The Fool", number=0)
+    assert card.validate() is True
+
+# Integration test pattern
+@pytest.mark.asyncio
+async def test_reading_generation():
+    """Test full reading generation pipeline."""
+    reading_input = ReadingInput(cards=[sample_card])
+    result = await interpreter_service.generate_reading(reading_input)
+    assert result.validation.is_valid
+```
+
 - Follow patterns in:
   - `tests/core/models/test_card.py`
   - `tests/core/models/test_deck.py`
@@ -302,6 +368,18 @@ tarotai/
   - Recovery strategies
 
 ### Configuration Management (`config/`)
+```python
+class TarotAIConfig(BaseModel):
+    """System configuration with validation."""
+    rag_settings: RAGSettings
+    agent_settings: AgentSettings
+    model_settings: ModelSettings
+    
+    class Config:
+        extra = "forbid"  # Prevent extra fields
+        validate_assignment = True  # Validate on field assignment
+```
+
 - Schema-based configuration
 - Environment-specific settings
 - Validation rules
