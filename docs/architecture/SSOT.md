@@ -3,6 +3,100 @@
 
 ## AI Assistant Instructions
 
+6. **File References**
+- Core implementations: `src/tarotai/core/models/`
+  - Card system: `src/tarotai/core/models/card.py`
+  - Deck implementation: `src/tarotai/core/models/deck.py`
+  - Type definitions: `src/tarotai/core/models/types.py`
+- AI components: `src/tarotai/ai/`
+  - Agents: `src/tarotai/ai/agents/`
+  - Clients: `src/tarotai/ai/clients/`
+  - RAG system: `src/tarotai/ai/rag/`
+- Test patterns: 
+  - Core tests: `tests/core/`
+  - AI tests: `tests/ai/`
+  - Fixtures: `tests/conftest.py`
+- Configuration: 
+  - Main config: `src/tarotai/config/schemas/config.py`
+  - Limits: `src/tarotai/config/schemas/limits.py`
+
+## Type System Reference
+
+### Core Models
+- `TarotCard` (src/tarotai/core/models/card.py)
+  - Inherits from BaseModel
+  - Handles card operations and validation
+- `CardMeaning` (src/tarotai/core/models/types.py)
+  - Base card data model
+- `CardSuit` (src/tarotai/core/models/types.py)
+  - Enum for card suits (Major, Wands, Cups, Swords, Pentacles)
+
+### AI Components
+- `BaseAgent` (src/tarotai/ai/agents/base.py)
+  - Abstract base class for all agents
+- `BaseAIClient` (src/tarotai/ai/clients/base.py)
+  - Defines provider interface
+- `RAGResult` (src/tarotai/ai/rag/manager.py)
+  - Container for RAG operations
+
+### Error Handling
+- `TarotError` (src/tarotai/core/errors/base.py)
+  - Base exception class
+- `DeckError` (src/tarotai/core/errors/base.py)
+  - Specific to deck operations
+- `ValidationError` (src/tarotai/core/errors/base.py)
+  - For validation failures
+
+## Testing Patterns
+
+### Core Testing
+- Follow patterns in:
+  - `tests/core/models/test_card.py`
+  - `tests/core/models/test_deck.py`
+- Use fixtures from `tests/conftest.py`:
+  - `test_deck`
+  - `sample_card`
+  - `sample_card_data`
+  - `sample_reading_data`
+
+### Validation Testing
+- Implement validation tests as in:
+  - `tests/core/validation/test_card_validation.py`
+  - `tests/core/validation/test_reading_validation.py`
+
+### AI Testing
+- Follow patterns in:
+  - `tests/ai/agents/test_interpretation.py`
+  - `tests/ai/clients/test_providers.py`
+
+## Class Hierarchy
+
+### Core Models
+- `TarotCard` → `BaseModel`
+  - `CardManager`
+- `TarotDeck`
+  - Implements Golden Dawn sequence
+  - Manages card states
+
+### AI Layer
+- `BaseAgent` (abstract)
+  - `InterpretationAgent`
+  - `KnowledgeAgent`
+  - `ValidationAgent`
+- `BaseAIClient` (abstract)
+  - `ClaudeClient`
+  - `DeepSeekClient`
+  - `VoyageClient`
+- `RAGSystem`
+  - `RAGManager`
+  - `VectorStore`
+
+### Testing
+- `TestReadingInput` → `ReadingInput`
+- Test classes follow `test_*.py` pattern
+
+## AI Assistant Instructions
+
 As an AI assistant working with this codebase:
 
 1. **Role and Scope**
