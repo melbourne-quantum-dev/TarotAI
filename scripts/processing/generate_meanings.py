@@ -115,6 +115,37 @@ async def merge_golden_dawn_data(cards_path: Path, golden_dawn_path: Path):
         json.dump({"cards": cards}, f, indent=2)
 
 async def main():
+    """Main function for generating card meanings"""
+    # Initialize components
+    config = AISettings.create_default()
+    ai_client = UnifiedAIClient(config)
+    generator = CardGenerator(ai_client)
+    
+    # Generate base deck structure
+    deck = await generate_base_deck()
+    
+    # Process cards
+    processed_cards = []
+    for card in deck:
+        try:
+            processed = await generator.generate_card_template(card)
+            processed_cards.append(processed)
+        except Exception as e:
+            print(f"Error processing {card['name']}: {str(e)}")
+            processed_cards.append(card)
+            
+    # Save results
+    output = {
+        "version": "2.0.0",
+        "last_updated": datetime.now().isoformat(),
+        "schema_version": "1.0",
+        "cards": processed_cards
+    }
+    
+    with open("data/cards_ordered.json", "w") as f:
+        json.dump(output, f, indent=2)
+
+SYSTEM_ROLE = """
 You are an expert tarot interpreter with deep knowledge of:
 - Golden Dawn traditions
 - Astrological correspondences
