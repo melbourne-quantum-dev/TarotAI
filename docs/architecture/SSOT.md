@@ -1,5 +1,113 @@
                                                     TarotAI System Documentation
-                                                    Version 2.2.0 (2025-03-15)
+                                                    Version 2.2.0 (2025-01-19)
+
+## AI Assistant Instructions
+
+As an AI assistant working with this codebase:
+
+1. **Role and Scope**
+- You are assisting with the TarotAI project development
+- Follow the architecture and patterns documented here
+- Respect all security and validation requirements
+
+2. **Code Generation Guidelines**
+- Use type hints consistently
+- Follow async patterns for I/O operations
+- Implement error handling as specified
+- Generate tests for new code
+
+3. **Knowledge Access**
+- Use RAG system for tarot knowledge queries
+- Respect the Golden Dawn system as primary source
+- Maintain separation of concerns in knowledge access
+- Follow the validation chain for all operations
+
+4. **Response Format**
+- Provide code with complete type annotations
+- Include docstrings in Google format
+- Explain architectural decisions
+- Reference relevant sections of this document
+
+5. **Limitations**
+- Do not modify core knowledge base directly
+- Respect rate limits and token budgets
+- Maintain strict validation boundaries
+- Follow security guidelines for sensitive data
+
+## System Requirements
+
+- Python 3.12+
+- Vector store compatibility
+- GPU support (optional, for embedding generation)
+- Minimum 4GB RAM
+- API keys for:
+  - Claude
+  - DeepSeek
+  - Voyage
+
+## Development Guidelines
+
+- Follow PEP 8 style guide
+- Async/await for all I/O operations
+- Type hints required
+- Documentation in Google style
+- Test coverage minimum 80%
+
+## Deployment
+
+### Environment Setup
+- Virtual environment recommended
+- Configuration via environment variables
+- API keys stored in `.env`
+
+### Production Considerations
+- Rate limiting implementation
+- Error monitoring
+- Performance tracking
+- Backup strategies
+
+## Security Considerations
+
+### API Security
+- Key rotation policy
+- Request signing
+- Rate limiting
+
+### Data Protection
+- PII handling
+- Data retention policies
+- Encryption at rest
+
+## AI Development Context
+
+### Agent Interaction Guidelines
+- Use structured prompts from `prompts/templates/`
+- Follow the RAG pipeline for knowledge queries
+- Respect rate limits and token budgets
+- Handle partial or incomplete responses gracefully
+
+### Knowledge Base Context
+- Golden Dawn system is primary source
+- Historical context preserved in vector store
+- Symbolism hierarchies maintained
+- Cross-references validated
+
+### Development Workflow
+- AI-assisted code generation follows type system
+- Validation chain: local → CI → production
+- Template-first approach for new features
+- Consistent error handling patterns
+
+### Model Requirements
+- Claude: Complex reasoning, validation
+- DeepSeek: Core interpretation tasks
+- Voyage: Embedding generation, similarity search
+
+### Context Boundaries
+- Strict separation of interpretation logic
+- Knowledge base immutability
+- Clear validation chains
+- Explicit error surfaces
 
                                                       Project Structure
 
@@ -48,58 +156,70 @@ TarotAI
 
                                                     Key Components
 
-AI Layer (`src/tarotai/ai/`)
-- **Agents**
-  - `BaseAgent`: Abstract base class for all AI agents
-  - `InterpretationAgent`: Handles tarot reading interpretations
-  - `KnowledgeAgent`: Manages knowledge retrieval and enrichment
-  - `ValidationAgent`: Validates card data and interpretations
-- **Clients**
-  - Multiple Provider Support (Claude, DeepSeek, Voyage)
-  - Unified Client Interface
-- **RAG System**
-  - Knowledge Processing
-  - Embedding System
-- **Prompt Management**
-  - Template-based Prompting
+## Key Components
 
-Core Services (`src/tarotai/core/services/`)
-- **Interpreter Service**
-  - High-level reading orchestration
-  - Caching and configuration
-  - Error handling and recovery
-  - Service-level coordination
-- **Reading Management**
-  - Spread type handling
-  - Card selection and layout
+### AI Integration Layer (`ai/`)
+- **Agent System** (`agents/`)
+  - Orchestration agents manage reading flow and interpretation
+  - Validation agents ensure data quality and format compliance
+  - Knowledge agents handle information retrieval and enrichment
+  
+- **Client System** (`clients/`)
+  - Unified interface (`unified.py`) for consistent AI interaction
+  - Provider-specific implementations for Claude, DeepSeek, and Voyage
+  - Registry pattern for dynamic provider management
+  
+- **RAG System** (`rag/`)
+  - Vector storage for semantic search
+  - Response generation with context augmentation
+  - Knowledge base integration
+  
+- **Knowledge System** (`knowledge/`)
+  - Golden Dawn implementation
+  - Historical context management
+  - Symbolism analysis
 
-Data Models
-- Card and Deck Models
-- Type Definitions
+### Core Business Logic (`core/`)
+- **Data Models** (`models/`)
+  - Card and deck representations
+  - Reading structures
+  - Input/output formats
 
-Extensions
-- Knowledge Enrichment
-- Golden Dawn Integration
-- Reading History
+- **Validation System** (`validation/`)
+  - Input validation
+  - Output verification
+  - Format compliance checks
 
-Data Management
-- Structured Card Data
-- Processed Knowledge
-- Embeddings Storage
-- Validation System
+- **Error Management** (`errors/`)
+  - Structured error handling
+  - Severity classification
+  - Recovery strategies
 
+### Configuration Management (`config/`)
+- Schema-based configuration
+- Environment-specific settings
+- Validation rules
+
+### Testing Infrastructure (`tests/`)
+- Mirror structure of source code
+- Integration test suites
+- Validation test cases
                                                         Implementation Details
 
-1. Agent System Architecture
-```python
-class BaseAgent:
-    """Base class for all AI agents"""
-    def __init__(self, ai_client: Optional[UnifiedAIClient] = None):
-        self.ai_client = ai_client or UnifiedAIClient()
-        self.prompt_manager = PromptManager()
+### Agent System Architecture
 
+The agent system follows a modular, hierarchical design with three main types of agents:
+
+1. **Base Agent Interface**
+```python
+class BaseAgent(ABC):
+    """Base class for all AI agents in the system."""
+    def __init__(self, ai_client: Optional[UnifiedAIClient] = None):
+        self.ai_client = ai_client
+    
     @abstractmethod
-    async def process(self, *args, **kwargs): pass
+    async def process(self, *args, **kwargs):
+        """Process the input and return results"""
 
 class InterpretationAgent(BaseAgent):
     """Handles tarot reading interpretations"""
