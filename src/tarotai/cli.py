@@ -266,6 +266,49 @@ def interactive():
         display.console.print("\n[bold red]✘ Session ended[/]")
         raise typer.Abort()
 
+@app.command(name="display-cards")
+def display_cards():
+    """Display all cards with their meanings"""
+    display = TarotDisplay()
+    try:
+        with display.display_loading("Loading card data..."):
+            deck = TarotDeck(Path("data/cards_ordered.json"))
+            cards = deck.get_all_cards()
+            
+        display.console.print("\n[bold magenta]✨ TAROT CARD COLLECTION ✨[/]")
+        for card in cards:
+            display.display_card(card)
+            
+    except Exception as e:
+        display.display_error("Failed to display cards", str(e))
+
+@app.command(name="display-reading")
+def display_reading():
+    """Display a sample reading"""
+    display = TarotDisplay()
+    try:
+        with display.display_loading("Generating sample reading..."):
+            deck = TarotDeck(Path("data/cards_ordered.json"))
+            cards = deck.draw_spread("three_card")
+            reading = Reading(
+                cards=cards,
+                interpretation="Sample interpretation text",
+                spread_type="three_card",
+                focus="general",
+                question="What does the future hold?"
+            )
+            
+        display.show_reading(reading)
+        
+    except Exception as e:
+        display.display_error("Failed to display reading", str(e))
+
+@app.command()
+def status():
+    """Display system status"""
+    display = TarotDisplay()
+    display.display_welcome()
+
 @app.command()
 def manual(
     cards: List[str] = typer.Argument(..., help="List of card names"),

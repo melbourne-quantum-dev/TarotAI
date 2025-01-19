@@ -68,6 +68,22 @@ process-data:
 	$(UV) run python $(shell pwd)/scripts/processing/process_golden_dawn.py
 	$(UV) run python $(shell pwd)/scripts/processing/generate_meanings.py
 
+# Display targets
+.PHONY: display-cards
+display-cards:
+	@echo "🎴 Displaying cards..."
+	$(PYTHON) src/tarotai/cli.py display-cards
+
+.PHONY: display-reading
+display-reading:
+	@echo "🎴 Displaying sample reading..."
+	$(PYTHON) src/tarotai/cli.py display-reading
+
+.PHONY: display-status
+display-status:
+	@echo "🎴 Displaying system status..."
+	$(PYTHON) src/tarotai/cli.py status
+
 .PHONY: process-golden-dawn
 process-golden-dawn:
 	@echo "🎴 Processing Golden Dawn PDF..."
@@ -137,6 +153,11 @@ help:
 	@echo ""
 	@echo "Data Processing:"
 	@echo "  make process-data - Process Golden Dawn text and generate embeddings"
+	@echo ""
+	@echo "Display:"
+	@echo "  make display-cards    - Show all cards with meanings"
+	@echo "  make display-reading  - Show a sample reading"
+	@echo "  make display-status   - Show system status"
 	@echo ""
 	@echo "Documentation:"
 	@echo "  make docs         - Build documentation"
