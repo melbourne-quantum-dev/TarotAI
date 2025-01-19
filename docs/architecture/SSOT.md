@@ -205,48 +205,60 @@ As an AI assistant working with this codebase:
 
                                                       Project Structure
 
-TarotAI
-├── src/tarotai/
-│   ├── ai/                           # AI Integration Layer
-│   │   ├── agents/                   # AI Agent System
-│   │   │   ├── base.py               # Base Agent Class
-│   │   │   ├── interpretation.py     # Interpretation Agent
-│   │   │   ├── knowledge.py          # Knowledge Agent
-│   │   │   └── validation.py         # Validation Agent
-│   │   ├── clients/                  # Provider Implementations
-│   │   │   ├── providers/           
-│   │   │   │   ├── claude.py         # Claude AI Integration
-│   │   │   │   ├── deepseek_v3.py    # DeepSeek Integration
-│   │   │   │   └── voyage.py         # Voyage AI Integration
-│   │   │   ├── base.py               # Base Client Interface
-│   │   │   └── unified.py            # Unified Client Manager
-│   │   ├── embeddings/               # Embedding System
-│   │   ├── knowledge/                # Knowledge Processing
-│   │   ├── prompts/                  # Prompt Management
-│   │   │   └── templates/            # J2 Templates
-│   │   └── rag/                      # RAG System
-│   ├── core/                         # Core Business Logic
-│   │   ├── models/                   # Data Models
-│   │   │   ├── card.py               # Card Representations
-│   │   │   ├── deck.py               # Deck Management
-│   │   │   └── types.py              # Type Definitions
-│   │   ├── services/                 # Core Services
-│   │   │   ├── interpreter.py        # Reading Interpretation Service
-│   │   │   └── reading.py            # Reading Management
-│   │   └── errors/                   # Error System
-│   ├── extensions/                   # Optional Features
-│   │   └── enrichment/               # Knowledge Enrichment
-│   └── ui/                           # User Interface
-├── data/                             # Data Storage
-│   ├── cards_ordered.json            # Base Card Data
-│   ├── golden_dawn.json              # Processed GD Data
-│   └── processed/                    # Processed Data
-├── tests/                            # Test Suite
-│   ├── core/                         # Core Tests
-│   ├── ai/                           # AI Integration Tests
-│   └── extensions/                   # Extension Tests
-└── docs/                             # Documentation
-    └── architecture/                 # System Architecture
+## Project Structure
+tarotai/
+├── src/
+│   └── tarotai/
+│       ├── ai/
+│       │   ├── agents/
+│       │   │   ├── orchestration/
+│       │   │   │   ├── interpreter.py
+│       │   │   │   └── reading.py
+│       │   │   └── validation/
+│       │   ├── clients/
+│       │   │   ├── providers/
+│       │   │   │   ├── claude.py
+│       │   │   │   ├── deepseek_v3.py
+│       │   │   │   └── voyage.py
+│       │   │   ├── base.py
+│       │   │   ├── registry.py
+│       │   │   └── unified.py
+│       │   ├── embeddings/
+│       │   ├── knowledge/
+│       │   │   └── golden_dawn.py
+│       │   ├── prompts/
+│       │   │   └── templates/
+│       │   └── rag/
+│       │       ├── generator.py
+│       │       ├── manager.py
+│       │       └── vector_store.py
+│       ├── core/
+│       │   ├── models/
+│       │   ├── errors/
+│       │   ├── validation/
+│       │   └── logging.py
+│       ├── config/
+│       │   ├── schemas/
+│       │   └── constants.py
+│       └── ui/
+├── tests/
+├── data/
+│   ├── cards_ordered.json
+│   ├── golden_dawn.json
+│   ├── golden_dawn.pdf
+│   └── validation_results.json
+├── docs/
+│   ├── architecture/
+│   │   └── SSOT.md
+│   └── guides/
+├── scripts/
+│   └── dev/
+└── config/
+    ├── pyproject.toml
+    ├── pytest.ini
+    ├── requirements.txt
+    ├── setup.py
+    └── setup.sh
 
                                                     Key Components
 
