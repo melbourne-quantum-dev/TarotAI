@@ -4,11 +4,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from typing import Dict, Any
-
 from tarotai.ai.clients.unified import UnifiedAIClient
 from tarotai.config.schemas.config import AISettings
 from tarotai.ai.prompts.manager import PromptTemplateManager
+from tarotai.core.models.types import CardMeaning
 
 class CardGenerator:
     def __init__(self, ai_client: UnifiedAIClient):
