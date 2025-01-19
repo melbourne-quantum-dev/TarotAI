@@ -15,30 +15,40 @@ class CardGenerator:
         self.ai_client = ai_client
         self.prompt_manager = PromptTemplateManager()
         
-    async def generate_card_template(self, card_data: Dict) -> Dict:
-        """Generate a complete card structure using templates"""
-        template = self.prompt_manager.get_template("card_generation")
-        context = {
-            "card": card_data,
-            "reversed": False
-        }
-        
-        # Generate complete card structure
-        generated_card = await self.ai_client.json_prompt(
-            template.render(**context)
-        )
-        
-        # Merge with existing data
-        card_data.update(generated_card)
-        
-        # Add metadata
-        card_data["metadata"] = {
-            "last_updated": datetime.now().isoformat(),
-            "source": "generated",
-            "confidence": 0.95
-        }
+    async def generate_card_data(self, card_data: Dict) -> Dict:
+        """Generate complete card data using templates"""
+        try:
+            # Render the template with card data
+            template = self.prompt_manager.get_template("card_generation")
+            context = {
+                "card": card_data,
+                "system_role": SYSTEM_ROLE,
+                "instructions": INSTRUCTIONS
+            }
             
-        return card_data
+            # Get AI-generated content
+            generated_data = await self.ai_client.json_prompt(
+                template.render(**context)
+            )
+            
+            # Merge with base data
+            card_data.update(generated_data)
+            
+            # Add metadata
+            card_data["metadata"] = {
+                "last_updated": datetime.now().isoformat(),
+                "source": "generated",
+                "confidence": 0.95
+            }
+            
+            # Validate the generated data
+            CardMeaning(**card_data)
+            
+            return card_data
+            
+        except Exception as e:
+            print(f"Error generating data for {card_data.get('name')}: {str(e)}")
+            return None
 
 async def generate_base_deck(ai_client: UnifiedAIClient) -> List[Dict]:
     """Generate the base 78-card deck structure using templates"""
@@ -123,15 +133,19 @@ async def main():
     config = AISettings.create_default()
     ai_client = UnifiedAIClient(config)
     
-    # Generate base deck structure using templates
-    deck = await generate_base_deck(ai_client)
+    # Load existing cards
+    with open("data/cards_ordered.json") as f:
+        cards = json.load(f)["cards"]
+    
+    # Process cards in batches
+    processed_cards = await process_cards(cards, ai_client)
     
     # Save results
     output = {
         "version": "2.0.0",
         "last_updated": datetime.now().isoformat(),
         "schema_version": "1.0",
-        "cards": deck
+        "cards": processed_cards
     }
     
     with open("data/cards_ordered.json", "w") as f:
@@ -276,16 +290,32 @@ async def generate_embeddings(card: Dict[str, Any], ai_client: UnifiedAIClient) 
     return card
 
 async def process_cards(cards: List[Dict[str, Any]], ai_client: UnifiedAIClient) -> List[Dict[str, Any]]:
-    """Process all cards to generate meanings and embeddings."""
+    """Process all cards to generate meanings and embeddings"""
+    generator = CardGenerator(ai_client)
     processed_cards = []
+    
     for card in cards:
         try:
-            card = await generate_meanings(card, ai_client)
-            card = await generate_embeddings(card, ai_client)
-            processed_cards.append(card)
+            # Generate complete card data
+            processed_card = await generator.generate_card_data(card)
+            if processed_card:
+                processed_cards.append(processed_card)
+                
+            # Generate embeddings if needed
+            if not processed_card.get("embeddings", {}).get("upright"):
+                processed_card["embeddings"]["upright"] = await ai_client.generate_embedding(
+                    processed_card["upright_meaning"]
+                )
+                
+            if not processed_card.get("embeddings", {}).get("reversed"):
+                processed_card["embeddings"]["reversed"] = await ai_client.generate_embedding(
+                    processed_card["reversed_meaning"]
+                )
+                
         except Exception as e:
             print(f"Error processing card {card.get('name')}: {str(e)}")
             processed_cards.append(card)  # Keep the original card data
+            
     return processed_cards
 
 def save_cards(cards: List[Dict[str, Any]], file_path: str) -> None:

@@ -1,4 +1,4 @@
-Generate a complete tarot card description for {{ card.name }} considering:
+Generate a comprehensive tarot card description for {{ card.name }} considering:
 
 Card Details:
 - Number: {{ card.number }}
@@ -7,14 +7,23 @@ Card Details:
 - Astrological: {{ card.astrological }}
 - Kabbalistic: {{ card.kabbalistic }}
 
+Guidelines:
+1. Keywords should capture core symbolism and modern interpretations
+2. Upright meaning should include psychological insights and practical applications
+3. Reversed meaning should focus on blocked energy and shadow aspects
+4. Include references to elemental influences where appropriate
+5. Maintain consistency with Golden Dawn tradition
+
 Return as JSON with these fields:
 {
     "name": "{{ card.name }}",
-    "keywords": ["list", "of", "keywords"],
-    "upright_meaning": "2-3 sentence description",
-    "reversed_meaning": "2-3 sentence description",
+    "keywords": ["list", "of", "5-7", "keywords"],
+    "upright_meaning": "2-3 paragraph description including:\n- Core meaning\n- Psychological insights\n- Practical applications",
+    "reversed_meaning": "2-3 paragraph description including:\n- Blocked energy analysis\n- Shadow aspects\n- Growth opportunities",
     "element": "{{ card.element }}",
     "astrological": "{{ card.astrological }}",
     "kabbalistic": "{{ card.kabbalistic }}",
-    "decan": "decan information if applicable"
+    "decan": "decan information if applicable",
+    "symbolism": ["list", "of", "key", "symbols"],
+    "archetypes": ["list", "of", "relevant", "archetypes"]
 }
