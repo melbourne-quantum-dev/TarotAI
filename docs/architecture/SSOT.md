@@ -1,77 +1,116 @@
-                                                    TarotAI System Documentation
-                                                    Version 2.2.0 (2025-01-19)
+# TarotAI System Documentation
+Version 2.2.0 (2025-01-19)
 
-## AI Assistant Instructions
+## Technical Requirements
 
-6. **File References**
-- Core implementations: `src/tarotai/core/models/`
-  - Card system: `src/tarotai/core/models/card.py`
-  - Deck implementation: `src/tarotai/core/models/deck.py`
-  - Type definitions: `src/tarotai/core/models/types.py`
-- AI components: `src/tarotai/ai/`
-  - Agents: `src/tarotai/ai/agents/`
-  - Clients: `src/tarotai/ai/clients/`
-  - RAG system: `src/tarotai/ai/rag/`
-- Test patterns: 
-  - Core tests: `tests/core/`
-  - AI tests: `tests/ai/`
-  - Fixtures: `tests/conftest.py`
-- Configuration: 
-  - Main config: `src/tarotai/config/schemas/config.py`
-  - Limits: `src/tarotai/config/schemas/limits.py`
+The system is implemented using:
+- Python 3.12 or higher
+- Type hints with PEP 484 and PEP 593
+- Asynchronous operations following PEP 492
+- Pydantic v2.5+ for data validation
+- pytest 8.0+ for testing framework
 
-## Type System Reference
+## Core Type System
 
-### Core Models
+The type system provides the foundation for all tarot operations:
+
 ```python
 from pydantic import BaseModel
+from enum import Enum
+from typing import List, Optional
+
+class CardSuit(Enum):
+    """Fundamental categorization of tarot cards."""
+    MAJOR = "major"
+    WANDS = "wands"
+    CUPS = "cups"
+    SWORDS = "swords"
+    PENTACLES = "pentacles"
+
+class CardMeaning(BaseModel):
+    """Structured representation of a card's meanings."""
+    upright: List[str]
+    reversed: List[str]
+    keywords: List[str]
+    element: Optional[str]
+    numerology: Optional[int]
 
 class TarotCard(BaseModel):
-    """Base representation of a tarot card."""
+    """Core representation of a tarot card."""
     name: str
     suit: CardSuit
     number: int
     meanings: CardMeaning
 
-class CardManager:
-    """Manages card operations and state."""
-    def __init__(self, deck: TarotDeck):
-        self.deck = deck
+    def get_meaning(self, is_reversed: bool = False) -> str:
+        """Returns appropriate meaning based on card orientation."""
+        return self.meanings.reversed if is_reversed else self.meanings.upright
 
 class TarotDeck:
     """Implements the Golden Dawn card sequence."""
-    def __init__(self):
-        self.cards: List[TarotCard] = []
-        self.manager = CardManager(self)
+    def __init__(self, cards_data: Path):
+        self.cards: List[TarotCard] = self._load_cards(cards_data)
+        self.reset()
+    
+    def draw(self, count: int = 1) -> List[Tuple[TarotCard, bool]]:
+        """Draws specified number of cards with randomized orientations."""
+        if count > len(self.cards):
+            raise DeckError("Not enough cards remaining")
+        cards = self.cards[:count]
+        self.cards = self.cards[count:]
+        return [(card, random.choice([True, False])) for card in cards]
 ```
 
-- `TarotCard` (src/tarotai/core/models/card.py)
-  - Inherits from BaseModel
-  - Handles card operations and validation
-- `CardMeaning` (src/tarotai/core/models/types.py)
-  - Base card data model
-- `CardSuit` (src/tarotai/core/models/types.py)
-  - Enum for card suits (Major, Wands, Cups, Swords, Pentacles)
+## AI Integration Layer
 
-### AI Components
+The AI system uses multiple specialized agents and clients:
+
 ```python
 class BaseAgent(ABC):
+    """Base for all AI agents in the system."""
+    def __init__(self, ai_client: Optional[UnifiedAIClient] = None):
+        self.ai_client = ai_client
+    
+    @abstractmethod
     async def process(self, *args, **kwargs) -> AgentResult:
-        try:
-            result = await self._process_internal(*args, **kwargs)
-            return AgentResult(status="success", data=result)
-        except AgentError as e:
-            return AgentResult(status="error", error=e)
-        except Exception as e:
-            return AgentResult(status="error", error=AgentError(str(e)))
+        """Process the input and return results."""
+        pass
 
+class InterpretationAgent(BaseAgent):
+    """Handles tarot interpretation tasks."""
+    async def process(self, cards: List[Dict], context: Optional[str] = None) -> Dict:
+        enriched_context = await self._enrich_context(cards, context)
+        return await self._generate_interpretation(cards, enriched_context)
+
+class KnowledgeAgent(BaseAgent):
+    """Manages knowledge retrieval and enrichment."""
+    async def process(self, query: str) -> Dict:
+        context = await self._get_rag_context(query)
+        return await self._generate_response(query, context)
+
+class UnifiedAIClient:
+    """Unified interface for multiple AI providers."""
+    def __init__(self, config: AISettings):
+        self.config = config
+        self.providers = {
+            "claude": ClaudeClient(),
+            "deepseek": DeepSeekClient(),
+            "voyage": VoyageClient()
+        }
+```
+
+## RAG System Implementation
+
+The Retrieval Augmented Generation system provides knowledge context:
+
+```python
 class RAGSystem:
     """Manages retrieval augmented generation."""
     def __init__(self, vector_store: VectorStore):
         self.vector_store = vector_store
         self.chunk_size = 512
         self.context_window = 4096
-        
+    
     async def retrieve(self, query: str) -> RAGResult:
         embeddings = await self.generate_embeddings(query)
         contexts = await self.vector_store.similarity_search(
@@ -80,554 +119,131 @@ class RAGSystem:
             threshold=0.85
         )
         return self._build_rag_result(contexts)
+
+@dataclass
+class RAGResult:
+    """Container for RAG operation results."""
+    contexts: List[str]
+    metadata: Dict[str, Any]
+    confidence: float
+
+    def validate(self) -> bool:
+        """Validates the retrieval results."""
+        return (
+            len(self.contexts) > 0 and
+            self.confidence >= 0.8
+        )
 ```
 
-- `BaseAgent` (src/tarotai/ai/agents/base.py)
-  - Abstract base class for all agents
-- `BaseAIClient` (src/tarotai/ai/clients/base.py)
-  - Defines provider interface
-- `RAGResult` (src/tarotai/ai/rag/manager.py)
-  - Container for RAG operations
+## Testing Framework
 
-### Error Handling
-- `TarotError` (src/tarotai/core/errors/base.py)
-  - Base exception class
-- `DeckError` (src/tarotai/core/errors/base.py)
-  - Specific to deck operations
-- `ValidationError` (src/tarotai/core/errors/base.py)
-  - For validation failures
+The project uses pytest with a comprehensive testing structure:
 
-## Testing Patterns
-
-### Core Testing
 ```python
-# Unit test pattern
+# tests/core/models/test_card.py
 def test_card_validation():
     """Test card validation logic."""
-    card = TarotCard(name="The Fool", number=0)
+    card = TarotCard(
+        name="The Fool",
+        number=0,
+        suit=CardSuit.MAJOR,
+        meanings=CardMeaning(
+            upright=["beginnings", "innocence"],
+            reversed=["recklessness", "risk-taking"],
+            keywords=["potential", "new starts"],
+            numerology=0
+        )
+    )
     assert card.validate() is True
 
-# Integration test pattern
+# tests/ai/agents/test_interpretation.py
 @pytest.mark.asyncio
-async def test_reading_generation():
-    """Test full reading generation pipeline."""
-    reading_input = ReadingInput(cards=[sample_card])
-    result = await interpreter_service.generate_reading(reading_input)
-    assert result.validation.is_valid
+async def test_interpretation_generation():
+    """Test the interpretation generation pipeline."""
+    agent = InterpretationAgent()
+    cards = [sample_card_fixture()]
+    result = await agent.process(cards)
+    assert "interpretation" in result
+    assert result["confidence"] > 0.8
+
+# tests/ai/rag/test_generator.py
+@pytest.mark.asyncio
+async def test_rag_retrieval():
+    """Test RAG context retrieval."""
+    rag = RAGSystem(mock_vector_store())
+    result = await rag.retrieve("Tell me about The Fool")
+    assert result.validate()
 ```
 
-- Follow patterns in:
-  - `tests/core/models/test_card.py`
-  - `tests/core/models/test_deck.py`
-- Use fixtures from `tests/conftest.py`:
-  - `test_deck`
-  - `sample_card`
-  - `sample_card_data`
-  - `sample_reading_data`
-
-### Validation Testing
-- Implement validation tests as in:
-  - `tests/core/validation/test_card_validation.py`
-  - `tests/core/validation/test_reading_validation.py`
-
-### AI Testing
-- Follow patterns in:
-  - `tests/ai/agents/test_interpretation.py`
-  - `tests/ai/clients/test_providers.py`
-
-## Class Hierarchy
-
-### Core Models
-- `TarotCard` → `BaseModel`
-  - `CardManager`
-- `TarotDeck`
-  - Implements Golden Dawn sequence
-  - Manages card states
-
-### AI Layer
-- `BaseAgent` (abstract)
-  - `InterpretationAgent`
-  - `KnowledgeAgent`
-  - `ValidationAgent`
-- `BaseAIClient` (abstract)
-  - `ClaudeClient`
-  - `DeepSeekClient`
-  - `VoyageClient`
-- `RAGSystem`
-  - `RAGManager`
-  - `VectorStore`
-
-### Testing
-- `TestReadingInput` → `ReadingInput`
-- Test classes follow `test_*.py` pattern
-
-## AI Assistant Instructions
-
-As an AI assistant working with this codebase:
-
-1. **Role and Scope**
-- You are assisting with the TarotAI project development
-- Follow the architecture and patterns documented here
-- Respect all security and validation requirements
-
-2. **Code Generation Guidelines**
-- Use type hints consistently
-- Follow async patterns for I/O operations
-- Implement error handling as specified
-- Generate tests for new code
-
-3. **Knowledge Access**
-- Use RAG system for tarot knowledge queries
-- Respect the Golden Dawn system as primary source
-- Maintain separation of concerns in knowledge access
-- Follow the validation chain for all operations
-
-4. **Response Format**
-- Provide code with complete type annotations
-- Include docstrings in Google format
-- Explain architectural decisions
-- Reference relevant sections of this document
-
-5. **Limitations**
-- Do not modify core knowledge base directly
-- Respect rate limits and token budgets
-- Maintain strict validation boundaries
-- Follow security guidelines for sensitive data
-
-## System Requirements
-
-- Python 3.12+
-- Vector store compatibility
-- GPU support (optional, for embedding generation)
-- Minimum 4GB RAM
-- API keys for:
-  - Claude
-  - DeepSeek
-  - Voyage
-
-## Development Guidelines
-
-- Follow PEP 8 style guide
-- Async/await for all I/O operations
-- Type hints required
-- Documentation in Google style
-- Test coverage minimum 80%
-
-## Deployment
-
-### Environment Setup
-- Virtual environment recommended
-- Configuration via environment variables
-- API keys stored in `.env`
-
-### Production Considerations
-- Rate limiting implementation
-- Error monitoring
-- Performance tracking
-- Backup strategies
-
-## Security Considerations
-
-### API Security
-- Key rotation policy
-- Request signing
-- Rate limiting
-
-### Data Protection
-- PII handling
-- Data retention policies
-- Encryption at rest
-
-## AI Development Context
-
-### Agent Interaction Guidelines
-- Use structured prompts from `prompts/templates/`
-- Follow the RAG pipeline for knowledge queries
-- Respect rate limits and token budgets
-- Handle partial or incomplete responses gracefully
-
-### Knowledge Base Context
-- Golden Dawn system is primary source
-- Historical context preserved in vector store
-- Symbolism hierarchies maintained
-- Cross-references validated
-
-### Development Workflow
-- AI-assisted code generation follows type system
-- Validation chain: local → CI → production
-- Template-first approach for new features
-- Consistent error handling patterns
-
-### Model Requirements
-- Claude: Complex reasoning, validation
-- DeepSeek: Core interpretation tasks
-- Voyage: Embedding generation, similarity search
-
-### Context Boundaries
-- Strict separation of interpretation logic
-- Knowledge base immutability
-- Clear validation chains
-- Explicit error surfaces
-
-                                                      Project Structure
-
 ## Project Structure
+
+The project follows a carefully organized structure that reflects its layered architecture. Each directory serves a specific purpose in the system:
+
+```
 tarotai/
 ├── src/
 │   └── tarotai/
 │       ├── ai/
 │       │   ├── agents/
-│       │   │   ├── orchestration/
-│       │   │   │   ├── interpreter.py
-│       │   │   │   └── reading.py
-│       │   │   └── validation/
+│       │   │   ├── orchestration/  # Reading flow control
+│       │   │   │   ├── interpreter.py  # Main interpretation logic
+│       │   │   │   └── reading.py  # Reading session management
+│       │   │   └── validation/  # Input/output validation
 │       │   ├── clients/
-│       │   │   ├── providers/
-│       │   │   │   ├── claude.py
-│       │   │   │   ├── deepseek_v3.py
-│       │   │   │   └── voyage.py
-│       │   │   ├── base.py
-│       │   │   ├── registry.py
-│       │   │   └── unified.py
-│       │   ├── embeddings/
-│       │   ├── knowledge/
-│       │   │   └── golden_dawn.py
-│       │   ├── prompts/
-│       │   │   └── templates/
-│       │   └── rag/
-│       │       ├── generator.py
-│       │       ├── manager.py
-│       │       └── vector_store.py
+│       │   │   ├── providers/  # AI provider implementations
+│       │   │   │   ├── claude.py  # Anthropic Claude
+│       │   │   │   ├── deepseek_v3.py  # DeepSeek Coder
+│       │   │   │   └── voyage.py  # Voyage AI
+│       │   │   ├── base.py  # Abstract client interface
+│       │   │   └── registry.py  # Client management
+│       │   ├── knowledge/  # Knowledge base management
+│       │   │   └── golden_dawn.py  # Golden Dawn system
+│       │   ├── prompts/  # Prompt engineering
+│       │   │   └── templates/  # Jinja2 templates
+│       │   └── rag/  # Retrieval system
+│       │       ├── generator.py  # Embedding generation
+│       │       ├── manager.py  # RAG orchestration
+│       │       └── vector_store.py  # Vector operations
 │       ├── core/
-│       │   ├── models/
-│       │   ├── errors/
-│       │   ├── validation/
-│       │   └── logging.py
-│       ├── config/
-│       │   ├── schemas/
-│       │   └── constants.py
-│       └── ui/
-├── tests/
-├── data/
-│   ├── cards_ordered.json
-│   ├── golden_dawn.json
-│   ├── golden_dawn.pdf
-│   └── validation_results.json
-├── docs/
-│   ├── architecture/
-│   │   └── SSOT.md
-│   └── guides/
-├── scripts/
-│   └── dev/
-└── config/
-    ├── pyproject.toml
-    ├── pytest.ini
-    ├── requirements.txt
-    ├── setup.py
-    └── setup.sh
-
-                                                    Key Components
-
-## Key Components
-
-### AI Integration Layer (`ai/`)
-- **Agent System** (`agents/`)
-  - Orchestration agents manage reading flow and interpretation
-  - Validation agents ensure data quality and format compliance
-  - Knowledge agents handle information retrieval and enrichment
-  
-- **Client System** (`clients/`)
-  - Unified interface (`unified.py`) for consistent AI interaction
-  - Provider-specific implementations for Claude, DeepSeek, and Voyage
-  - Registry pattern for dynamic provider management
-  
-- **RAG System** (`rag/`)
-  - Vector storage for semantic search
-  - Response generation with context augmentation
-  - Knowledge base integration
-  
-- **Knowledge System** (`knowledge/`)
-  - Golden Dawn implementation
-  - Historical context management
-  - Symbolism analysis
-
-### Core Business Logic (`core/`)
-- **Data Models** (`models/`)
-  - Card and deck representations
-  - Reading structures
-  - Input/output formats
-
-- **Validation System** (`validation/`)
-  - Input validation
-  - Output verification
-  - Format compliance checks
-
-- **Error Management** (`errors/`)
-  - Structured error handling
-  - Severity classification
-  - Recovery strategies
-
-### Configuration Management (`config/`)
-```python
-class TarotAIConfig(BaseModel):
-    """System configuration with validation."""
-    rag_settings: RAGSettings
-    agent_settings: AgentSettings
-    model_settings: ModelSettings
-    
-    class Config:
-        extra = "forbid"  # Prevent extra fields
-        validate_assignment = True  # Validate on field assignment
+│       │   ├── models/  # Core data models
+│       │   │   ├── card.py  # Card implementation
+│       │   │   ├── deck.py  # Deck management
+│       │   │   └── types.py  # Type definitions
+│       │   ├── errors/  # Error system
+│       │   │   └── base.py  # Base exceptions
+│       │   └── validation/  # Core validation
+│       └── config/
+│           └── schemas/  # Configuration schemas
+├── tests/  # Test suite (mirrors src)
+│   ├── ai/
+│   │   ├── agents/
+│   │   ├── clients/
+│   │   └── rag/
+│   └── core/
+│       ├── models/
+│       └── validation/
+├── data/  # Data storage
+│   ├── cards_ordered.json  # Card definitions
+│   ├── golden_dawn.json  # GD knowledge base
+│   └── embeddings/  # Generated embeddings
+└── docs/
+    └── architecture/
+        └── SSOT.md  # This document
 ```
 
-- Schema-based configuration
-- Environment-specific settings
-- Validation rules
+The structure is organized around several key principles:
 
-### Testing Infrastructure (`tests/`)
-- Mirror structure of source code
-- Integration test suites
-- Validation test cases
-                                                        Implementation Details
+1. **Separation of Concerns**: The AI and core functionality are clearly separated, with AI components handling interpretation and knowledge management while core components manage fundamental tarot operations.
 
-### Agent System Architecture
+2. **Hierarchical Organization**: Components are organized in a logical hierarchy, with more complex features (like RAG and orchestration) building on simpler ones (like basic card models).
 
-The agent system follows a modular, hierarchical design with three main types of agents:
+3. **Clear Dependencies**: Each component's dependencies are made explicit through the directory structure. For example, the AI agents depend on both the client implementations and the core models.
 
-1. **Base Agent Interface**
-```python
-class BaseAgent(ABC):
-    """Base class for all AI agents in the system."""
-    def __init__(self, ai_client: Optional[UnifiedAIClient] = None):
-        self.ai_client = ai_client
-    
-    @abstractmethod
-    async def process(self, *args, **kwargs):
-        """Process the input and return results"""
+4. **Testability**: The test suite mirrors the source structure exactly, making it easy to locate and maintain tests for each component.
 
-class InterpretationAgent(BaseAgent):
-    """Handles tarot reading interpretations"""
-    async def process(self, reading_input: ReadingInput) -> ReadingInterpretation:
-        prompt = self.prompt_manager.get_template("interpretation.j2").render(reading=reading_input)
-        response = await self.ai_client.generate(prompt, model="deepseek")
-        return self._parse_interpretation(response)
+5. **Data Management**: All non-code artifacts (card definitions, knowledge base, embeddings) are centralized in the data directory for easy management and version control.
 
-class KnowledgeAgent(BaseAgent):
-    """Manages knowledge retrieval and enrichment"""
-    async def process(self, query: str) -> EnrichedKnowledge:
-        embeddings = await self.ai_client.embed(query, model="voyage")
-        context = await self.rag_system.retrieve(embeddings)
-        prompt = self.prompt_manager.get_template("knowledge_enrichment.j2").render(query=query, context=context)
-        response = await self.ai_client.generate(prompt, model="claude")
-        return self._parse_enriched_knowledge(response)
+This structure supports the system's primary goals of providing accurate tarot interpretations while maintaining modularity and extensibility.
+```
 
-class ValidationAgent(BaseAgent):
-    """Validates card data and interpretations"""
-    async def process(self, data: Union[CardData, ReadingInterpretation]) -> ValidationResult:
-        schema = self._get_validation_schema(type(data))
-        prompt = self.prompt_manager.get_template("validation.j2").render(data=data, schema=schema)
-        response = await self.ai_client.generate(prompt, model="claude")
-        return self._parse_validation_result(response)
-
-2. Core Service Integration
-
-class InterpreterService:
-    def __init__(self):
-        self.interpretation_agent = InterpretationAgent()
-        self.knowledge_agent = KnowledgeAgent()
-        self.validation_agent = ValidationAgent()
-        self.cache = ResponseCache()
-
-    async def perform_reading(self, reading_input: ReadingInput) -> ReadingResult:
-        try:
-            # Check cache first
-            if cached_result := self.cache.get(reading_input):
-                return cached_result
-
-            # Perform reading
-            interpretation = await self.interpretation_agent.process(reading_input)
-            
-            # Enrich with knowledge
-            enriched_interpretation = await self.knowledge_agent.process(interpretation)
-            
-            # Validate result
-            validation = await self.validation_agent.process(enriched_interpretation)
-            
-            if validation.is_valid:
-                result = ReadingResult(interpretation=enriched_interpretation, validation=validation)
-                self.cache.set(reading_input, result)
-                return result
-            else:
-                return await self._handle_invalid_result(reading_input, validation)
-        except Exception as e:
-            return await self._handle_error(e, reading_input)
-
-3. Knowledge Processing Pipeline
-
-RAGSystem
-├── Input Processing
-│   ├── TextChunker(chunk_size=512, overlap=64)
-│   └── EmbeddingGenerator(model="voyage")
-├── Retrieval
-│   ├── VectorStore.similarity_search()
-│   └── RelevanceReranker(threshold=0.90)
-└── Generation
-    ├── ContextBuilder(max_tokens=1024)
-    └── ResponseGenerator(temperature=0.5)
-
-                                                Context Requirements
-
-Knowledge Context
-- Base card meanings loaded
-- Golden Dawn correspondences available
-- Historical context accessible
-- User preference data integrated
-
-Processing Context
-- RAG system initialized with current knowledge
-- Embeddings pre-generated and indexed
-- Templates loaded and validated
-- Agent system ready and configured
-
-Response Context
-- Output schema validation active
-- Error handling context available
-- Response formatting rules applied
-- Confidence scoring mechanism active
-
-
-                                                Core Generation Pipeline
-
-1. Agent-Based Generation System
-```python
-class GenerationPipeline:
-    def __init__(self):
-        self.interpretation_agent = InterpretationAgent()
-        self.knowledge_agent = KnowledgeAgent()
-        self.validation_agent = ValidationAgent()
-        
-    async def generate_reading(self, reading_input: ReadingInput) -> ReadingResult:
-        # Knowledge enrichment
-        enriched_context = await self.knowledge_agent.process(reading_input)
-        
-        # Generate interpretation
-        interpretation = await self.interpretation_agent.process(
-            reading_input, 
-            context=enriched_context
-        )
-        
-        # Validate result
-        validation = await self.validation_agent.process(interpretation)
-        
-        return ReadingResult(
-            interpretation=interpretation,
-            validation=validation,
-            context=enriched_context
-        )
-
-2. Template System
-
-# interpretation_template.j2
-{
-    "reading": {
-        "cards": [
-            {% for card in cards %}
-            {
-                "name": "{{ card.name }}",
-                "position": {{ card.position }},
-                "reversed": {{ card.reversed }},
-                "interpretation": {
-                    "core_meaning": "",
-                    "context_specific": "",
-                    "advice": ""
-                }
-            }
-            {% endfor %}
-        ],
-        "synthesis": {
-            "overall_theme": "",
-            "key_insights": [],
-            "guidance": ""
-        }
-    }
-}
-
-# validation_template.j2
-{
-    "validation": {
-        "is_valid": boolean,
-        "confidence": float,
-        "checks": [
-            {
-                "aspect": str,
-                "passed": boolean,
-                "notes": str
-            }
-        ]
-    }
-}
-
-3. Integration Flow
-
-class ReadingOrchestrator:
-    def __init__(self):
-        self.pipeline = GenerationPipeline()
-        self.template_manager = TemplateManager()
-        
-    async def perform_reading(self, cards: List[Card], context: ReadingContext) -> Reading:
-        # Prepare templates
-        interpretation_template = self.template_manager.get("interpretation.j2")
-        validation_template = self.template_manager.get("validation.j2")
-        
-        # Generate reading
-        result = await self.pipeline.generate_reading(
-            ReadingInput(
-                cards=cards,
-                context=context,
-                templates={
-                    "interpretation": interpretation_template,
-                    "validation": validation_template
-                }
-            )
-        )
-        
-        return self._format_result(result)
-
-Key Features:
-
-Agent-based architecture
-  Template-driven generation
-  Structured validation
-  Context-aware processing
-  Implementation Notes:
-
-Each agent handles a specific aspect of the reading
-  Templates ensure consistent output structure
-  Validation occurs at multiple stages
-  Context flows through entire pipeline
-
-  ## Project Structure Verification
-
-The project includes a verification script ([verify_project_structure.py](cci:7://file:///home/fuar/projects/TarotAI/verify_project_structure.py:0:0-0:0)) that ensures:
-
-### Directory Structure
-- `/src/tarotai/` - Main package source code
-  - [ai/](cci:1://file:///home/fuar/projects/TarotAI/verify_project_structure.py:115:0-123:19) - AI-related modules
-  - `core/` - Core functionality
-  - `config/` - Configuration management
-  - `ui/` - User interface components
-
-### Test Structure
-- `/tests/` - Mirrors the source code structure
-  - Unit tests follow the pattern `test_*.py`
-  - Each source module has a corresponding test module
-
-### Development Tools
-- Root-level configuration files (`.envrc`, `setup.py`, etc.)
-- Development scripts in `/scripts/`
-- Documentation in `/docs/`
-
-### Verification
-Run the structure verification:
-```bash
-python3 verify_project_structure.py
+This documentation focuses on the core implementation components of TarotAI. For additional details about specific components, refer to the inline documentation in the respective source files.
