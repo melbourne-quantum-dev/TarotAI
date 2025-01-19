@@ -1,477 +1,357 @@
                                                     TarotAI System Documentation
-                                                    Version 2.1.0 (2025-01-19)
+                                                    Version 2.2.0 (2025-03-15)
 
                                                       Project Structure
 
 TarotAI
 ├── src/tarotai/
 │   ├── ai/                           # AI Integration Layer
+│   │   ├── agents/                   # AI Agent System
+│   │   │   ├── base.py               # Base Agent Class
+│   │   │   ├── interpretation.py     # Interpretation Agent
+│   │   │   ├── knowledge.py          # Knowledge Agent
+│   │   │   └── validation.py         # Validation Agent
 │   │   ├── clients/                  # Provider Implementations
 │   │   │   ├── providers/           
-│   │   │   │   ├── claude.py        # Claude AI Integration
-│   │   │   │   ├── deepseek_v3.py   # DeepSeek Integration
-│   │   │   │   └── voyage.py        # Voyage AI Integration
-│   │   │   ├── base.py              # Base Client Interface
-│   │   │   └── unified.py           # Unified Client Manager
-│   │   ├── embeddings/              # Embedding System
-│   │   ├── knowledge/               # Knowledge Processing
-│   │   ├── prompts/                 # Prompt Management
-│   │   │   └── templates/           # J2 Templates
-│   │   └── rag/                     # RAG System
-│   ├── core/                        # Core Business Logic
-│   │   ├── models/                  # Data Models
-│   │   │   ├── card.py             # Card Representations
-│   │   │   ├── deck.py             # Deck Management
-│   │   │   └── types.py            # Type Definitions
-│   │   ├── services/               # Core Services
-│   │   │   ├── agents.py           # AI Agents
-│   │   │   ├── interpreter.py      # Reading Interpretation
-│   │   │   └── reading.py          # Reading Management
-│   │   └── errors/                 # Error System
-│   ├── extensions/                  # Optional Features
-│   │   └── enrichment/             # Knowledge Enrichment
-│   └── ui/                         # User Interface
-├── data/                           # Data Storage
-│   ├── cards_ordered.json          # Base Card Data
-│   ├── golden_dawn.json            # Processed GD Data
-│   └── processed/                  # Processed Data
-├── tests/                          # Test Suite
-│   ├── core/                       # Core Tests
-│   ├── ai/                         # AI Integration Tests
-│   └── extensions/                 # Extension Tests
-└── docs/                           # Documentation
-    └── architecture/               # System Architecture
+│   │   │   │   ├── claude.py         # Claude AI Integration
+│   │   │   │   ├── deepseek_v3.py    # DeepSeek Integration
+│   │   │   │   └── voyage.py         # Voyage AI Integration
+│   │   │   ├── base.py               # Base Client Interface
+│   │   │   └── unified.py            # Unified Client Manager
+│   │   ├── embeddings/               # Embedding System
+│   │   ├── knowledge/                # Knowledge Processing
+│   │   ├── prompts/                  # Prompt Management
+│   │   │   └── templates/            # J2 Templates
+│   │   └── rag/                      # RAG System
+│   ├── core/                         # Core Business Logic
+│   │   ├── models/                   # Data Models
+│   │   │   ├── card.py               # Card Representations
+│   │   │   ├── deck.py               # Deck Management
+│   │   │   └── types.py              # Type Definitions
+│   │   ├── services/                 # Core Services
+│   │   │   ├── interpreter.py        # Reading Interpretation Service
+│   │   │   └── reading.py            # Reading Management
+│   │   └── errors/                   # Error System
+│   ├── extensions/                   # Optional Features
+│   │   └── enrichment/               # Knowledge Enrichment
+│   └── ui/                           # User Interface
+├── data/                             # Data Storage
+│   ├── cards_ordered.json            # Base Card Data
+│   ├── golden_dawn.json              # Processed GD Data
+│   └── processed/                    # Processed Data
+├── tests/                            # Test Suite
+│   ├── core/                         # Core Tests
+│   ├── ai/                           # AI Integration Tests
+│   └── extensions/                   # Extension Tests
+└── docs/                             # Documentation
+    └── architecture/                 # System Architecture
 
                                                     Key Components
 
-AI Integration Layer
-    Multiple Provider Support (Claude, DeepSeek, Voyage)
-    Unified Client Interface
-    RAG System Integration
-    Template-based Prompting
+AI Layer (`src/tarotai/ai/`)
+- **Agents**
+  - `BaseAgent`: Abstract base class for all AI agents
+  - `InterpretationAgent`: Handles tarot reading interpretations
+  - `KnowledgeAgent`: Manages knowledge retrieval and enrichment
+  - `ValidationAgent`: Validates card data and interpretations
+- **Clients**
+  - Multiple Provider Support (Claude, DeepSeek, Voyage)
+  - Unified Client Interface
+- **RAG System**
+  - Knowledge Processing
+  - Embedding System
+- **Prompt Management**
+  - Template-based Prompting
 
-Core Business Logic
-    Card and Deck Models
-    Reading Services
-    Interpretation Engine
-    Error Management
+Core Services (`src/tarotai/core/services/`)
+- **Interpreter Service**
+  - High-level reading orchestration
+  - Caching and configuration
+  - Error handling and recovery
+  - Service-level coordination
+- **Reading Management**
+  - Spread type handling
+  - Card selection and layout
+
+Data Models
+- Card and Deck Models
+- Type Definitions
 
 Extensions
-    Knowledge Enrichment
-    Golden Dawn Integration
-    Reading History
+- Knowledge Enrichment
+- Golden Dawn Integration
+- Reading History
 
 Data Management
-    Structured Card Data
-    Processed Knowledge
-    Embeddings Storage
-    Validation System
-
+- Structured Card Data
+- Processed Knowledge
+- Embeddings Storage
+- Validation System
 
                                                         Implementation Details
 
-1. AI Integration Points
+1. Agent System Architecture
 ```python
-UnifiedAIClient
-├── Provider Selection
-│   ├── DeepSeek: Primary reasoning and interpretation
-│   ├── Voyage: Embedding and knowledge retrieval
-│   └── Claude: Structured output and validation
-├── Context Management
-│   ├── PromptTemplate(template_path="templates/reading_interpretation.j2")
-│   └── KnowledgeContext(golden_dawn=True, base_cards=True)
-└── Response Processing
-    └── ResponseValidator(schema=reading_schema)
+class BaseAgent:
+    """Base class for all AI agents"""
+    def __init__(self, ai_client: Optional[UnifiedAIClient] = None):
+        self.ai_client = ai_client or UnifiedAIClient()
+        self.prompt_manager = PromptManager()
 
+    @abstractmethod
+    async def process(self, *args, **kwargs): pass
 
-2. Knowledge Processing Pipeline
+class InterpretationAgent(BaseAgent):
+    """Handles tarot reading interpretations"""
+    async def process(self, reading_input: ReadingInput) -> ReadingInterpretation:
+        prompt = self.prompt_manager.get_template("interpretation.j2").render(reading=reading_input)
+        response = await self.ai_client.generate(prompt, model="deepseek")
+        return self._parse_interpretation(response)
+
+class KnowledgeAgent(BaseAgent):
+    """Manages knowledge retrieval and enrichment"""
+    async def process(self, query: str) -> EnrichedKnowledge:
+        embeddings = await self.ai_client.embed(query, model="voyage")
+        context = await self.rag_system.retrieve(embeddings)
+        prompt = self.prompt_manager.get_template("knowledge_enrichment.j2").render(query=query, context=context)
+        response = await self.ai_client.generate(prompt, model="claude")
+        return self._parse_enriched_knowledge(response)
+
+class ValidationAgent(BaseAgent):
+    """Validates card data and interpretations"""
+    async def process(self, data: Union[CardData, ReadingInterpretation]) -> ValidationResult:
+        schema = self._get_validation_schema(type(data))
+        prompt = self.prompt_manager.get_template("validation.j2").render(data=data, schema=schema)
+        response = await self.ai_client.generate(prompt, model="claude")
+        return self._parse_validation_result(response)
+
+2. Core Service Integration
+
+class InterpreterService:
+    def __init__(self):
+        self.interpretation_agent = InterpretationAgent()
+        self.knowledge_agent = KnowledgeAgent()
+        self.validation_agent = ValidationAgent()
+        self.cache = ResponseCache()
+
+    async def perform_reading(self, reading_input: ReadingInput) -> ReadingResult:
+        try:
+            # Check cache first
+            if cached_result := self.cache.get(reading_input):
+                return cached_result
+
+            # Perform reading
+            interpretation = await self.interpretation_agent.process(reading_input)
+            
+            # Enrich with knowledge
+            enriched_interpretation = await self.knowledge_agent.process(interpretation)
+            
+            # Validate result
+            validation = await self.validation_agent.process(enriched_interpretation)
+            
+            if validation.is_valid:
+                result = ReadingResult(interpretation=enriched_interpretation, validation=validation)
+                self.cache.set(reading_input, result)
+                return result
+            else:
+                return await self._handle_invalid_result(reading_input, validation)
+        except Exception as e:
+            return await self._handle_error(e, reading_input)
+
+3. Knowledge Processing Pipeline
 
 RAGSystem
 ├── Input Processing
-│   ├── TextChunker(chunk_size=1024, overlap=128)
+│   ├── TextChunker(chunk_size=512, overlap=64)
 │   └── EmbeddingGenerator(model="voyage")
 ├── Retrieval
 │   ├── VectorStore.similarity_search()
-│   └── RelevanceReranker(threshold=0.85)
+│   └── RelevanceReranker(threshold=0.90)
 └── Generation
-    ├── ContextBuilder(max_tokens=2048)
-    └── ResponseGenerator(temperature=0.7)
-
-
-3. Core Service Integration
-
-TarotInterpreter
-├── Knowledge Sources
-│   ├── BaseKnowledge("cards_ordered.json")
-│   └── GoldenDawnKnowledge("golden_dawn.json")
-├── Reading Methods
-│   ├── StandardReading(spread_type="celtic_cross")
-│   └── GoldenDawnMethod(ritual_context=True)
-└── Response Generation
-    ├── StructuredOutput(format="json")
-    └── NarrativeOutput(style="interpretive")
+    ├── ContextBuilder(max_tokens=1024)
+    └── ResponseGenerator(temperature=0.5)
 
                                                 Context Requirements
+
 Knowledge Context
-Base card meanings must be loaded
-Golden Dawn correspondences available
-Historical context accessible
+- Base card meanings loaded
+- Golden Dawn correspondences available
+- Historical context accessible
+- User preference data integrated
+
 Processing Context
-RAG system initialized with current knowledge
-Embeddings pre-generated and indexed
-Templates loaded and validated
+- RAG system initialized with current knowledge
+- Embeddings pre-generated and indexed
+- Templates loaded and validated
+- Agent system ready and configured
+
 Response Context
-Output schema validation active
-Error handling context available
-Response formatting rules applied
+- Output schema validation active
+- Error handling context available
+- Response formatting rules applied
+- Confidence scoring mechanism active
 
-                                                Technical Implementation Details
+                                                Future Enhancements
 
-4. Data Processing Pipeline Issues
+1. Agent System Improvements
+   - Implement multi-agent collaboration for complex readings
+   - Develop specialized agents for different tarot traditions
+   - Integrate reinforcement learning for agent performance optimization
 
-ProcessingPipeline
-├── generate_meanings.py
-│   ├── Current Issues
-│   │   ├── Batch processing (5 cards) without proper error recovery
-│   │   ├── Missing keyword generation fallback
-│   │   └── Incomplete embedding validation
-│   └── Integration Points
-│       ├── DEFAULT_KNOWLEDGE fallback when GD fails
-│       └── Async batch processing without proper rate limiting
-│
-├── process_golden_dawn.py
-│   ├── Critical Failures
-│   │   ├── Incomplete merging of GD symbolism
-│   │   ├── Missing validation for reading_methods
-│   │   └── Inconsistent title mapping
-│   └── Data Structure Mismatches
-│       ├── cards_ordered.json expects ["cards"] array
-│       └── golden_dawn.json uses flat dictionary
+2. Knowledge Integration Enhancements
+   - Implement dynamic knowledge graph for real-time updates
+   - Develop cross-referencing system for multi-source validation
+   - Integrate user feedback loop for continuous knowledge refinement
 
-5. Data Integrity Issues
+3. Service Layer Advancements
+   - Implement adaptive caching based on usage patterns
+   - Develop modular plugin system for easy feature extensions
+   - Create advanced error recovery and fallback mechanisms
 
-cards_ordered.json
-├── Schema Violations
-│   ├── Missing required fields
-│   │   ├── golden_dawn.symbolism
-│   │   └── golden_dawn.reading_methods
-│   └── Inconsistent metadata
-│       ├── confidence scores missing
-│       └── source attribution incomplete
-└── Integration Failures
-    ├── Partial GD merges
-    └── Orphaned embeddings
+4. AI Model Improvements
+   - Explore fine-tuning options for tarot-specific language models
+   - Implement model versioning and automatic performance tracking
+   - Develop hybrid AI systems combining symbolic and neural approaches
 
-6. Recovery Strategy
-
-DataRecovery
-├── Phase 1: Validation
-│   ├── validate_card_schema.py
-│   └── check_golden_dawn_integrity()
-├── Phase 2: Reconstruction
-│   ├── rebuild_missing_embeddings()
-│   └── regenerate_incomplete_meanings()
-└── Phase 3: Verification
-    ├── validate_merged_data()
-    └── verify_embedding_consistency()
-
+5. User Experience Enhancements
+   - Create personalized reading experiences based on user history
+   - Implement voice and natural language interfaces
+   - Develop AR/VR interfaces for immersive tarot experiences
 
                                                 Implementation Strategy
 
-1. Core Generation Pipeline
+                                                Core Generation Pipeline
+
+1. Agent-Based Generation System
 ```python
-# generate_meanings.py
-class MeaningGenerator:
+class GenerationPipeline:
     def __init__(self):
-        self.deepseek = DeepSeekClient()  # Primary for structured reasoning
-        self.claude = ClaudeClient()       # Backup for validation
-        self.batch_size = 3                # Reduced from 5 for reliability
+        self.interpretation_agent = InterpretationAgent()
+        self.knowledge_agent = KnowledgeAgent()
+        self.validation_agent = ValidationAgent()
         
-    async def generate_card_batch(self, cards: List[str]):
-        results = []
-        for card in cards:
-            try:
-                # Primary generation with DeepSeek
-                meaning = await self.deepseek.generate(
-                    template="card_meaning.j2",
-                    context={"card": card, "require_structure": True}
-                )
-                # Validation with Claude
-                validated = await self.claude.validate_structure(
-                    meaning, schema="card_schema.json"
-                )
-                results.append(validated)
-            except AIError:
-                results.append(await self._fallback_generation(card))
-
-Interim Golden Dawn Integration
-
-# First pass without PDF processing
-class GoldenDawnIntegrator:
-    def __init__(self):
-        self.base_knowledge = self._load_base_mappings()
-        self.voyage = VoyageClient()  # For semantic matching
+    async def generate_reading(self, reading_input: ReadingInput) -> ReadingResult:
+        # Knowledge enrichment
+        enriched_context = await self.knowledge_agent.process(reading_input)
         
-    async def enrich_card_data(self, card_data: Dict):
-        # Start with known correspondences
-        gd_data = self.base_knowledge.get(card_data['name'], {})
-        
-        # Enhance with semantic search
-        similar_concepts = await self.voyage.similarity_search(
-            card_data['name'],
-            threshold=0.85
+        # Generate interpretation
+        interpretation = await self.interpretation_agent.process(
+            reading_input, 
+            context=enriched_context
         )
         
-        return {
-            **card_data,
-            'golden_dawn': {
-                'symbolism': gd_data.get('symbolism', []),
-                'correspondences': similar_concepts,
-                'confidence': 0.85 if gd_data else 0.6
-            }
-        }
-
-Data Validation Pipeline
-
-# validate_card_schema.py
-class CardValidator:
-    required_fields = {
-        'name': str,
-        'number': int,
-        'suit': str,
-        'meanings': {
-            'upright': list,
-            'reversed': list
-        },
-        'keywords': list,
-        'golden_dawn': {
-            'symbolism': list,
-            'confidence': float
-        }
-    }
-    
-    def validate_card(self, card: Dict) -> Tuple[bool, List[str]]:
-        errors = []
-        for field, field_type in self.required_fields.items():
-            if not self._validate_field(card, field, field_type):
-                errors.append(f"Missing/invalid field: {field}")
-        return len(errors) == 0, errors
-
-
-Phased Implementation Plan
-
-Phase 1: Base Functionality
-├── Generate basic meanings (DeepSeek)
-├── Implement validation (Claude)
-└── Create basic GD mappings (manual)
-
-Phase 2: Enhanced Generation
-├── Add keyword extraction
-├── Implement confidence scoring
-└── Add semantic enrichment
-
-Phase 3: GD Integration
-├── Start with known correspondences
-├── Add semantic matching
-└── Prepare for future PDF processing
-
-                                                Template Implementation
-
-1. Card Generation Templates (card_generation.j2)
-```python
-# Primary Template for DeepSeek
-Generate structured card meaning for {{ card.name }}:
-{
-    "name": "{{ card.name }}",
-    "number": {{ card.number }},
-    "suit": "{{ card.suit }}",
-    "meanings": {
-        "upright": [
-            # 5 core meanings with confidence scores
-        ],
-        "reversed": [
-            # 5 core meanings with confidence scores
-        ]
-    },
-    "keywords": [
-        # 8-10 essential keywords
-    ],
-    "associations": {
-        "elements": [],
-        "astrology": [],
-        "numerology": []
-    }
-}
-
-2. Validation Template (for Claude)
-
-# card_validation.j2
-Validate the following card data for {{ card.name }}:
-{{ card_data | json }}
-
-Requirements:
-1. All required fields present
-2. Meanings are contextually accurate
-3. Keywords are distinct and relevant
-4. Associations follow traditional systems
-
-Return:
-{
-    "is_valid": boolean,
-    "confidence": float,
-    "corrections": []
-}
-
-3.Semantic Integration (for Voyage)
-
-# semantic_enrichment.j2
-Analyze relationships between:
-Base Card: {{ card.name }}
-Golden Dawn Concepts: {{ gd_concepts | join(', ') }}
-
-Generate:
-{
-    "semantic_matches": [
-        {
-            "concept": str,
-            "confidence": float,
-            "reasoning": str
-        }
-    ],
-    "suggested_integrations": []
-}
-
-Implementation Flow
-
-class CardGenerationPipeline:
-    def __init__(self):
-        self.prompt_manager = PromptTemplateManager()
-        self.validators = {
-            'structure': self.claude,
-            'semantics': self.voyage,
-            'content': self.deepseek
-        }
-    
-    async def generate_card(self, card_name: str):
-        # 1. Initial Generation (DeepSeek)
-        base_data = await self.generate_base_data(card_name)
+        # Validate result
+        validation = await self.validation_agent.process(interpretation)
         
-        # 2. Validation (Claude)
-        validated = await self.validate_card_data(base_data)
-        
-        # 3. Semantic Enrichment (Voyage)
-        if validated['is_valid']:
-            enriched = await self.enrich_card_data(validated['data'])
-            return self.finalize_card(enriched)
-        
-        return await self.handle_generation_failure(card_name)
-
-                                                Prompt System Integration
-
-1. Enhanced Validation System
-```python
-class CardValidator:
-    def __init__(self):
-        self.claude = ClaudeClient()
-        self.prompt_manager = PromptManager()
-        self.validation_cache = {}
-    
-    async def validate_card_data(self, card_data: Dict) -> Dict:
-        # Load and customize validation template
-        template = self.prompt_manager.get_template('card_validation.j2')
-        validation_prompt = template.render(
-            card=card_data,
-            validation_rules=self._get_validation_rules(card_data['type'])
+        return ReadingResult(
+            interpretation=interpretation,
+            validation=validation,
+            context=enriched_context
         )
-        
-        try:
-            # Primary validation with Claude
-            result = await self.claude.validate(
-                prompt=validation_prompt,
-                temperature=0.3,  # Lower temp for consistent validation
-                max_tokens=1000
-            )
-            
-            if result['is_valid']:
-                self.validation_cache[card_data['name']] = result
-                return result
-            
-            # If invalid, get specific corrections
-            return await self._get_detailed_corrections(card_data, result['corrections'])
-            
-        except AIError as e:
-            return self._fallback_validation(card_data)
 
-2. Semantic Matching System
-class SemanticMatcher:
-    def __init__(self):
-        self.voyage = VoyageClient()
-        self.prompt_manager = PromptManager()
-        self.embedding_cache = {}
-        
-    async def enrich_card_data(self, card_data: Dict) -> Dict:
-        # Get or generate embeddings
-        card_embedding = await self._get_card_embedding(card_data)
-        
-        # Match with Golden Dawn concepts
-        gd_matches = await self._find_gd_matches(card_embedding)
-        
-        template = self.prompt_manager.get_template('semantic_enrichment.j2')
-        enrichment_prompt = template.render(
-            card=card_data,
-            gd_concepts=gd_matches[:5]  # Top 5 matches
-        )
-        
-        try:
-            # Generate semantic relationships
-            relationships = await self.voyage.generate_relationships(
-                prompt=enrichment_prompt,
-                embedding=card_embedding,
-                threshold=0.85
-            )
-            
-            # Filter and validate matches
-            validated_matches = self._validate_semantic_matches(relationships)
-            
-            return {
-                **card_data,
-                'golden_dawn': {
-                    'symbolism': validated_matches['symbols'],
-                    'correspondences': validated_matches['correspondences'],
-                    'confidence': validated_matches['confidence'],
-                    'source': 'semantic_matching'
+2. Template System
+
+# interpretation_template.j2
+{
+    "reading": {
+        "cards": [
+            {% for card in cards %}
+            {
+                "name": "{{ card.name }}",
+                "position": {{ card.position }},
+                "reversed": {{ card.reversed }},
+                "interpretation": {
+                    "core_meaning": "",
+                    "context_specific": "",
+                    "advice": ""
                 }
             }
-            
-        except AIError:
-            return self._fallback_enrichment(card_data)
-    
-    def _validate_semantic_matches(self, matches: Dict) -> Dict:
-        # Remove low-confidence matches
-        filtered = [m for m in matches['semantic_matches'] 
-                   if m['confidence'] > 0.85]
-        
-        # Group by type
-        symbols = [m for m in filtered if m['type'] == 'symbol']
-        correspondences = [m for m in filtered if m['type'] == 'correspondence']
-        
-        # Calculate overall confidence
-        confidence = sum(m['confidence'] for m in filtered) / len(filtered)
-        
-        return {
-            'symbols': symbols,
-            'correspondences': correspondences,
-            'confidence': confidence
+            {% endfor %}
+        ],
+        "synthesis": {
+            "overall_theme": "",
+            "key_insights": [],
+            "guidance": ""
         }
+    }
+}
+
+# validation_template.j2
+{
+    "validation": {
+        "is_valid": boolean,
+        "confidence": float,
+        "checks": [
+            {
+                "aspect": str,
+                "passed": boolean,
+                "notes": str
+            }
+        ]
+    }
+}
+
+3. Integration Flow
+
+class ReadingOrchestrator:
+    def __init__(self):
+        self.pipeline = GenerationPipeline()
+        self.template_manager = TemplateManager()
+        
+    async def perform_reading(self, cards: List[Card], context: ReadingContext) -> Reading:
+        # Prepare templates
+        interpretation_template = self.template_manager.get("interpretation.j2")
+        validation_template = self.template_manager.get("validation.j2")
+        
+        # Generate reading
+        result = await self.pipeline.generate_reading(
+            ReadingInput(
+                cards=cards,
+                context=context,
+                templates={
+                    "interpretation": interpretation_template,
+                    "validation": validation_template
+                }
+            )
+        )
+        
+        return self._format_result(result)
+
 Key Features:
 
-1.Validation System
-    Template-based validation rules
-    Caching for performance
-    Detailed correction feedback
-    Fallback validation path
-2.Semantic Matching
-    Embedding-based initial matching
-    Confidence scoring
-    Type-based grouping
-    Fallback enrichment
+Agent-based architecture
+  Template-driven generation
+  Structured validation
+  Context-aware processing
+  Implementation Notes:
+
+Each agent handles a specific aspect of the reading
+  Templates ensure consistent output structure
+  Validation occurs at multiple stages
+  Context flows through entire pipeline
+
+  ## Project Structure Verification
+
+The project includes a verification script ([verify_project_structure.py](cci:7://file:///home/fuar/projects/TarotAI/verify_project_structure.py:0:0-0:0)) that ensures:
+
+### Directory Structure
+- `/src/tarotai/` - Main package source code
+  - [ai/](cci:1://file:///home/fuar/projects/TarotAI/verify_project_structure.py:115:0-123:19) - AI-related modules
+  - `core/` - Core functionality
+  - `config/` - Configuration management
+  - `ui/` - User interface components
+
+### Test Structure
+- `/tests/` - Mirrors the source code structure
+  - Unit tests follow the pattern `test_*.py`
+  - Each source module has a corresponding test module
+
+### Development Tools
+- Root-level configuration files (`.envrc`, `setup.py`, etc.)
+- Development scripts in `/scripts/`
+- Documentation in `/docs/`
+
+### Verification
+Run the structure verification:
+```bash
+python3 verify_project_structure.py
