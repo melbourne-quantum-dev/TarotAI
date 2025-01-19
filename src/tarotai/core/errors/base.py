@@ -65,3 +65,7 @@ class ValidationError(TarotError):
 class ProcessingError(TarotError):
     """Exception for data processing errors."""
     pass
+
+class InterpretationError(TarotError):
+    """Exception for interpretation-related errors."""
+    pass
