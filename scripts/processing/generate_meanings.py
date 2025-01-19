@@ -2,7 +2,9 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
+
+from tarotai.extensions.enrichment.knowledge.golden_dawn import GoldenDawnKnowledgeBase
 
 from tarotai.ai.clients.unified import UnifiedAIClient
 from tarotai.config.schemas.config import AISettings
