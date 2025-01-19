@@ -222,6 +222,15 @@ def interactive():
                         show_static=True
                     ))
                     
+                # Create reading object
+                reading = Reading(
+                    cards=input_method.get_cards(),
+                    interpretation="\n".join(r["content"] for r in results),
+                    spread_type=spread_type,
+                    focus=focus,
+                    question=question
+                )
+                    
                 # Display results
                 display.console.print("\n[bold magenta]✨ THE CARDS SPEAK ✨[/bold magenta]")
                 for result in results:
@@ -237,6 +246,9 @@ def interactive():
                             title="[bold magenta]QUANTUM INTERPRETATION[/bold magenta]",
                             border_style="cyan"
                         ))
+                    
+                # Show follow-up prompt
+                display.console.print(display.display_follow_up_prompt())
                         
             except Exception as e:
                 display.display_error("Reading failed", str(e))

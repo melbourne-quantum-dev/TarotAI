@@ -158,6 +158,18 @@ class TarotDisplay:
             border_style=self.color_scheme['status']
         )
         self.console.print(success_panel)
+        
+    def display_follow_up_prompt(self) -> Panel:
+        """Display follow-up question prompt"""
+        return Panel(
+            "[bold cyan]You can ask follow-up questions about this reading.[/]\n"
+            "Examples:\n"
+            "- Can you explain more about [card]?\n"
+            "- What does this mean for my [situation]?\n"
+            "- How should I approach [challenge]?",
+            title="[bold]Follow-up Questions[/]",
+            border_style="cyan"
+        )
 
     def display_voice_status(self, status: str) -> None:
         """Display voice interface status"""
@@ -183,13 +195,17 @@ class TarotDisplay:
         panels = [self.display_card(card) for card in cards]
         self.console.print(Align.center(Columns(panels)))
 
-    def show_reading(self, reading: Reading) -> None:
+    def show_reading(self, reading: Reading, show_follow_up: bool = False) -> None:
         """Display the reading results"""
         if self.config.dev_mode:
+            dev_info = f"[debug]Reading ID: {reading.id}\n"
+            dev_info += f"Timestamp: {reading.timestamp}\n"
+            dev_info += f"Model: {reading.model}\n"
+            if reading.conversation_history:
+                dev_info += f"Follow-ups: {len(reading.conversation_history)}[/]"
+            
             self.console.print(Panel(
-                f"[debug]Reading ID: {reading.id}\n"
-                f"Timestamp: {reading.timestamp}\n"
-                f"Model: {reading.model}[/]",
+                dev_info,
                 title="[bold yellow]DEV INFO[/]",
                 border_style="yellow"
             ))
@@ -214,6 +230,17 @@ class TarotDisplay:
             title="[bold magenta]MYSTICAL INTERPRETATION[/bold magenta]",
             border_style="magenta"
         ))
+        
+        # Display follow-up history if requested
+        if show_follow_up and reading.conversation_history:
+            self.console.print("\n[bold cyan]CONVERSATION HISTORY[/]")
+            for idx, entry in enumerate(reading.conversation_history, 1):
+                self.console.print(Panel(
+                    f"[bold]Question:[/] {entry['question']}\n\n"
+                    f"[bold]Response:[/] {entry['response']}",
+                    title=f"Follow-up #{idx}",
+                    border_style="blue"
+                ))
 
     def _get_card_art(self, card_name: str) -> List[str]:
         """Generate ASCII art for a specific card"""
