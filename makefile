@@ -64,7 +64,9 @@ install:
 
 # Data processing targets
 .PHONY: process-data
-process-data: process-golden-dawn generate-meanings
+process-data: 
+	$(UV) run python $(shell pwd)/scripts/processing/process_golden_dawn.py
+	$(UV) run python $(shell pwd)/scripts/processing/generate_meanings.py
 
 .PHONY: process-golden-dawn
 process-golden-dawn:
@@ -74,7 +76,7 @@ process-golden-dawn:
 .PHONY: generate-meanings
 generate-meanings:
 	@echo "🎴 Generating card meanings..."
-	$(PYTHON) scripts/processing/generate_meanings.py
+	$(UV) run python $(shell pwd)/scripts/processing/generate_meanings.py
 
 .PHONY: generate-base-deck
 generate-base-deck:
