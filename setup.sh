@@ -37,11 +37,29 @@ check_dependencies() {
 
 setup_directories() {
     log_info "Setting up project directories..."
-    mkdir -p src/tarotai/{core,extensions,utils}
-    mkdir -p tests/{core,extensions,utils}
-    mkdir -p docs/{api,guides}
-    mkdir -p data/{raw,processed}
-    mkdir -p config
+    
+    # Create core project structure
+    mkdir -p src/tarotai/{ai,core,config}
+    mkdir -p src/tarotai/ai/{agents/{orchestration,validation},clients/providers,knowledge,prompts/templates,rag}
+    mkdir -p src/tarotai/core/{models,errors,validation}
+    mkdir -p src/tarotai/config/schemas
+    
+    # Create test structure
+    mkdir -p tests/{ai,core}/{agents,clients,rag}
+    mkdir -p tests/core/{models,validation}
+    
+    # Create other required directories
+    mkdir -p docs/architecture
+    mkdir -p data
+    mkdir -p scripts/{dev,processing}
+    
+    # Run structure verification
+    if ! python3 verify_project_structure.py; then
+        log_error "Project structure verification failed"
+        return 1
+    fi
+    
+    log_info "Directory structure verified ✓"
 }
 
 clean_venv() {

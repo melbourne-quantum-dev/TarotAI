@@ -23,6 +23,7 @@ PYTEST := $(VENV_BIN)/pytest
 BLACK := $(VENV_BIN)/black
 MYPY := $(VENV_BIN)/mypy
 RUFF := $(VENV_BIN)/ruff
+VERIFY_SCRIPT := $(shell pwd)/verify_project_structure.py
 
 # Default target
 .PHONY: all
@@ -100,8 +101,15 @@ generate-base-deck:
 	$(PYTHON) scripts/processing/generate_meanings.py --base-deck
 
 # Testing targets
+.PHONY: verify-structure
+verify-structure:
+	@echo "🔍 Verifying project structure..."
+	$(PYTHON) $(VERIFY_SCRIPT)
+	@echo "✓ Project structure verified"
+
 .PHONY: test
-test:
+test: verify-structure
+	@echo "🧪 Running tests..."
 	$(PYTEST) $(TESTS_DIR) -v
 
 .PHONY: test-card-manager
@@ -162,5 +170,8 @@ help:
 	@echo "Documentation:"
 	@echo "  make docs         - Build documentation"
 	@echo "  make clean-docs   - Clean documentation build"
+	@echo ""
+	@echo "Verification:"
+	@echo "  make verify-structure - Check project structure against SSOT"
 
 .DEFAULT_GOAL := help
