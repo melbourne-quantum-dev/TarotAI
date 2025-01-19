@@ -1,21 +1,18 @@
-from pathlib import Path
-from typing import List, Optional
-
-import questionary
 import typer
+import questionary
+from typing import Optional, Callable, List
+from pathlib import Path
 from rich.panel import Panel
 
 from tarotai.ui.display import TarotDisplay
-
 try:
     from tarotai.core.voice import TarotVoice
     VOICE_ENABLED = True
 except ImportError:
     VOICE_ENABLED = False
 from tarotai.core.models.deck import TarotDeck
-from tarotai.core.models.types import Reading
-from tarotai.core.services.interpreter import TarotInterpreter
-from tarotai.core.services.reading import ManualInput, RandomDrawInput
+from tarotai.core.models.reading import RandomDrawInput, ManualInput, Reading
+from tarotai.core.interpreter import TarotInterpreter
 
 app = typer.Typer(
     help="TarotAI - Neural-Enhanced Tarot Reading System",
@@ -222,15 +219,6 @@ def interactive():
                         show_static=True
                     ))
                     
-                # Create reading object
-                reading = Reading(
-                    cards=input_method.get_cards(),
-                    interpretation="\n".join(r["content"] for r in results),
-                    spread_type=spread_type,
-                    focus=focus,
-                    question=question
-                )
-                    
                 # Display results
                 display.console.print("\n[bold magenta]✨ THE CARDS SPEAK ✨[/bold magenta]")
                 for result in results:
@@ -246,9 +234,6 @@ def interactive():
                             title="[bold magenta]QUANTUM INTERPRETATION[/bold magenta]",
                             border_style="cyan"
                         ))
-                    
-                # Show follow-up prompt
-                display.console.print(display.display_follow_up_prompt())
                         
             except Exception as e:
                 display.display_error("Reading failed", str(e))
@@ -265,49 +250,6 @@ def interactive():
     except KeyboardInterrupt:
         display.console.print("\n[bold red]✘ Session ended[/]")
         raise typer.Abort()
-
-@app.command(name="display-cards")
-def display_cards():
-    """Display all cards with their meanings"""
-    display = TarotDisplay()
-    try:
-        with display.display_loading("Loading card data..."):
-            deck = TarotDeck(Path("data/cards_ordered.json"))
-            cards = deck.get_all_cards()
-            
-        display.console.print("\n[bold magenta]✨ TAROT CARD COLLECTION ✨[/]")
-        for card in cards:
-            display.display_card(card)
-            
-    except Exception as e:
-        display.display_error("Failed to display cards", str(e))
-
-@app.command(name="display-reading")
-def display_reading():
-    """Display a sample reading"""
-    display = TarotDisplay()
-    try:
-        with display.display_loading("Generating sample reading..."):
-            deck = TarotDeck(Path("data/cards_ordered.json"))
-            cards = deck.draw_spread("three_card")
-            reading = Reading(
-                cards=cards,
-                interpretation="Sample interpretation text",
-                spread_type="three_card",
-                focus="general",
-                question="What does the future hold?"
-            )
-            
-        display.show_reading(reading)
-        
-    except Exception as e:
-        display.display_error("Failed to display reading", str(e))
-
-@app.command()
-def status():
-    """Display system status"""
-    display = TarotDisplay()
-    display.display_welcome()
 
 @app.command()
 def manual(

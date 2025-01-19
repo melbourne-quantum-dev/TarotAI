@@ -76,12 +76,12 @@ def check_project_structure(root_path: Path) -> bool:
     else:
         # Check for Python files outside of src/tarotai
         for py_file in root_path.rglob("*.py"):
-            # Ignore specific directories
+            # Ignore specific directories and root-level Python files
             if any(x in str(py_file) for x in [
                 '/src/', '/tests/', '/scripts/', 
                 '/.backups/', '/venv/', '/.venv/',
                 '/list/', '/build/', '/dist/'
-            ]):
+            ]) or py_file.name in ['setup.py', 'verify_project_structure.py']:
                 continue
             issues.append(f"Stray Python file: {py_file.relative_to(root_path)}")
     
