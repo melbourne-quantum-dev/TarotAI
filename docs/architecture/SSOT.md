@@ -44,6 +44,260 @@ Version 2.1.0
 //    Pentacles (Knight, Queen, King, Princess)
 // 4. Major Arcana: 0 (Fool), I-XXI
 
+
+─────────────────────────────────────────────────────────────────────────────────────
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃               TarotAI System Documentation (Single Source of Truth)               ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Version 2.1.0                                                                        
+
+
+                                   System Overview                                   
+
+TarotAI is a neural-enhanced divination interface that combines traditional tarot    
+interpretation with modern AI capabilities. The system provides programmatic access  
+to tarot readings through a CLI interface, enriched with Golden Dawn knowledge,      
+semantic embeddings, and advanced interpretation techniques.                         
+
+                                    Key Features                                     
+
+ • Interactive CLI interface with rich visual feedback                               
+ • Multiple spread types (e.g., Celtic Cross, Three Card, Horseshoe)                 
+ • Context-aware interpretation engine                                               
+ • Retrieval Augmented Generation (RAG) for knowledge integration                    
+ • Multimodal embeddings (text + image) for deeper understanding                     
+ • Error handling and recovery                                                       
+ • Extensible architecture for future enhancements                                   
+
+─────────────────────────────────────────────────────────────────────────────────────
+
+                             Current System Architecture                             
+
+                                   Core Components                                   
+
+ 1 Card Management:                                                                  
+    • TarotCard: Represents a tarot card with attributes like name, number, suit,    
+      keywords, upright/reversed meanings, and embeddings.                           
+    • CardManager: Manages loading, saving, and querying tarot cards.                
+ 2 Deck Management:                                                                  
+    • TarotDeck: Handles card drawing, shuffling, and spread generation.             
+    • Follows the Golden Dawn Book T sequence for card ordering.                     
+ 3 Interpretation Engine:                                                            
+    • TarotInterpreter: Generates interpretations using AI models (DeepSeek, Claude, 
+      VoyageAI).                                                                     
+    • Supports structured responses, tool calling, and chain-of-thought reasoning.   
+ 4 Embedding System:                                                                 
+    • EmbeddingManager: Manages text and multimodal embeddings for cards and         
+      readings.                                                                      
+    • Uses VoyageAI for embedding generation and semantic search.                    
+ 5 RAG System:                                                                       
+    • RAGSystem: Retrieves relevant knowledge from the Golden Dawn corpus using      
+      embeddings.                                                                    
+    • Integrates with the interpretation engine for context-aware readings.          
+ 6 Error Handling:                                                                   
+    • Hierarchical error system with specific error types (TarotError, DeckError,    
+      ConfigError, etc.).                                                            
+    • Structured error information including severity, timing, and contextual        
+      details.                                                                       
+ 7 CLI Interface:                                                                    
+    • Interactive command-line interface for performing readings.                    
+    • Supports voice input/output for accessibility.                                 
+
+─────────────────────────────────────────────────────────────────────────────────────
+
+                           Current Golden Dawn Integration                           
+
+                                 Existing Knowledge                                  
+
+ • The system currently uses a processed version of the Golden Dawn PDF              
+   (data/golden_dawn.json) for:                                                      
+    • Card symbolism and correspondences                                             
+    • Astrological and Kabbalistic associations                                      
+    • Elemental attributions                                                         
+    • Traditional reading methods                                                    
+
+                                 Current Limitations                                 
+
+ 1 Knowledge Gaps:                                                                   
+    • Some Golden Dawn concepts (e.g., advanced Kabbalistic paths, ritual practices) 
+      are not fully integrated.                                                      
+    • Historical context and esoteric practices are underrepresented.                
+ 2 RAG System:                                                                       
+    • The RAG system currently uses basic embeddings and lacks advanced document     
+      chunking or metadata handling.                                                 
+    • Knowledge updates require manual processing.                                   
+ 3 Interpretation Depth:                                                             
+    • Interpretations are primarily based on card meanings and lack deeper Golden    
+      Dawn context (e.g., ritual significance, spiritual development).               
+
+─────────────────────────────────────────────────────────────────────────────────────
+
+                                Areas for Enhancement                                
+
+                         1. Golden Dawn Knowledge Expansion                          
+
+ • Unaddressed Insights:                                                             
+    • Advanced Kabbalistic correspondences                                           
+    • Ritual practices and their symbolic meanings                                   
+    • Historical context and esoteric practices                                      
+ • Integration Ideas:                                                                
+    • Add new fields to TarotCard for ritual significance and spiritual development. 
+    • Enhance the RAG system to handle advanced Golden Dawn concepts.                
+
+                             2. RAG System Improvements                              
+
+ • Current State:                                                                    
+    • Basic embedding-based retrieval                                                
+    • Limited metadata handling                                                      
+ • Enhancements:                                                                     
+    • Implement document chunking for better context retrieval.                      
+    • Add metadata fields for version control and source tracking.                   
+    • Integrate with the interpretation engine for dynamic context updates.          
+
+                        3. Interpretation Engine Enhancements                        
+
+ • Current State:                                                                    
+    • Generates interpretations based on card meanings and basic Golden Dawn context.
+ • Enhancements:                                                                     
+    • Incorporate ritual significance and spiritual development into interpretations.
+    • Add support for advanced reading methods (e.g., pathworking, meditation        
+      guidance).                                                                     
+
+                               4. Novel Opportunities                                
+
+ • New Features:                                                                     
+    • Guided meditations based on card symbolism                                     
+    • Interactive learning modules for Golden Dawn concepts                          
+    • Ritual guidance and spiritual development tools                                
+ • Innovative Integrations:                                                          
+    • Combine Golden Dawn rituals with AI-generated interpretations.                 
+    • Use embeddings to create personalized spiritual development plans.             
+
+─────────────────────────────────────────────────────────────────────────────────────
+
+                                   Data Structures                                   
+
+                                     Card Schema                                     
+
+                                                                                     
+ {                                                                                   
+   "name": "string",                                                                 
+   "number": "int|null",                                                             
+   "suit": "string",                                                                 
+   "element": "string",                                                              
+   "astrological": "string",                                                         
+   "kabbalistic": "string",                                                          
+   "keywords": ["string"],                                                           
+   "upright_meaning": "string",                                                      
+   "reversed_meaning": "string",                                                     
+   "golden_dawn": {                                                                  
+     "title": "string",                                                              
+     "symbolism": ["string"],                                                        
+     "reading_methods": ["string"],                                                  
+     "ritual_significance": "string",                                                
+     "spiritual_development": "string"                                               
+   },                                                                                
+   "embeddings": {                                                                   
+     "upright": ["float"],                                                           
+     "reversed": ["float"],                                                          
+     "multimodal": ["float"]                                                         
+   }                                                                                 
+ }                                                                                   
+                                                                                     
+
+                                   Reading Schema                                    
+
+                                                                                     
+ {                                                                                   
+   "spread": "string",                                                               
+   "cards": [                                                                        
+     {                                                                               
+       "name": "string",                                                             
+       "position": "string",                                                         
+       "is_reversed": "bool",                                                        
+       "interpretation": "string"                                                    
+     }                                                                               
+   ],                                                                                
+   "context": {                                                                      
+     "question": "string",                                                           
+     "focus": "string",                                                              
+     "user_profile": {                                                               
+       "name": "string",                                                             
+       "reading_style": "string",                                                    
+       "detail_level": "string"                                                      
+     }                                                                               
+   },                                                                                
+   "metadata": {                                                                     
+     "timestamp": "string",                                                          
+     "version": "string"                                                             
+   }                                                                                 
+ }                                                                                   
+                                                                                     
+
+─────────────────────────────────────────────────────────────────────────────────────
+
+                               Implementation Roadmap                                
+
+                            Phase 1: Knowledge Expansion                             
+
+ 1 Analyze the Golden Dawn PDF for unaddressed insights.                             
+ 2 Update the card schema to include new fields (e.g., ritual significance, spiritual
+   development).                                                                     
+ 3 Enhance the RAG system to handle advanced Golden Dawn concepts.                   
+
+                          Phase 2: RAG System Improvements                           
+
+ 1 Implement document chunking for better context retrieval.                         
+ 2 Add metadata fields for version control and source tracking.                      
+ 3 Integrate with the interpretation engine for dynamic context updates.             
+
+                     Phase 3: Interpretation Engine Enhancements                     
+
+ 1 Incorporate ritual significance and spiritual development into interpretations.   
+ 2 Add support for advanced reading methods (e.g., pathworking, meditation guidance).
+
+                               Phase 4: Novel Features                               
+
+ 1 Develop guided meditations based on card symbolism.                               
+ 2 Create interactive learning modules for Golden Dawn concepts.                     
+ 3 Build ritual guidance and spiritual development tools.                            
+
+─────────────────────────────────────────────────────────────────────────────────────
+
+                            Error Handling and Monitoring                            
+
+                                     Error Types                                     
+
+ • TarotError: Base exception class for all tarot-related errors.                    
+ • DeckError: Errors related to deck operations.                                     
+ • ConfigError: Errors related to configuration settings.                            
+ • EnrichmentError: Errors during knowledge enrichment.                              
+ • EmbeddingError: Errors during embedding generation.                               
+
+                                Monitoring Strategies                                
+
+ • Log all errors with severity levels (INFO, WARNING, ERROR, CRITICAL).             
+ • Track API usage and error rates for AI providers.                                 
+ • Implement version control for knowledge updates.                                  
+
+─────────────────────────────────────────────────────────────────────────────────────
+
+                                     Next Steps                                      
+
+ 1 Analyze the Golden Dawn PDF:                                                      
+    • Identify unaddressed insights and novel opportunities.                         
+    • Propose updates to the card schema and RAG system.                             
+ 2 Enhance the RAG System:                                                           
+    • Implement document chunking and metadata handling.                             
+    • Integrate with the interpretation engine for dynamic context updates.          
+ 3 Develop New Features:                                                             
+    • Guided meditations and interactive learning modules.                           
+    • Ritual guidance and spiritual development tools.                               
+
+
+
+[Old]
 Version 2.0.0
 
 ## Table of Contents
