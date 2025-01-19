@@ -1,6 +1,26 @@
 # TarotAI System Documentation (Single Source of Truth)
 
-Version 2.1.0
+Version 2.1.0 (consistent across all components)
+
+## Current Implementation Status
+
+### Core Features
+- [x] AI-enhanced card interpretations
+- [x] Multiple spread types
+- [x] Context-aware interpretation engine
+- [x] Golden Dawn knowledge integration
+- [x] Multimodal embeddings
+- [x] Advanced configuration system
+
+### Beta Features
+- [ ] Voice interface (in development)
+- [ ] Advanced Golden Dawn concepts
+- [ ] Ritual guidance tools
+
+### Future Features
+- [ ] Guided meditations
+- [ ] Interactive learning modules
+- [ ] Personalized development plans
 
 ## Documentation Standards
 
@@ -345,7 +365,22 @@ tarotai/
 └── README.md
 ```
 
-### 2.2 Key Components
+### 2.2 Core Services Architecture
+
+#### CardProcessor
+- Centralized card processing logic
+- AI-assisted meaning generation
+- Multimodal embedding support
+
+#### TarotInterpreter
+- Context-aware interpretation
+- Follow-up question handling
+- Validation and refinement
+
+#### ReadingInput
+- Random card draw
+- Manual card entry
+- Spread position handling
 
 #### TarotDisplay
 Manages visual presentation and user feedback:
@@ -373,7 +408,34 @@ class TarotReader:
 
 ## 3. Implementation Guidelines
 
-### 3.1 Code Standards
+### 3.1 Configuration System
+
+The system uses a hierarchical configuration system with:
+
+- Environment-based settings
+- Nested provider configurations
+- Validation rules
+- Type-safe settings classes
+
+Example configuration structure:
+```yaml
+version: 2.1.0
+environment: development
+
+ai_providers:
+  deepseek:
+    enabled: true
+    model: deepseek-chat
+    temperature: 0.7
+    max_tokens: 4000
+
+tarot:
+  default_spread: three_card
+  shuffle_on_start: true
+  card_order: book_t
+```
+
+### 3.2 Code Standards
 - Use type hints consistently
 - Follow PEP 8 style guide
 - Document all public interfaces
@@ -540,8 +602,14 @@ reading = reader.execute_reading(
 
 TarotAI goes far beyond standard AI chatbots through its sophisticated architecture and specialized components:
 
-### 1. Specialized AI Clients
-The system uses multiple AI providers, each optimized for specific tasks:
+### 1. AI Integration
+The system uses multiple AI providers with advanced features:
+
+- **DeepSeek V3**: Multi-Token Prediction (MTP) and FP8 precision
+- **VoyageAI**: Multimodal embeddings and document reranking
+- **Claude**: Structured responses and tool calling
+
+**Voice Interface**: Currently in beta, requires additional dependencies
 
 ```python
 class UnifiedAIClient:
