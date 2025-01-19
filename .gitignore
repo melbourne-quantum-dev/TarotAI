@@ -54,6 +54,8 @@ local_settings.py
 
 # Aider
 .aider*
+.aider.conf.yml.local
+.aider.chat.history.md
 
 # System files
 .DS_Store
