@@ -17,72 +17,73 @@ class CardGenerator:
         
     async def generate_card_template(self, card_data: Dict) -> Dict:
         """Generate a complete card structure using templates"""
-        template = self.prompt_manager.get_template("card_meaning")
+        template = self.prompt_manager.get_template("card_generation")
         context = {
             "card": card_data,
             "reversed": False
         }
         
-        # Generate meanings
-        card_data["upright_meaning"] = await self.ai_client.generate_response(
+        # Generate complete card structure
+        generated_card = await self.ai_client.json_prompt(
             template.render(**context)
         )
         
-        # Generate reversed meaning
-        context["reversed"] = True
-        card_data["reversed_meaning"] = await self.ai_client.generate_response(
-            template.render(**context)
-        )
+        # Merge with existing data
+        card_data.update(generated_card)
         
-        # Generate keywords if missing
-        if not card_data.get("keywords"):
-            keywords_prompt = self.prompt_manager.get_template("card_keywords")
-            card_data["keywords"] = await self.ai_client.json_prompt(
-                keywords_prompt.render(card=card_data)
-            )
+        # Add metadata
+        card_data["metadata"] = {
+            "last_updated": datetime.now().isoformat(),
+            "source": "generated",
+            "confidence": 0.95
+        }
             
         return card_data
 
-async def generate_base_deck() -> List[Dict]:
-    """Generate the base 78-card deck structure"""
+async def generate_base_deck(ai_client: UnifiedAIClient) -> List[Dict]:
+    """Generate the base 78-card deck structure using templates"""
+    generator = CardGenerator(ai_client)
     deck = []
     
     # Major Arcana
     for i in range(22):
-        deck.append({
+        card_data = {
             "name": f"Major Arcana {i}",
             "number": i,
             "suit": "Major",
             "element": None,
             "astrological": None,
             "kabbalistic": None
-        })
+        }
+        deck.append(await generator.generate_card_template(card_data))
         
     # Minor Arcana
     suits = ["Wands", "Cups", "Swords", "Pentacles"]
     for suit in suits:
         # Numbered cards
         for i in range(1, 11):
-            deck.append({
+            card_data = {
                 "name": f"{i} of {suit}",
                 "number": i,
                 "suit": suit,
                 "element": _get_element(suit),
                 "astrological": None,
                 "kabbalistic": None
-            })
+            }
+            deck.append(await generator.generate_card_template(card_data))
             
         # Court cards
         court = ["Page", "Knight", "Queen", "King"]
         for rank in court:
-            deck.append({
+            card_data = {
                 "name": f"{rank} of {suit}",
                 "number": None,
                 "suit": suit,
                 "element": _get_element(suit),
                 "astrological": None,
                 "kabbalistic": None
-            })
+            }
+            deck.append(await generator.generate_card_template(card_data))
             
     return deck
 
@@ -121,27 +122,16 @@ async def main():
     # Initialize components
     config = AISettings.create_default()
     ai_client = UnifiedAIClient(config)
-    generator = CardGenerator(ai_client)
     
-    # Generate base deck structure
-    deck = await generate_base_deck()
+    # Generate base deck structure using templates
+    deck = await generate_base_deck(ai_client)
     
-    # Process cards
-    processed_cards = []
-    for card in deck:
-        try:
-            processed = await generator.generate_card_template(card)
-            processed_cards.append(processed)
-        except Exception as e:
-            print(f"Error processing {card['name']}: {str(e)}")
-            processed_cards.append(card)
-            
     # Save results
     output = {
         "version": "2.0.0",
         "last_updated": datetime.now().isoformat(),
         "schema_version": "1.0",
-        "cards": processed_cards
+        "cards": deck
     }
     
     with open("data/cards_ordered.json", "w") as f:

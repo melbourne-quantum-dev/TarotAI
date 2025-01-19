@@ -1,0 +1,20 @@
+Generate a complete tarot card description for {{ card.name }} considering:
+
+Card Details:
+- Number: {{ card.number }}
+- Suit: {{ card.suit }}
+- Element: {{ card.element }}
+- Astrological: {{ card.astrological }}
+- Kabbalistic: {{ card.kabbalistic }}
+
+Return as JSON with these fields:
+{
+    "name": "{{ card.name }}",
+    "keywords": ["list", "of", "keywords"],
+    "upright_meaning": "2-3 sentence description",
+    "reversed_meaning": "2-3 sentence description",
+    "element": "{{ card.element }}",
+    "astrological": "{{ card.astrological }}",
+    "kabbalistic": "{{ card.kabbalistic }}",
+    "decan": "decan information if applicable"
+}
