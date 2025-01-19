@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from tarotai.extensions.enrichment.knowledge.golden_dawn import GoldenDawnKnowledgeBase
+from typing import Dict, Any
 
 from tarotai.ai.clients.unified import UnifiedAIClient
 from tarotai.config.schemas.config import AISettings
@@ -221,20 +221,18 @@ If unsure about interpretation:
 """
 
 async def generate_keywords(card: Dict, ai_client, gd_info: Dict) -> List[str]:
-    """Generate keywords for a card using AI and Golden Dawn knowledge"""
+    """Generate keywords for a card using AI"""
     prompt = f"""
     Generate 3-5 keywords for {card['name']} considering:
     - Element: {card['element']}
-    - Astrological: {card['astrological']}
-    - Kabbalistic: {card['kabbalistic']}
-    - Golden Dawn Symbolism: {gd_info.get('symbolism', [])}
-    - Traditional Meanings: {gd_info.get('traditional_meanings', [])}
+    - Suit: {card['suit']}
+    - Number: {card['number']}
     
     Return as JSON list.
     """
     return await ai_client.json_prompt(prompt)
 
-async def generate_meanings(card: Dict[str, Any], ai_client: UnifiedAIClient, golden_dawn: GoldenDawnKnowledgeBase) -> Dict[str, Any]:
+async def generate_meanings(card: Dict[str, Any], ai_client: UnifiedAIClient, golden_dawn: Dict) -> Dict[str, Any]:
     """Generate upright and reversed meanings for a card."""
     # Prepare context variables
     context = {
@@ -330,23 +328,14 @@ DEFAULT_KNOWLEDGE = {
     }
 }
 
-async def process_all_cards(skip_pdf_processing: bool = False):
+async def process_all_cards(skip_pdf_processing: bool = True):
     # Initialize components
     config = AISettings.create_default()
     ai_client = UnifiedAIClient(config)
     
-    # Load Golden Dawn knowledge
-    if skip_pdf_processing:
-        print("Using default knowledge base")
-        golden_dawn = DEFAULT_KNOWLEDGE
-    else:
-        golden_dawn_path = Path("data/processed/golden_dawn/golden_dawn_knowledge.json")
-        if not golden_dawn_path.exists():
-            raise FileNotFoundError(
-                f"Golden Dawn knowledge file not found at {golden_dawn_path}. "
-                "You must run process_golden_dawn.py first to create this file."
-            )
-        golden_dawn = GoldenDawnKnowledgeBase(str(golden_dawn_path))
+    # Use default knowledge instead of Golden Dawn
+    print("Using default knowledge base")
+    golden_dawn = DEFAULT_KNOWLEDGE
     
     # Load cards
     with open("data/cards_ordered.json") as f:
@@ -357,23 +346,20 @@ async def process_all_cards(skip_pdf_processing: bool = False):
         batch = cards[i:i+5]
         for card in batch:
             try:
-                # Get Golden Dawn knowledge
-                gd_info = golden_dawn.get_card_info(card["name"])
-                
                 # Generate keywords if missing
                 if not card["keywords"]:
-                    card["keywords"] = await generate_keywords(card, ai_client, gd_info)
+                    card["keywords"] = await generate_keywords(card, ai_client, golden_dawn)
                 
                 # Generate meanings if missing
                 if not card["upright_meaning"]:
                     meanings = await generate_meanings(card, ai_client, golden_dawn)
                     card.update(meanings)
                 
-                # Add Golden Dawn references
+                # Add default references
                 card["golden_dawn"] = {
-                    "title": gd_info.get("title"),
-                    "symbolism": gd_info.get("symbolism"),
-                    "reading_methods": golden_dawn.get_reading_methods(card["name"])
+                    "title": card.get("name"),
+                    "symbolism": [],
+                    "reading_methods": DEFAULT_KNOWLEDGE["reading_methods"]
                 }
             
             except Exception as e:
