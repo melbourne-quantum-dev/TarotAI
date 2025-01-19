@@ -23,6 +23,7 @@ class ProviderRegistry:
     @classmethod
     def get_prompt_manager(cls) -> PromptTemplateManager:
         if cls._prompt_manager is None:
+            from ..prompts.manager import PromptTemplateManager
             cls._prompt_manager = PromptTemplateManager()
         return cls._prompt_manager
 

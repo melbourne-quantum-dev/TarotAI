@@ -1,0 +1,16 @@
+Interpret the following tarot reading:
+
+Spread: {{ spread_type }}
+Focus: {{ focus }}
+Question: {{ question }}
+
+Cards:
+{% for card in cards %}
+- {{ card.name }} ({{ "Reversed" if card.reversed else "Upright" }})
+{% endfor %}
+
+Provide a detailed interpretation considering:
+- Individual card meanings
+- Card positions and relationships
+- The overall energy of the spread
+- The querent's focus and question

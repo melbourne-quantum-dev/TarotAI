@@ -1,0 +1,13 @@
+Generate a tarot card meaning for {{ card_name }}.
+
+Context:
+- Element: {{ element }}
+- Astrological: {{ astrological }}
+- Kabbalistic: {{ kabbalistic }}
+- Keywords: {{ keywords|join(', ') }}
+
+{% if reversed %}
+Generate a reversed meaning:
+{% else %}
+Generate an upright meaning:
+{% endif %}
