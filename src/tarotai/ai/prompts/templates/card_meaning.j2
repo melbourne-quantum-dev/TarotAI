@@ -1,13 +1,30 @@
-Generate a tarot card meaning for {{ card_name }}.
+Generate a comprehensive tarot card meaning for {{ card.name }}.
 
-Context:
-- Element: {{ element }}
-- Astrological: {{ astrological }}
-- Kabbalistic: {{ kabbalistic }}
-- Keywords: {{ keywords|join(', ') }}
+Card Details:
+- Number: {{ card.number }}
+- Suit: {{ card.suit }}
+- Element: {{ card.element }}
+- Astrological: {{ card.astrological }}
+- Kabbalistic: {{ card.kabbalistic }}
+- Keywords: {{ card.keywords|join(', ') }}
 
-{% if reversed %}
-Generate a reversed meaning:
+{% if card.reversed %}
+Generate a reversed meaning considering:
+- Shadow aspects
+- Blocked energy
+- Challenges
+- Hidden opportunities
 {% else %}
-Generate an upright meaning:
+Generate an upright meaning considering:
+- Core symbolism
+- Traditional interpretations
+- Modern applications
+- Practical advice
 {% endif %}
+
+Include:
+1. A brief overview of the card's energy
+2. Key themes and messages
+3. Practical applications
+4. Potential warnings or opportunities
+5. Relation to other cards in the spread

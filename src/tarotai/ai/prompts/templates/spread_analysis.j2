@@ -1,0 +1,19 @@
+Analyze the {{ spread_type }} spread for {{ focus }}.
+
+Spread Structure:
+{% for position in spread_positions %}
+- {{ position.name }}: {{ position.meaning }}
+{% endfor %}
+
+Cards Drawn:
+{% for card in cards %}
+- {{ card.name }} ({{ "Reversed" if card.reversed else "Upright" }})
+{% endfor %}
+
+Provide an analysis of:
+1. The spread's overall structure and purpose
+2. How each position relates to the focus
+3. Patterns and themes across positions
+4. Energy flow through the spread
+5. Potential blind spots or emphasized areas
+6. How the spread supports the querent's question
