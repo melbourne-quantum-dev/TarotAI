@@ -1,7 +1,167 @@
 {
-  "reading_methods": {},
-  "historical_approaches": {},
-  "lore": {},
-  "optimal_practices": [],
-  "miscellaneous": {}
+  "system_info": {
+    "version": "1.0.0",
+    "source": "Golden Dawn System of Magic",
+    "description": "Core Golden Dawn correspondences and attributions"
+  },
+  "tarot": {
+    "structure": {
+      "total_cards": 78,
+      "major_arcana": 22,
+      "minor_arcana": 56,
+      "court_cards": 16,
+      "small_cards": 40
+    },
+    "suits": {
+      "wands": {
+        "element": "fire",
+        "direction": "south",
+        "colors": ["red", "yellow"],
+        "zodiacal_triplicity": ["aries", "leo", "sagittarius"],
+        "description": "Energy, enthusiasm, growth, ambition",
+        "court_card_rulers": {
+          "king": "Leo - first decan",
+          "queen": "last decan of Pisces to Aries 20°",
+          "knight": "last decan of Cancer to Leo 20°",
+          "princess": "quadrant around North Pole"
+        }
+      },
+      "cups": {
+        "element": "water",
+        "direction": "west",
+        "colors": ["blue", "deepblue"],
+        "zodiacal_triplicity": ["cancer", "scorpio", "pisces"],
+        "description": "Emotions, relationships, intuition",
+        "court_card_rulers": {
+          "king": "20° Aquarius to 20° Pisces",
+          "queen": "20° Gemini to 20° Cancer",
+          "knight": "20° Libra to 20° Scorpio",
+          "princess": "quadrant around North Pole"
+        }
+      },
+      "swords": {
+        "element": "air",
+        "direction": "east",
+        "colors": ["yellow", "violet"],
+        "zodiacal_triplicity": ["gemini", "libra", "aquarius"],
+        "description": "Intellect, communication, conflict",
+        "court_card_rulers": {
+          "king": "20° Taurus to 20° Gemini",
+          "queen": "20° Virgo to 20° Libra",
+          "knight": "20° Capricorn to 20° Aquarius",
+          "princess": "quadrant around North Pole"
+        }
+      },
+      "pentacles": {
+        "element": "earth",
+        "direction": "north",
+        "colors": ["citrine", "olive", "russet", "black"],
+        "zodiacal_triplicity": ["taurus", "virgo", "capricorn"],
+        "description": "Material matters, resources, manifestation",
+        "court_card_rulers": {
+          "king": "20° Leo to 20° Virgo",
+          "queen": "20° Sagittarius to 20° Capricorn",
+          "knight": "20° Aries to 20° Taurus",
+          "princess": "quadrant around North Pole"
+        }
+      }
+    },
+    "major_arcana": {
+      "fool": {
+        "number": 0,
+        "hebrew_letter": "aleph",
+        "element": "air",
+        "path": "kether to chokmah",
+        "title": "Spirit of Ether",
+        "description": "Beginning, innocence, spontaneity, pure potential"
+      },
+      "magician": {
+        "number": 1,
+        "hebrew_letter": "beth",
+        "planet": "mercury",
+        "path": "kether to binah",
+        "title": "Magus of Power",
+        "description": "Skill, wisdom, adaptation, resourcefulness"
+      }
+    },
+    "decan_rulers": {
+      "aries": {
+        "first_decan": "mars",
+        "second_decan": "sun",
+        "third_decan": "venus"
+      },
+      "taurus": {
+        "first_decan": "mercury",
+        "second_decan": "moon",
+        "third_decan": "saturn"
+      }
+    },
+    "elemental_dignities": {
+      "compatibility": {
+        "fire": {
+          "friendly": ["air"],
+          "neutral": ["earth"],
+          "hostile": ["water"]
+        },
+        "water": {
+          "friendly": ["earth"],
+          "neutral": ["air"],
+          "hostile": ["fire"]
+        },
+        "air": {
+          "friendly": ["fire"],
+          "neutral": ["water"],
+          "hostile": ["earth"]
+        },
+        "earth": {
+          "friendly": ["water"],
+          "neutral": ["fire"],
+          "hostile": ["air"]
+        }
+      }
+    }
+  },
+  "divination_rules": {
+    "card_counting": {
+      "ace": 5,
+      "court_cards": 4,
+      "element_trumps": 3,
+      "zodiacal_trumps": 12,
+      "planetary_trumps": 9,
+      "small_cards": "face_value"
+    },
+    "card_dignity": {
+      "well_dignified": "card is between cards of friendly elements",
+      "ill_dignified": "card is between cards of hostile elements",
+      "moderately_dignified": "card is between mixed influences"
+    }
+  },
+  "astrological": {
+    "elements": {
+      "fire": {
+        "nature": "active",
+        "quality": "hot and dry",
+        "direction": "south",
+        "season": "summer"
+      },
+      "water": {
+        "nature": "passive",
+        "quality": "cold and moist", 
+        "direction": "west",
+        "season": "autumn"
+      },
+      "air": {
+        "nature": "active",
+        "quality": "hot and moist",
+        "direction": "east", 
+        "season": "spring"
+      },
+      "earth": {
+        "nature": "passive",
+        "quality": "cold and dry",
+        "direction": "north",
+        "season": "winter"
+      }
+    }
+  }
 }
