@@ -1,5 +1,4 @@
 # Core Runtime Dependencies Only
-aider-chat>=0.14.0
 annoy>=1.17.3
 pymupdf>=1.24.0
 anthropic>=0.39.0
